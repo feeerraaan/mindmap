@@ -1,0 +1,114 @@
+/**
+ * Shared Tailwind v4 theme tokens.
+ *
+ * Imported by apps/web and packages/ui via:
+ *   @import "@mindmap/config/tailwind";
+ *
+ * The single source of truth for color, spacing, type, and motion tokens.
+ * Mirrored in docs/ui.md — keep both in sync.
+ */
+
+@theme {
+  /* ─── Spacing (4px grid) ─────────────────────────────────── */
+  --spacing-0: 0;
+  --spacing-1: 0.25rem;
+  --spacing-2: 0.5rem;
+  --spacing-3: 0.75rem;
+  --spacing-4: 1rem;
+  --spacing-6: 1.5rem;
+  --spacing-8: 2rem;
+  --spacing-12: 3rem;
+  --spacing-16: 4rem;
+  --spacing-24: 6rem;
+
+  /* ─── Typography ───────────────────────────────────────── */
+  --font-sans:
+    var(--font-geist-sans), ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-mono:
+    var(--font-geist-mono), ui-monospace, 'JetBrains Mono', 'Fira Code', monospace;
+
+  /* ─── Neutrals (light) ──────────────────────────────────── */
+  --color-bg: hsl(0 0% 100%);
+  --color-bg-subtle: hsl(210 20% 99%);
+  --color-bg-muted: hsl(210 20% 97%);
+  --color-surface: hsl(0 0% 100%);
+  --color-surface-raised: hsl(210 20% 98%);
+  --color-border: hsl(210 16% 90%);
+  --color-border-strong: hsl(210 16% 82%);
+  --color-fg: hsl(210 24% 16%);
+  --color-fg-muted: hsl(210 12% 45%);
+  --color-fg-subtle: hsl(210 10% 60%);
+
+  /* ─── Accent (calm teal) ────────────────────────────────── */
+  --color-accent: hsl(186 72% 38%);
+  --color-accent-fg: hsl(186 80% 98%);
+  --color-accent-hover: hsl(186 72% 32%);
+
+  /* ─── Semantic ──────────────────────────────────────────── */
+  --color-success: hsl(152 50% 38%);
+  --color-warning: hsl(38 80% 45%);
+  --color-danger: hsl(0 60% 52%);
+  --color-info: hsl(210 70% 45%);
+
+  /* ─── Mastery ramp (cool grey → deep teal) ──────────────── */
+  --color-mastery-0: hsl(210 12% 75%);
+  --color-mastery-1: hsl(195 30% 65%);
+  --color-mastery-2: hsl(186 50% 52%);
+  --color-mastery-3: hsl(172 55% 42%);
+  --color-mastery-4: hsl(160 60% 35%);
+
+  /* ─── Motion ────────────────────────────────────────────── */
+  --ease-out-expo: cubic-bezier(0.22, 1, 0.36, 1);
+  --duration-instant: 80ms;
+  --duration-quick: 150ms;
+  --duration-base: 220ms;
+  --duration-slow: 360ms;
+  --duration-deliberate: 600ms;
+
+  /* ─── Radius ────────────────────────────────────────────── */
+  --radius-sm: 0.375rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+}
+
+/* Dark mode (applied via .dark on <html>) */
+.dark {
+  --color-bg: hsl(210 24% 8%);
+  --color-bg-subtle: hsl(210 24% 10%);
+  --color-bg-muted: hsl(210 24% 13%);
+  --color-surface: hsl(210 24% 11%);
+  --color-surface-raised: hsl(210 24% 14%);
+  --color-border: hsl(210 16% 22%);
+  --color-border-strong: hsl(210 16% 30%);
+  --color-fg: hsl(210 30% 96%);
+  --color-fg-muted: hsl(210 12% 70%);
+  --color-fg-subtle: hsl(210 10% 50%);
+
+  --color-accent: hsl(186 70% 50%);
+  --color-accent-fg: hsl(186 80% 8%);
+  --color-accent-hover: hsl(186 70% 58%);
+
+  --color-success: hsl(152 50% 50%);
+  --color-warning: hsl(38 85% 55%);
+  --color-danger: hsl(0 60% 60%);
+  --color-info: hsl(210 70% 60%);
+
+  --color-mastery-0: hsl(210 12% 35%);
+  --color-mastery-1: hsl(195 30% 42%);
+  --color-mastery-2: hsl(186 50% 50%);
+  --color-mastery-3: hsl(172 55% 56%);
+  --color-mastery-4: hsl(160 60% 62%);
+}
+
+/* Reduced motion: collapse all transitions to instant. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

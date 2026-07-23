@@ -1,0 +1,10 @@
+import { PrismaClient } from '@prisma/client'
+const p = new PrismaClient()
+await p.documentChunk.deleteMany({ where: { document: { workspaceId: 'ws_e2e' } } })
+await p.job.deleteMany({ where: { document: { workspaceId: 'ws_e2e' } } })
+await p.document.deleteMany({ where: { workspaceId: 'ws_e2e' } })
+await p.session.deleteMany({ where: { user: { email: 'e2e@mindmap.app' } } })
+await p.user.deleteMany({ where: { email: 'e2e@mindmap.app' } })
+await p.workspace.deleteMany({ where: { id: 'ws_e2e' } })
+console.log('cleaned')
+await p.$disconnect()

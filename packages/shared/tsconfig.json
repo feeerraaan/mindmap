@@ -1,0 +1,8 @@
+{
+  "extends": "@mindmap/config/tsconfig/node-library",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "rootDir": "./src"
+  },
+  "include": ["src/**/*"]
+}

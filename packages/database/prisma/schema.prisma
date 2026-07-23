@@ -1,0 +1,467 @@
+// MindMap Prisma schema. See docs/database.md for the full design rationale.
+
+generator client {
+  provider        = "prisma-client-js"
+  binaryTargets   = ["native"]
+  previewFeatures = ["postgresqlExtensions"]
+}
+
+datasource db {
+  provider   = "postgresql"
+  url        = env("DATABASE_URL")
+  extensions = [vector, pg_trgm]
+}
+
+// ─────────────────────────────────────────────────────────────────
+// Identity & tenancy (Better Auth compatible + MindMap extensions)
+// ─────────────────────────────────────────────────────────────────
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  emailVerified Boolean   @default(false)
+  image         String?
+  locale        String    @default("en")
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  deletedAt     DateTime?
+
+  sessions       Session[]
+  accounts       Account[]
+  workspaces     Workspace[]
+  featureFlags   FeatureFlag[]
+  reviewSessions ReviewSession[]
+  subscription   Subscription?
+
+  @@index([email])
+  @@index([deletedAt])
+}
+
+model Account {
+  id                    String    @id @default(cuid())
+  accountId             String
+  providerId            String
+  userId                String
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  expiresAt DateTime
+  token     String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  ipAddress String?
+  userAgent String?
+  userId    String
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+model Verification {
+  id         String   @id @default(cuid())
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([identifier])
+  @@index([expiresAt])
+}
+
+model Workspace {
+  id        String   @id @default(cuid())
+  ownerId   String
+  name      String
+  emoji     String?
+  prior     Json     @default("{}")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  owner     User       @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  documents Document[]
+
+  @@index([ownerId])
+}
+
+// ─────────────────────────────────────────────────────────────────
+// Documents & Knowledge Graph
+// ─────────────────────────────────────────────────────────────────
+
+model Document {
+  id          String         @id @default(cuid())
+  workspaceId String
+  blobKey     String
+  filename    String
+  mimeType    String
+  sizeBytes   Int
+  pageCount   Int?
+  status      DocumentStatus
+  language    String?
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  workspace         Workspace          @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  chunks            DocumentChunk[]
+  concepts          Concept[]
+  jobs              Job[]
+  diagnosisSessions DiagnosisSession[]
+  reviewPlan        ReviewPlan?
+
+  @@index([workspaceId, status])
+  @@index([createdAt])
+}
+
+enum DocumentStatus {
+  QUEUED
+  PARSING
+  GRAPHING
+  READY
+  DIAGNOSING
+  MAPPED
+  FAILED
+}
+
+model DocumentChunk {
+  id         String                              @id @default(cuid())
+  documentId String
+  index      Int
+  text       String
+  page       Int?
+  chapter    String?
+  embedding  Unsupported("vector(1536)")?
+
+  document Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+
+  @@index([documentId, index])
+}
+
+model Concept {
+  id         String   @id @default(cuid())
+  documentId String
+  externalId String
+  title      String
+  summary    String
+  importance Float
+  difficulty Float
+  chapter    String?
+  topic      String?
+  createdAt  DateTime @default(now())
+
+  document    Document            @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  states      ConceptState[]
+  dependsOn   ConceptDependency[] @relation("Dependant")
+  dependents  ConceptDependency[] @relation("Dependency")
+
+  @@unique([documentId, externalId])
+  @@index([documentId])
+  @@index([documentId, importance])
+}
+
+model ConceptDependency {
+  dependantId  String
+  dependencyId String
+  weight       Float  @default(1.0)
+
+  dependant  Concept @relation("Dependant", fields: [dependantId], references: [id], onDelete: Cascade)
+  dependency Concept @relation("Dependency", fields: [dependencyId], references: [id], onDelete: Cascade)
+
+  @@id([dependantId, dependencyId])
+  @@index([dependencyId])
+}
+
+// ─────────────────────────────────────────────────────────────────
+// Knowledge State (per user per concept)
+// ─────────────────────────────────────────────────────────────────
+
+model ConceptState {
+  id         String    @id @default(cuid())
+  conceptId  String
+  userId     String
+  mastery    Float     @default(0.0)
+  confidence Float     @default(0.0)
+  attempts   Int       @default(0)
+  correct    Int       @default(0)
+  lastSeen   DateTime?
+  lastDelta  Float?
+  dueAt      DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  concept Concept @relation(fields: [conceptId], references: [id], onDelete: Cascade)
+
+  @@unique([conceptId, userId])
+  @@index([userId, dueAt])
+  @@index([conceptId])
+}
+
+// ─────────────────────────────────────────────────────────────────
+// Jobs (parse / diagnose / schedule)
+// ─────────────────────────────────────────────────────────────────
+
+model Job {
+  id         String    @id @default(cuid())
+  documentId String?
+  type       JobType
+  status     JobStatus
+  progress   Float     @default(0.0)
+  payload    Json?
+  result     Json?
+  error      String?
+  startedAt  DateTime?
+  finishedAt DateTime?
+  createdAt  DateTime  @default(now())
+
+  document Document? @relation(fields: [documentId], references: [id], onDelete: Cascade)
+
+  @@index([status, createdAt])
+  @@index([documentId, type])
+}
+
+enum JobType {
+  PARSE
+  BUILD_GRAPH
+  DIAGNOSE
+  SCHEDULE_REVIEW
+}
+
+enum JobStatus {
+  QUEUED
+  RUNNING
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
+// ─────────────────────────────────────────────────────────────────
+// Diagnosis
+// ─────────────────────────────────────────────────────────────────
+
+model DiagnosisSession {
+  id               String          @id @default(cuid())
+  documentId       String
+  userId           String
+  status           DiagnosisStatus
+  questionsAsked   Int             @default(0)
+  globalConfidence Float           @default(0.0)
+  startedAt        DateTime        @default(now())
+  finishedAt       DateTime?
+
+  document Document         @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  turns    ConversationTurn[]
+
+  @@index([documentId, status])
+  @@index([userId, startedAt])
+}
+
+enum DiagnosisStatus {
+  ACTIVE
+  COMPLETED
+  ABANDONED
+  ERRORED
+}
+
+model ConversationTurn {
+  id        String   @id @default(cuid())
+  sessionId String
+  role      TurnRole
+  content   String
+  tokensIn  Int?
+  tokensOut Int?
+  provider  String?
+  model     String?
+  createdAt DateTime @default(now())
+
+  session  DiagnosisSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  question Question?
+
+  @@index([sessionId, createdAt])
+}
+
+enum TurnRole {
+  USER
+  ASSISTANT
+  SYSTEM
+}
+
+model Question {
+  id             String  @id @default(cuid())
+  turnId         String  @unique
+  conceptId      String
+  difficulty     Float
+  prompt         String
+  options        Json?
+  expectedAnswer String?
+
+  turn   ConversationTurn @relation(fields: [turnId], references: [id], onDelete: Cascade)
+  answer Answer?
+
+  @@index([conceptId])
+}
+
+model Answer {
+  id           String   @id @default(cuid())
+  questionId   String   @unique
+  value        String
+  isCorrect    Boolean?
+  correctness  Float?
+  rationale    String?
+  timeSpentMs  Int?
+  createdAt    DateTime @default(now())
+
+  question Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@index([createdAt])
+}
+
+// ─────────────────────────────────────────────────────────────────
+// Review / Timeline
+// ─────────────────────────────────────────────────────────────────
+
+model ReviewPlan {
+  id         String   @id @default(cuid())
+  documentId String   @unique
+  createdAt  DateTime @default(now())
+
+  document Document         @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  sessions ReviewSession[]
+}
+
+model ReviewSession {
+  id           String        @id @default(cuid())
+  planId       String
+  userId       String
+  scheduledFor DateTime
+  startedAt    DateTime?
+  completedAt  DateTime?
+  status       ReviewStatus  @default(SCHEDULED)
+
+  plan  ReviewPlan   @relation(fields: [planId], references: [id], onDelete: Cascade)
+  user  User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items ReviewItem[]
+
+  @@index([userId, scheduledFor])
+  @@index([status, scheduledFor])
+}
+
+enum ReviewStatus {
+  SCHEDULED
+  DUE
+  STARTED
+  COMPLETED
+  SKIPPED
+}
+
+model ReviewItem {
+  id        String @id @default(cuid())
+  sessionId String
+  conceptId String
+  priority  Float
+  reason    String
+
+  session ReviewSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@index([sessionId])
+}
+
+// ─────────────────────────────────────────────────────────────────
+// Billing & Flags
+// ─────────────────────────────────────────────────────────────────
+
+model Subscription {
+  id        String    @id @default(cuid())
+  userId    String    @unique
+  plan      Plan      @default(FREE)
+  status    SubStatus @default(ACTIVE)
+  couponId  String?
+  proUntil  DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  user   User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  coupon Coupon?  @relation(fields: [couponId], references: [id])
+
+  @@index([status, proUntil])
+}
+
+enum Plan {
+  FREE
+  PRO
+}
+
+enum SubStatus {
+  ACTIVE
+  CANCELED
+  EXPIRED
+  PAST_DUE
+}
+
+model Coupon {
+  id             String    @id @default(cuid())
+  code           String    @unique
+  plan           Plan      @default(PRO)
+  durationDays   Int?
+  maxRedemptions Int       @default(1)
+  redemptions    Int       @default(0)
+  validFrom      DateTime
+  validUntil     DateTime?
+  note           String?
+  createdAt      DateTime  @default(now())
+
+  subscriptions Subscription[]
+
+  @@index([code])
+}
+
+model FeatureFlag {
+  id        String    @id @default(cuid())
+  key       String
+  scope     FlagScope
+  userId    String?
+  value     Json
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  user User? @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([key, scope, userId])
+  @@index([key])
+}
+
+enum FlagScope {
+  GLOBAL
+  USER
+}
+
+// ─────────────────────────────────────────────────────────────────
+// Audit
+// ─────────────────────────────────────────────────────────────────
+
+model AuditEvent {
+  id        String   @id @default(cuid())
+  userId    String?
+  action    String
+  metadata  Json?
+  ip        String?
+  createdAt DateTime @default(now())
+
+  @@index([userId, createdAt])
+  @@index([action, createdAt])
+}

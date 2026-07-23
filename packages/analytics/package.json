@@ -1,0 +1,24 @@
+{
+  "name": "@mindmap/analytics",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Event tracking abstraction. Noop by default; PostHog/Segment in phase 8.",
+  "type": "module",
+  "main": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "build": "tsc --noEmit",
+    "clean": "rm -rf .turbo dist"
+  },
+  "devDependencies": {
+    "@mindmap/config": "workspace:*",
+    "typescript": "^5.6.0",
+    "eslint": "^9.16.0",
+    "typescript-eslint": "^8.18.0",
+    "eslint-plugin-import": "^2.31.0"
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "name": "@mindmap/prompts",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Versioned prompt templates consumed by packages/brain.",
+  "type": "module",
+  "main": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./loader": "./src/loader.ts"
+  },
+  "scripts": {
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "build": "tsc --noEmit",
+    "clean": "rm -rf .turbo dist"
+  },
+  "dependencies": {
+    "@mindmap/types": "workspace:*"
+  },
+  "devDependencies": {
+    "@mindmap/config": "workspace:*",
+    "typescript": "^5.6.0",
+    "eslint": "^9.16.0",
+    "typescript-eslint": "^8.18.0",
+    "eslint-plugin-import": "^2.31.0"
+  }
+}

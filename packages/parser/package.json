@@ -1,0 +1,31 @@
+{
+  "name": "@mindmap/parser",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Document parser adapters (PDF, PPTX, DOCX → ParsedDocument).",
+  "type": "module",
+  "main": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "build": "tsc --noEmit",
+    "clean": "rm -rf .turbo dist"
+  },
+  "dependencies": {
+    "@mindmap/shared": "workspace:*",
+    "@mindmap/types": "workspace:*",
+    "jszip": "^3.10.1",
+    "mammoth": "^1.8.0"
+  },
+  "devDependencies": {
+    "@mindmap/config": "workspace:*",
+    "eslint": "^9.16.0",
+    "eslint-plugin-import": "^2.31.0",
+    "pdf-lib": "^1.17.1",
+    "typescript": "^5.6.0",
+    "typescript-eslint": "^8.18.0"
+  }
+}

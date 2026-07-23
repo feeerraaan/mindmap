@@ -1,0 +1,210 @@
+{
+  "common": {
+    "appName": "MindMap",
+    "tagline": "An MRI scan for knowledge.",
+    "loading": "Loading",
+    "retry": "Try again",
+    "back": "Back",
+    "continue": "Continue",
+    "cancel": "Cancel",
+    "save": "Save",
+    "delete": "Delete",
+    "rename": "Rename",
+    "create": "Create",
+    "signIn": "Sign in",
+    "signOut": "Sign out",
+    "getStarted": "Get started",
+    "learnMore": "Learn more",
+    "newMind": "New Mind",
+    "open": "Open",
+    "close": "Close",
+    "language": "Language",
+    "theme": "Theme",
+    "light": "Light",
+    "dark": "Dark",
+    "system": "System"
+  },
+  "marketing": {
+    "hero": {
+      "eyebrow": "Calm, honest, diagnostic",
+      "title": "Discover what you truly know.",
+      "subtitle": "MindMap doesn't summarize your material. It diagnoses it. Upload a document, answer a few honest questions, and see a real map of your mind.",
+      "primary": "Try MindMap",
+      "secondary": "How it works"
+    },
+    "howItWorks": {
+      "title": "Three steps. No noise.",
+      "steps": {
+        "1": {
+          "title": "Upload",
+          "body": "Drop a PDF, slide deck, or document. We extract structure, not summaries."
+        },
+        "2": {
+          "title": "Diagnose",
+          "body": "A short, adaptive conversation probes what you know — and what you only think you know."
+        },
+        "3": {
+          "title": "Map",
+          "body": "See a calm visual map of your mind, and a personalized review timeline that adapts to you."
+        }
+      }
+    },
+    "principles": {
+      "title": "Why MindMap feels different",
+      "1": "Diagnosis, not generation. We never write the answer for you.",
+      "2": "Minimum questions, maximum confidence.",
+      "3": "Honest by default. We trend mastery downward when warranted.",
+      "4": "Calm by design. No streaks, no shame, no urgency."
+    },
+    "pricing": {
+      "title": "Pricing",
+      "free": {
+        "name": "Free",
+        "price": "€0",
+        "description": "Diagnose up to 3 documents per month. 12 questions per diagnosis.",
+        "cta": "Start free"
+      },
+      "pro": {
+        "name": "Pro",
+        "price": "€5.99",
+        "period": "/ month",
+        "yearly": "or €49.99 / year",
+        "description": "Unlimited documents. Deeper diagnosis. Adaptive review timeline.",
+        "cta": "Redeem coupon"
+      }
+    },
+    "footer": {
+      "madeWith": "Built with care for curious minds."
+    }
+  },
+  "auth": {
+    "signIn": {
+      "title": "Sign in to MindMap",
+      "subtitle": "Continue your learning without filling a form.",
+      "google": "Continue with Google",
+      "emailLabel": "Email address",
+      "emailPlaceholder": "you@example.com",
+      "sendLink": "Email me a sign-in link",
+      "linkSent": "Check your inbox. The link expires in 15 minutes."
+    }
+  },
+  "onboarding": {
+    "title": "Let's set up your Mind",
+    "subtitle": "Three small steps. No forms. No friction.",
+    "step1": {
+      "title": "What are you studying?",
+      "subtitle": "Pick what fits best — you can change this later.",
+      "options": {
+        "medicine": "Medicine / health",
+        "law": "Law / bar prep",
+        "finance": "Finance / CFA",
+        "engineering": "Engineering / CS",
+        "language": "Language",
+        "other": "Something else"
+      }
+    },
+    "step2": {
+      "title": "How confident are you, today?",
+      "subtitle": "No judgment. This is just a starting point.",
+      "low": "Starting from scratch",
+      "mid": "Some of it is sticking",
+      "high": "Pretty solid, I want to verify"
+    },
+    "step3": {
+      "title": "Name your Mind",
+      "subtitle": "You can have as many as you want — one per subject.",
+      "placeholder": "e.g. Cardiology Q1",
+      "skip": "Skip for now"
+    },
+    "next": "Next",
+    "back": "Back",
+    "finish": "Create my Mind",
+    "progress": "Step {current} of {total}"
+  },
+  "mind": {
+    "greeting": "Welcome back",
+    "noMinds": "You don't have any Minds yet.",
+    "noMindsDescription": "Create your first Mind to start a diagnosis.",
+    "createFirst": "Create your first Mind",
+    "openMind": "Open Mind",
+    "allMinds": "Your Minds",
+    "untitled": "Untitled Mind",
+    "new": {
+      "title": "New Mind",
+      "placeholder": "Name your Mind",
+      "create": "Create Mind",
+      "cancel": "Cancel"
+    },
+    "menu": {
+      "open": "Open",
+      "rename": "Rename",
+      "delete": "Delete"
+    },
+    "delete": {
+      "title": "Delete this Mind?",
+      "description": "This will remove the Mind and all its documents and diagnoses. This cannot be undone.",
+      "confirm": "Delete Mind",
+      "cancel": "Cancel"
+    },
+    "empty": {
+      "title": "Your Mind is empty.",
+      "description": "Drop a PDF, slide deck, or document to begin a diagnosis.",
+      "upload": "Upload a document",
+      "uploadHint": "PDF, PPTX or DOCX — up to 25 MB."
+    }
+  },
+  "nav": {
+    "home": "Minds",
+    "settings": "Settings",
+    "signOut": "Sign out"
+  },
+  "settings": {
+    "title": "Settings",
+    "subtitle": "Tune MindMap to feel right.",
+    "sections": {
+      "account": "Account",
+      "appearance": "Appearance",
+      "language": "Language",
+      "danger": "Danger zone"
+    },
+    "account": {
+      "name": "Display name",
+      "email": "Email",
+      "signedInAs": "Signed in as {email}",
+      "saveName": "Save name"
+    },
+    "appearance": {
+      "theme": "Theme",
+      "themeHelp": "Light, dark, or follow your system."
+    },
+    "language": {
+      "label": "Interface language",
+      "help": "Choose the language of the interface. Your Mind content is unaffected."
+    },
+    "danger": {
+      "deleteTitle": "Delete account",
+      "deleteBody": "We will sign you out and request account deletion. A confirmation email will follow.",
+      "deleteCta": "Request deletion"
+    }
+  },
+  "upload": {
+    "title": "Add a document",
+    "dropTitle": "Drop a document here",
+    "dropBody": "or click to browse — PDF, PPTX, or DOCX up to 25 MB.",
+    "cancel": "Cancel",
+    "retry": "Retry",
+    "done": "Done",
+    "tooBig": "File is larger than 25 MB.",
+    "wrongType": "Only PDF, DOCX, or PPTX are supported.",
+    "errorGeneric": "We could not process this file.",
+    "reading": "Reading",
+    "uploading": "Uploading",
+    "parsing": "Reading structure",
+    "ready": "Ready"
+  },
+  "errors": {
+    "generic": "Something went wrong on our side. We've been notified.",
+    "unauthorized": "Please sign in to continue.",
+    "rateLimited": "Your Mind is resting for today. Come back tomorrow."
+  }
+}

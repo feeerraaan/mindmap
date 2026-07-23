@@ -1,0 +1,7 @@
+{
+  "extends": "@mindmap/config/tsconfig/react-library",
+  "compilerOptions": {
+    "outDir": "./dist"
+  },
+  "include": ["src/**/*"]
+}

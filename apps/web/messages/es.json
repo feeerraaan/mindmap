@@ -1,0 +1,210 @@
+{
+  "common": {
+    "appName": "MindMap",
+    "tagline": "Una resonancia para tu conocimiento.",
+    "loading": "Cargando",
+    "retry": "Intentar de nuevo",
+    "back": "Atrás",
+    "continue": "Continuar",
+    "cancel": "Cancelar",
+    "save": "Guardar",
+    "delete": "Eliminar",
+    "rename": "Renombrar",
+    "create": "Crear",
+    "signIn": "Iniciar sesión",
+    "signOut": "Cerrar sesión",
+    "getStarted": "Empezar",
+    "learnMore": "Saber más",
+    "newMind": "Nueva Mente",
+    "open": "Abrir",
+    "close": "Cerrar",
+    "language": "Idioma",
+    "theme": "Tema",
+    "light": "Claro",
+    "dark": "Oscuro",
+    "system": "Sistema"
+  },
+  "marketing": {
+    "hero": {
+      "eyebrow": "Calmado, honesto, diagnóstico",
+      "title": "Descubre lo que realmente sabes.",
+      "subtitle": "MindMap no resume tu material. Lo diagnostica. Sube un documento, responde unas preguntas honestas y ve un mapa real de tu mente.",
+      "primary": "Probar MindMap",
+      "secondary": "Cómo funciona"
+    },
+    "howItWorks": {
+      "title": "Tres pasos. Sin ruido.",
+      "steps": {
+        "1": {
+          "title": "Sube",
+          "body": "Suelta un PDF, una presentación o un documento. Extraemos estructura, no resúmenes."
+        },
+        "2": {
+          "title": "Diagnostica",
+          "body": "Una conversación corta y adaptativa que explora lo que sabes — y lo que solo crees saber."
+        },
+        "3": {
+          "title": "Mapea",
+          "body": "Visualiza un mapa tranquilo de tu mente y una línea de repaso personalizada."
+        }
+      }
+    },
+    "principles": {
+      "title": "Por qué MindMap se siente distinto",
+      "1": "Diagnóstico, no generación. Nunca escribimos la respuesta por ti.",
+      "2": "Mínimo de preguntas, máxima confianza.",
+      "3": "Honesto por defecto. Bajamos tu maestría cuando los datos lo indican.",
+      "4": "Calmado por diseño. Sin rachas, sin culpa, sin prisa."
+    },
+    "pricing": {
+      "title": "Precios",
+      "free": {
+        "name": "Gratis",
+        "price": "0 €",
+        "description": "Diagnostica hasta 3 documentos al mes. 12 preguntas por diagnóstico.",
+        "cta": "Empezar gratis"
+      },
+      "pro": {
+        "name": "Pro",
+        "price": "5,99 €",
+        "period": "/ mes",
+        "yearly": "o 49,99 € / año",
+        "description": "Documentos ilimitados. Diagnóstico más profundo. Línea de repaso adaptativa.",
+        "cta": "Canjear cupón"
+      }
+    },
+    "footer": {
+      "madeWith": "Hecho con cuidado para mentes curiosas."
+    }
+  },
+  "auth": {
+    "signIn": {
+      "title": "Inicia sesión en MindMap",
+      "subtitle": "Continúa aprendiendo sin rellenar un formulario.",
+      "google": "Continuar con Google",
+      "emailLabel": "Correo electrónico",
+      "emailPlaceholder": "tu@ejemplo.com",
+      "sendLink": "Envíame un enlace mágico",
+      "linkSent": "Revisa tu bandeja. El enlace caduca en 15 minutos."
+    }
+  },
+  "onboarding": {
+    "title": "Configuremos tu Mente",
+    "subtitle": "Tres pasos pequeños. Sin formularios. Sin fricción.",
+    "step1": {
+      "title": "¿Qué estás estudiando?",
+      "subtitle": "Elige lo que mejor encaje — puedes cambiarlo después.",
+      "options": {
+        "medicine": "Medicina / salud",
+        "law": "Derecho / oposición",
+        "finance": "Finanzas / CFA",
+        "engineering": "Ingeniería / informática",
+        "language": "Idiomas",
+        "other": "Otra cosa"
+      }
+    },
+    "step2": {
+      "title": "¿Qué tan seguro te sientes hoy?",
+      "subtitle": "Sin juicio. Solo es un punto de partida.",
+      "low": "Empezando desde cero",
+      "mid": "Algo se queda",
+      "high": "Bastante sólido, quiero verificarlo"
+    },
+    "step3": {
+      "title": "Nombra tu Mente",
+      "subtitle": "Puedes tener tantas como quieras — una por tema.",
+      "placeholder": "p. ej. Cardiología Q1",
+      "skip": "Saltar"
+    },
+    "next": "Siguiente",
+    "back": "Atrás",
+    "finish": "Crear mi Mente",
+    "progress": "Paso {current} de {total}"
+  },
+  "mind": {
+    "greeting": "Hola de nuevo",
+    "noMinds": "Aún no tienes Mentes.",
+    "noMindsDescription": "Crea tu primera Mente para empezar un diagnóstico.",
+    "createFirst": "Crear mi primera Mente",
+    "openMind": "Abrir Mente",
+    "allMinds": "Tus Mentes",
+    "untitled": "Mente sin título",
+    "new": {
+      "title": "Nueva Mente",
+      "placeholder": "Nombra tu Mente",
+      "create": "Crear Mente",
+      "cancel": "Cancelar"
+    },
+    "menu": {
+      "open": "Abrir",
+      "rename": "Renombrar",
+      "delete": "Eliminar"
+    },
+    "delete": {
+      "title": "¿Eliminar esta Mente?",
+      "description": "Esto eliminará la Mente, sus documentos y diagnósticos. No se puede deshacer.",
+      "confirm": "Eliminar Mente",
+      "cancel": "Cancelar"
+    },
+    "empty": {
+      "title": "Tu Mente está vacía.",
+      "description": "Suelta un PDF, una presentación o un documento para empezar un diagnóstico.",
+      "upload": "Subir un documento",
+      "uploadHint": "PDF, PPTX o DOCX — hasta 25 MB."
+    }
+  },
+  "nav": {
+    "home": "Mentes",
+    "settings": "Ajustes",
+    "signOut": "Cerrar sesión"
+  },
+  "settings": {
+    "title": "Ajustes",
+    "subtitle": "Ajusta MindMap a tu gusto.",
+    "sections": {
+      "account": "Cuenta",
+      "appearance": "Apariencia",
+      "language": "Idioma",
+      "danger": "Zona peligrosa"
+    },
+    "account": {
+      "name": "Nombre",
+      "email": "Correo",
+      "signedInAs": "Sesión iniciada como {email}",
+      "saveName": "Guardar nombre"
+    },
+    "appearance": {
+      "theme": "Tema",
+      "themeHelp": "Claro, oscuro o sigue tu sistema."
+    },
+    "language": {
+      "label": "Idioma de la interfaz",
+      "help": "Elige el idioma de la interfaz. El contenido de tu Mente no cambia."
+    },
+    "danger": {
+      "deleteTitle": "Eliminar cuenta",
+      "deleteBody": "Cerraremos tu sesión y solicitaremos la eliminación. Recibirás un correo de confirmación.",
+      "deleteCta": "Solicitar eliminación"
+    }
+  },
+  "upload": {
+    "title": "Añadir un documento",
+    "dropTitle": "Suelta un documento aquí",
+    "dropBody": "o haz clic para examinar — PDF, PPTX o DOCX hasta 25 MB.",
+    "cancel": "Cancelar",
+    "retry": "Reintentar",
+    "done": "Listo",
+    "tooBig": "El archivo supera los 25 MB.",
+    "wrongType": "Solo PDF, DOCX o PPTX.",
+    "errorGeneric": "No pudimos procesar este archivo.",
+    "reading": "Leyendo",
+    "uploading": "Subiendo",
+    "parsing": "Leyendo estructura",
+    "ready": "Listo"
+  },
+  "errors": {
+    "generic": "Algo ha fallado por nuestra parte. Ya estamos avisados.",
+    "unauthorized": "Inicia sesión para continuar.",
+    "rateLimited": "Tu Mente está descansando hoy. Vuelve mañana."
+  }
+}

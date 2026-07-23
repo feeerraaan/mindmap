@@ -1,0 +1,31 @@
+{
+  "name": "mindmap",
+  "version": "0.1.0",
+  "private": true,
+  "description": "An MRI scan for knowledge. Not a summarizer. A diagnostic.",
+  "packageManager": "pnpm@11.13.1",
+  "engines": {
+    "node": ">=20.18.0",
+    "pnpm": ">=10.0.0"
+  },
+  "scripts": {
+    "dev": "turbo dev",
+    "build": "turbo build",
+    "typecheck": "turbo typecheck",
+    "lint": "turbo lint",
+    "format": "prettier --write \"**/*.{ts,tsx,js,cjs,mjs,json,md,css,yml,yaml}\" --ignore-path .gitignore",
+    "format:check": "prettier --check \"**/*.{ts,tsx,js,cjs,mjs,json,md,css,yml,yaml}\" --ignore-path .gitignore",
+    "clean": "turbo clean && rm -rf node_modules",
+    "db:generate": "pnpm --filter @mindmap/database generate",
+    "db:push": "pnpm --filter @mindmap/database push",
+    "db:migrate": "pnpm --filter @mindmap/database migrate",
+    "db:seed": "pnpm --filter @mindmap/database seed",
+    "db:studio": "pnpm --filter @mindmap/database studio"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "prettier": "^3.4.0",
+    "turbo": "^2.3.0",
+    "typescript": "^5.6.0"
+  }
+}

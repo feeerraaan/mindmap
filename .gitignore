@@ -1,0 +1,42 @@
+# dependencies
+node_modules/
+.pnpm-store/
+
+# build outputs
+.next/
+out/
+dist/
+build/
+.turbo/
+
+# env
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# editor
+.vscode/
+.idea/
+*.swp
+.DS_Store
+
+# testing
+coverage/
+.nyc_output/
+
+# prisma
+packages/database/prisma/migrations/dev.db*
+
+# local blob storage (uploads)
+# /var/mindmap/blobs/  ← keep untracked; lives outside the repo
+# mindmap-magic-links/  ← tmp dev artifact; lives in $TMPDIR
+
+# build-time placeholders
+packages/**/dist/
+

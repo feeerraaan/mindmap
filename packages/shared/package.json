@@ -1,0 +1,30 @@
+{
+  "name": "@mindmap/shared",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Pure utilities: id, dates, retry, sse helpers, Result type.",
+  "type": "module",
+  "main": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./id": "./src/id.ts",
+    "./dates": "./src/dates.ts",
+    "./retry": "./src/retry.ts",
+    "./result": "./src/result.ts",
+    "./sse": "./src/sse.ts",
+    "./cn": "./src/cn.ts"
+  },
+  "scripts": {
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "build": "tsc --noEmit",
+    "clean": "rm -rf .turbo dist"
+  },
+  "devDependencies": {
+    "@mindmap/config": "workspace:*",
+    "typescript": "^5.6.0",
+    "eslint": "^9.16.0",
+    "typescript-eslint": "^8.18.0",
+    "eslint-plugin-import": "^2.31.0"
+  }
+}

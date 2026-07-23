@@ -1,0 +1,29 @@
+{
+  "name": "@mindmap/brain",
+  "version": "0.1.0",
+  "private": true,
+  "description": "AI: router, engines, prompts, memory. The only package that may import an AI SDK.",
+  "type": "module",
+  "main": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "build": "tsc --noEmit",
+    "clean": "rm -rf .turbo dist"
+  },
+  "dependencies": {
+    "@mindmap/prompts": "workspace:*",
+    "@mindmap/shared": "workspace:*",
+    "@mindmap/types": "workspace:*"
+  },
+  "devDependencies": {
+    "@mindmap/config": "workspace:*",
+    "typescript": "^5.6.0",
+    "eslint": "^9.16.0",
+    "typescript-eslint": "^8.18.0",
+    "eslint-plugin-import": "^2.31.0"
+  }
+}
