@@ -40,3 +40,4 @@ packages/database/prisma/migrations/dev.db*
 # build-time placeholders
 packages/**/dist/
 
+apps/web/zs

@@ -13,6 +13,7 @@
     "typecheck": "tsc --noEmit",
     "build": "prisma generate && tsc --noEmit",
     "generate": "prisma generate",
+    "postinstall": "prisma generate",
     "push": "prisma db push --skip-generate",
     "migrate": "prisma migrate dev",
     "deploy": "prisma migrate deploy",
