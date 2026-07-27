@@ -41,3 +41,6 @@ packages/database/prisma/migrations/dev.db*
 packages/**/dist/
 
 apps/web/zs
+
+# tsc incremental build cache
+**/tsconfig.tsbuildinfo
