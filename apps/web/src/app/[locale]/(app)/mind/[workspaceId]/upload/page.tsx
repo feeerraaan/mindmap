@@ -34,7 +34,7 @@ export default async function UploadPage({
           {workspace.emoji ?? '🧠'}
         </span>
         <div>
-          <h1 className="text-xl font-semibold tracking-tight text-[var(--color-fg)]">
+          <h1 className="text-headline font-semibold tracking-[-0.023em] text-[var(--color-fg)]">
             {tUpload2('title')}
           </h1>
           <p className="text-sm text-[var(--color-fg-muted)]">{workspace.name}</p>
@@ -57,10 +57,6 @@ export default async function UploadPage({
           uploading: tUpload2('uploading'),
           parsing: tUpload2('parsing'),
           ready: tUpload2('ready'),
-        }}
-        onUploaded={() => {
-          // The dropzone calls router.refresh() on success; the list page
-          // re-renders with the new READY document.
         }}
       />
 

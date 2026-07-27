@@ -9,30 +9,27 @@ import { asLocale } from '@/lib/preferences'
 
 export const dynamic = 'force-dynamic'
 
-export default async function MindIndexPage({
-  params,
-}: {
-  params: Promise<{ locale: string }>
-}) {
+export default async function MindIndexPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale: rawLocale } = await params
   const locale = asLocale(rawLocale)
   setRequestLocale(locale)
   const user = await getCurrentUser()
   if (!user) redirect(`/${locale}/sign-in?callbackPath=/${locale}/mind`)
 
-  const t = await getTranslations({ locale, namespace: 'mind' })
-
-  const workspaces = await prisma.workspace.findMany({
-    where: { ownerId: user.id },
-    orderBy: { updatedAt: 'desc' },
-    select: {
-      id: true,
-      name: true,
-      emoji: true,
-      updatedAt: true,
-      _count: { select: { documents: true } },
-    },
-  })
+  const [t, workspaces] = await Promise.all([
+    getTranslations({ locale, namespace: 'mind' }),
+    prisma.workspace.findMany({
+      where: { ownerId: user.id },
+      orderBy: { updatedAt: 'desc' },
+      select: {
+        id: true,
+        name: true,
+        emoji: true,
+        updatedAt: true,
+        _count: { select: { documents: true } },
+      },
+    }),
+  ])
 
   const firstId = workspaces[0]?.id
 
@@ -46,6 +43,8 @@ export default async function MindIndexPage({
             locale={locale}
             placeholder={t('new.placeholder')}
             createLabel={t('new.create')}
+            examDateLabel={t('new.examDate')}
+            examDatePlaceholder={t('new.examDatePlaceholder')}
           />
         }
       />

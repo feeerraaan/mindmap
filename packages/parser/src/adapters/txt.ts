@@ -1,20 +1,31 @@
-/**
- * Plain-text / markdown adapter — architecture-ready, disabled in MVP.
- * Listed but its supports() is broader; we keep it off for now to keep
- * the parse surface tight. Phase 8 can flip it on.
- */
-import { Err, Ok, type Result } from '@mindmap/shared'
+import { Ok, type Result } from '@mindmap/shared'
 import type { ParsedDocument, DocumentChunk } from '@mindmap/types'
 import type { ParserAdapter, ParseError, ParseInput } from '../types'
 
+const SUPPORTED = new Set(['text/plain', 'text/markdown'])
+
 export const txtAdapter: ParserAdapter = {
   id: 'txt',
-  // Disabled in MVP — the route handler's MIME allow-list is the gate.
-  supports: () => false,
-  async parse(): Promise<Result<ParsedDocument, ParseError>> {
-    return Err({ kind: 'UnsupportedFormat', message: 'Plain text not yet enabled.' })
+  supports: (mime: string) => SUPPORTED.has(mime),
+  async parse(input: ParseInput): Promise<Result<ParsedDocument, ParseError>> {
+    const decoder = new TextDecoder('utf-8', { fatal: false })
+    const text = decoder.decode(input.bytes)
+
+    const chunks: DocumentChunk[] = text
+      .split(/\n{2,}/)
+      .filter(Boolean)
+      .map((block, i) => ({
+        index: i,
+        text: block.trim(),
+        page: null,
+        chapter: null,
+      }))
+
+    return Ok({
+      chunks,
+      pageCount: null,
+      language: null,
+      metadata: { filename: input.filename, mimeType: input.mimeType },
+    })
   },
 }
-
-// Reference the type so the file is part of the bundle once enabled.
-export type _DocumentChunk = DocumentChunk

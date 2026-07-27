@@ -1,7 +1,7 @@
 /**
  * Seed script — populates a demo user, a workspace, a pre-built document
- * with a 20-concept knowledge graph, and a hackathon coupon. The landing
- * page's live mini-demo can render this graph.
+ * with a 20-concept knowledge graph. The landing page's live mini-demo can
+ * render this graph.
  *
  * Run with: pnpm --filter @mindmap/database seed
  */
@@ -57,7 +57,13 @@ async function main() {
     { id: 'c2', externalId: 'c-2', title: 'Systole', importance: 0.85, difficulty: 0.4 },
     { id: 'c3', externalId: 'c-3', title: 'Diastole', importance: 0.85, difficulty: 0.4 },
     { id: 'c4', externalId: 'c-4', title: 'Atrial contraction', importance: 0.6, difficulty: 0.5 },
-    { id: 'c5', externalId: 'c-5', title: 'Ventricular contraction', importance: 0.75, difficulty: 0.5 },
+    {
+      id: 'c5',
+      externalId: 'c-5',
+      title: 'Ventricular contraction',
+      importance: 0.75,
+      difficulty: 0.5,
+    },
     { id: 'c6', externalId: 'c-6', title: 'AV node', importance: 0.7, difficulty: 0.6 },
     { id: 'c7', externalId: 'c-7', title: 'SA node', importance: 0.7, difficulty: 0.5 },
     { id: 'c8', externalId: 'c-8', title: 'EKG basics', importance: 0.9, difficulty: 0.65 },
@@ -68,8 +74,20 @@ async function main() {
     { id: 'c13', externalId: 'c-13', title: 'Cardiac output', importance: 0.85, difficulty: 0.5 },
     { id: 'c14', externalId: 'c-14', title: 'Preload', importance: 0.5, difficulty: 0.6 },
     { id: 'c15', externalId: 'c-15', title: 'Afterload', importance: 0.5, difficulty: 0.6 },
-    { id: 'c16', externalId: 'c-16', title: 'Frank-Starling law', importance: 0.7, difficulty: 0.75 },
-    { id: 'c17', externalId: 'c-17', title: 'Coronary circulation', importance: 0.6, difficulty: 0.55 },
+    {
+      id: 'c16',
+      externalId: 'c-16',
+      title: 'Frank-Starling law',
+      importance: 0.7,
+      difficulty: 0.75,
+    },
+    {
+      id: 'c17',
+      externalId: 'c-17',
+      title: 'Coronary circulation',
+      importance: 0.6,
+      difficulty: 0.55,
+    },
     { id: 'c18', externalId: 'c-18', title: 'Heart valves', importance: 0.7, difficulty: 0.45 },
     { id: 'c19', externalId: 'c-19', title: 'Mitral valve', importance: 0.5, difficulty: 0.4 },
     { id: 'c20', externalId: 'c-20', title: 'Aortic valve', importance: 0.5, difficulty: 0.4 },
@@ -120,21 +138,9 @@ async function main() {
     })
   }
 
-  // Hackathon coupon
-  await prisma.coupon.upsert({
-    where: { code: 'JUDGE100' },
-    update: {},
-    create: {
-      code: 'JUDGE100',
-      plan: 'PRO',
-      durationDays: 365,
-      maxRedemptions: 100,
-      validFrom: new Date(),
-      note: 'Hackathon judges 2026',
-    },
-  })
-
-  console.warn(`Seeded demo user ${user.email}, workspace ${workspace.id}, ${conceptData.length} concepts, ${edges.length} edges.`)
+  console.warn(
+    `Seeded demo user ${user.email}, workspace ${workspace.id}, ${conceptData.length} concepts, ${edges.length} edges.`,
+  )
 }
 
 main()

@@ -84,8 +84,8 @@ export function MindList({ locale, workspaces, labels, firstId }: MindListProps)
             key={ws.id}
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.22, delay: i * 0.04, ease: [0.22, 1, 0.36, 1] }}
-            className="group flex items-center gap-3 rounded-md border border-[var(--color-border)] bg-[var(--color-surface)] p-4 transition-colors hover:border-[var(--color-border-strong)]"
+            transition={{ duration: 0.25, delay: i * 0.04, ease: 'easeInOut' }}
+            className="group flex items-center gap-3 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] p-4 transition-colors hover:border-[var(--color-border-strong)]"
           >
             <span aria-hidden className="text-2xl leading-none">
               {ws.emoji ?? '🧠'}
@@ -104,7 +104,7 @@ export function MindList({ locale, workspaces, labels, firstId }: MindListProps)
                   maxLength={60}
                 />
               ) : (
-                <p className="truncate text-sm font-medium text-[var(--color-fg)]">
+                <p className="truncate text-sm font-semibold text-[var(--color-fg)]">
                   {ws.name || labels.untitled}
                 </p>
               )}
@@ -117,7 +117,7 @@ export function MindList({ locale, workspaces, labels, firstId }: MindListProps)
                 type="button"
                 onClick={() => startEdit(ws.id, ws.name)}
                 aria-label={labels.rename}
-                className="rounded-md p-1.5 text-[var(--color-fg-muted)] hover:bg-[var(--color-bg-muted)] hover:text-[var(--color-fg)]"
+                className="rounded-full p-1.5 text-[var(--color-fg-muted)] hover:bg-[var(--color-bg-muted)] hover:text-[var(--color-fg)]"
               >
                 <Pencil size={14} />
               </button>
@@ -125,7 +125,7 @@ export function MindList({ locale, workspaces, labels, firstId }: MindListProps)
                 type="button"
                 onClick={() => setDeletingId(ws.id)}
                 aria-label={labels.delete}
-                className="rounded-md p-1.5 text-[var(--color-fg-muted)] hover:bg-[var(--color-bg-muted)] hover:text-[var(--color-danger)]"
+                className="rounded-full p-1.5 text-[var(--color-fg-muted)] hover:bg-[var(--color-bg-muted)] hover:text-[var(--color-danger)]"
               >
                 <Trash2 size={14} />
               </button>
@@ -149,8 +149,8 @@ export function MindList({ locale, workspaces, labels, firstId }: MindListProps)
           aria-modal="true"
           aria-labelledby="del-title"
         >
-          <div className="w-full max-w-md rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] p-6 shadow-lg">
-            <h3 id="del-title" className="text-lg font-semibold text-[var(--color-fg)]">
+          <div className="w-full max-w-md rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] p-6">
+            <h3 id="del-title" className="text-tagline font-semibold text-[var(--color-fg)]">
               {labels.deleteTitle}
             </h3>
             <p className="mt-2 text-sm leading-relaxed text-[var(--color-fg-muted)]">

@@ -1,33 +1,86 @@
 /**
- * Loads versioned prompt templates. The actual prompt files live in
- * packages/prompts/prompts/ and are plain Markdown + YAML frontmatter.
+ * Loads versioned prompt templates from `packages/prompts/prompts/*.md`.
  *
- * This file is a stub for phase 1 — real prompt files are added in phase 4.
- * We define the loader interface so packages/brain can already reference it.
+ * Each prompt file has YAML frontmatter with `id`, `version`, `task`, `inputs`,
+ * `output`, and an optional `providerHint`. The body is a Mustache template
+ * that is rendered via `renderPrompt(prompt, vars)`.
  */
-
-import type { TaskType } from '@mindmap/types'
+import { readFile, readdir } from 'node:fs/promises'
+import { dirname, join, resolve } from 'node:path'
+import { fileURLToPath } from 'node:url'
+import matter from 'gray-matter'
+import Mustache from 'mustache'
+import type { ProviderId, TaskType } from '@mindmap/types'
 
 export interface PromptFrontmatter {
   id: string
   version: number
   task: TaskType
   inputs: string[]
-  providerHint?: 'zen' | 'go'
+  output: string
+  providerHint?: ProviderId
 }
 
 export interface LoadedPrompt {
   frontmatter: PromptFrontmatter
   body: string
+  /** Render the template body with the given variables. */
+  render(vars: Record<string, unknown>): string
 }
 
-export async function loadPrompt(_id: string): Promise<LoadedPrompt | null> {
-  // Real implementation reads the file from `prompts/<id>.md` and parses
-  // frontmatter with `gray-matter`. Phase 1 ships a stub so the package
-  // type-checks and the dependency graph is intact.
-  return null
+const PROMPTS_DIR = resolve(dirname(fileURLToPath(import.meta.url)), '..', 'prompts')
+
+let cache: Map<string, LoadedPrompt> | null = null
+
+async function buildCache(): Promise<Map<string, LoadedPrompt>> {
+  const out = new Map<string, LoadedPrompt>()
+  let entries: string[]
+  try {
+    entries = await readdir(PROMPTS_DIR)
+  } catch {
+    return out
+  }
+  for (const name of entries) {
+    if (!name.endsWith('.md')) continue
+    const filePath = join(PROMPTS_DIR, name)
+    const raw = await readFile(filePath, 'utf8')
+    const parsed = matter(raw)
+    const data = parsed.data as Partial<PromptFrontmatter>
+    if (!data.id || !data.task || typeof data.version !== 'number') continue
+    const fm: PromptFrontmatter = {
+      id: data.id,
+      version: data.version,
+      task: data.task,
+      inputs: Array.isArray(data.inputs) ? (data.inputs as string[]) : [],
+      output: typeof data.output === 'string' ? data.output : '',
+      ...(data.providerHint ? { providerHint: data.providerHint } : {}),
+    }
+    const body = parsed.content
+    out.set(fm.id, {
+      frontmatter: fm,
+      body,
+      render: (vars) => Mustache.render(body, vars),
+    })
+  }
+  return out
+}
+
+async function getCache(): Promise<Map<string, LoadedPrompt>> {
+  if (!cache) cache = await buildCache()
+  return cache
+}
+
+export async function loadPrompt(id: string): Promise<LoadedPrompt | null> {
+  const map = await getCache()
+  return map.get(id) ?? null
 }
 
 export async function loadAllPrompts(): Promise<LoadedPrompt[]> {
-  return []
+  const map = await getCache()
+  return [...map.values()]
+}
+
+/** Test-only: clear the in-memory cache so new files are picked up. */
+export function _resetPromptCache(): void {
+  cache = null
 }

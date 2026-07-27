@@ -13,7 +13,7 @@ packages/brain/
 │   ├── index.ts                  # public API (Brain.knowledge, .evaluation, ...)
 │   ├── router/
 │   │   ├── router.ts             # RouterStrategy: picks provider+model per task
-│   │   ├── policy.ts             # cost/latency/plan rules
+│   │   ├── policy.ts             # cost/latency rules
 │   │   └── token-bucket.ts       # rate-limit guard per provider
 │   ├── providers/
 │   │   ├── provider.ts           # ProviderAdapter interface
@@ -24,7 +24,7 @@ packages/brain/
 │   │   ├── task.ts               # TaskType enum + TaskSpec
 │   │   ├── classify.ts           # cheap classification
 │   │   ├── extract.ts            # structured extraction (Zod-validated)
-│   │   ├── reason.ts             # reasoning (Pro tier)
+  │   │   ├── reason.ts             # reasoning
 │   │   └── embed.ts              # future
 │   ├── engines/
 │   │   ├── knowledge-engine.ts   # builds KnowledgeGraph from ParsedDocument
@@ -44,11 +44,11 @@ packages/brain/
 
 ```ts
 export const Brain = {
-  knowledge:  { buildGraph },
+  knowledge: { buildGraph },
   evaluation: { startDiagnosis, nextQuestion, submitAnswer, finalize },
-  timeline:   { scheduleReviews, nextDue },
+  timeline: { scheduleReviews, nextDue },
   conversation: { clarify },
-  memory:     { remember, recall },
+  memory: { remember, recall },
 }
 ```
 
@@ -58,10 +58,10 @@ export const Brain = {
 
 Both are **OpenAI-compatible** endpoints reached via `@ai-sdk/openai-compatible`.
 
-| Provider ID | Base URL (env) | Auth | Default model | Tier |
-|-------------|----------------|------|---------------|------|
-| `zen` | `OPENCODE_ZEN_BASE_URL` | `OPENCODE_ZEN_KEY` | `deepseek-v4-flash` | Free |
-| `go`  | `OPENCODE_GO_BASE_URL`  | `OPENCODE_GO_KEY`  | `mimo-2.5-class` (tbd) | Pro |
+| Provider ID | Base URL (env)          | Auth               | Default model          | Tier |
+| ----------- | ----------------------- | ------------------ | ---------------------- | ---- |
+| `zen`       | `OPENCODE_ZEN_BASE_URL` | `OPENCODE_ZEN_KEY` | `deepseek-v4-flash`    | Free |
+| `go`        | `OPENCODE_GO_BASE_URL`  | `OPENCODE_GO_KEY`  | `mimo-2.5-class` (tbd) | Pro  |
 
 ### `ProviderAdapter` interface
 
@@ -76,14 +76,15 @@ interface ProviderAdapter {
 
 The adapter wraps `@ai-sdk/openai-compatible`'s `createOpenAICompatible`. Adding a new
 provider (Anthropic, OpenAI direct, OpenRouter) = new file implementing `ProviderAdapter`
-+ one row in `registry.ts`. No engine or prompt code changes.
+
+- one row in `registry.ts`. No engine or prompt code changes.
 
 ### Provider independence — why it matters
 
 - A cheaper DeepSeek-tier model appearing next month is a config swap, not a rewrite.
 - A jurisdiction-specific provider (e.g. EU-hosted) can be added per-user via the
   router's policy without touching the engine code.
-- The router is the *only* place that knows provider names. Engines see `TaskResult`, not
+- The router is the _only_ place that knows provider names. Engines see `TaskResult`, not
   `OpenAIResponse`.
 
 ---
@@ -94,54 +95,50 @@ provider (Anthropic, OpenAI direct, OpenRouter) = new file implementing `Provide
 
 ```ts
 type TaskType =
-  | 'classify.language'      // detect doc language — cheap
-  | 'classify.topic'         // tag topic/chapter — cheap
-  | 'extract.structure'      // chapters → topics → concepts — cheap
-  | 'extract.relationships'  // DAG edges — cheap
-  | 'extract.metadata'       // importance/difficulty priors — cheap
-  | 'reason.diagnose'        // generate adaptive question — Pro
-  | 'reason.evaluate'        // grade an open answer — Pro
-  | 'reason.clarify'         // conversational clarification — Pro
-  | 'summarize.concept'      // concept summary — cheap
-  | 'schedule.review'        // compute next review date — local, no LLM
+  | 'classify.language' // detect doc language — cheap
+  | 'classify.topic' // tag topic/chapter — cheap
+  | 'extract.structure' // chapters → topics → concepts — cheap
+  | 'extract.relationships' // DAG edges — cheap
+  | 'extract.metadata' // importance/difficulty priors — cheap
+  | 'reason.diagnose' // generate adaptive question — Pro
+  | 'reason.evaluate' // grade an open answer — Pro
+  | 'reason.clarify' // conversational clarification — Pro
+  | 'summarize.concept' // concept summary — cheap
+  | 'schedule.review' // compute next review date — local, no LLM
 ```
 
 ### Router policy (default)
 
-| Task | Plan | Provider | Model | Rationale |
-|------|------|----------|-------|-----------|
-| `classify.*` | any | zen | deepseek-v4-flash | pure categorization, no reasoning needed |
-| `extract.*` | any | zen | deepseek-v4-flash | structured output, schema-validated, retries handle errors |
-| `summarize.concept` | any | zen | deepseek-v4-flash | short-form summarization |
-| `reason.diagnose` | Free | zen | deepseek-v4-flash | Free tier is rate-limited; cheap model keeps cost sustainable |
-| `reason.diagnose` | Pro | go | mimo-2.5-class | better adaptive probing = better UX, the upgrade worth paying for |
-| `reason.evaluate` | Free | zen | deepseek-v4-flash | basic correctness scoring |
-| `reason.evaluate` | Pro | go | mimo-2.5-class | partial-credit rationale, nuance |
-| `reason.clarify` | any | zen | deepseek-v4-flash | short, low-stakes |
-| `schedule.review` | any | — (local math) | — | no LLM call; pure function in `timeline-engine` |
+| Task                | Provider       | Model             | Rationale                                                         |
+| ------------------- | -------------- | ----------------- | ----------------------------------------------------------------- |
+| `classify.*`        | go             | deepseek-v4-flash | pure categorization, no reasoning needed                          |
+| `extract.*`         | go             | deepseek-v4-flash | structured output, schema-validated, retries handle errors        |
+| `summarize.concept` | go             | deepseek-v4-flash | short-form summarization                                          |
+| `reason.diagnose`   | go             | deepseek-v4-flash | fast adaptive probing; zen fallback if go is unavailable          |
+| `reason.evaluate`   | go             | deepseek-v4-flash | correctness scoring                                               |
+| `reason.clarify`    | go             | deepseek-v4-flash | short, low-stakes                                                 |
+| `schedule.review`   | — (local math) | —                 | no LLM call; pure function in `timeline-engine`                   |
 
 The policy is **data, not code** — a `policy.ts` map. Adjusting which model handles a
-task is a one-line edit. Per-user override possible via `FeatureFlag` (`brain.task.<id>`).
+task is a one-line edit.
 
 ### Selection algorithm
 
 ```
 router.pick(task, user):
-  plan = user.subscription.plan (or FREE)
-  candidates = policy[task][plan]                // ordered list
+  candidates = policy[task]                       // ordered list
   for c in candidates:
     if tokenBucket(c.provider).try():
       return c
-  // all rate-limited → queue with backoff or degrade to cheaper tier
-  return router.pick(task, downgradePlan(plan))
+  // all rate-limited → queue with backoff
+  return BudgetExceeded
 ```
 
 ### Cost guard
 
 Each call records `tokensIn`, `tokensOut`, `provider`, `model` into `ConversationTurn`
 (or `AuditEvent` for non-conversation tasks). A daily per-user budget is enforced at the
-router (default Free: 50k tokens/day, Pro: 500k/day). Over-budget → "Mind is resting" UX,
-not an error.
+router (default 500k tokens/day). Over-budget → "Mind is resting" UX, not an error.
 
 ---
 
@@ -182,23 +179,24 @@ true mastery. ...
 
 ### Prompt library (initial set)
 
-| Prompt ID | Used by |
-|-----------|---------|
-| `classify.language` | parser: detect doc locale |
-| `extract.structure` | knowledge-engine: chapters/topics/concepts |
-| `extract.relationships` | knowledge-engine: DAG edges |
-| `extract.metadata` | knowledge-engine: importance/difficulty priors |
-| `summarize.concept` | knowledge-engine: concept summaries |
-| `reason.diagnose.easy` | evaluation-engine: MCQ for low-difficulty concepts |
-| `reason.diagnose.hard` | evaluation-engine: open reasoning for high-difficulty |
-| `reason.evaluate` | evaluation-engine: grade open answer, return `correctness ∈ [0,1]` |
-| `reason.clarify` | conversation-engine: Socratic clarification on ambiguous answers |
+| Prompt ID               | Used by                                                            |
+| ----------------------- | ------------------------------------------------------------------ |
+| `classify.language`     | parser: detect doc locale                                          |
+| `extract.structure`     | knowledge-engine: chapters/topics/concepts                         |
+| `extract.relationships` | knowledge-engine: DAG edges                                        |
+| `extract.metadata`      | knowledge-engine: importance/difficulty priors                     |
+| `summarize.concept`     | knowledge-engine: concept summaries                                |
+| `reason.diagnose.easy`  | evaluation-engine: MCQ for low-difficulty concepts                 |
+| `reason.diagnose.hard`  | evaluation-engine: open reasoning for high-difficulty              |
+| `reason.evaluate`       | evaluation-engine: grade open answer, return `correctness ∈ [0,1]` |
+| `reason.clarify`        | conversation-engine: Socratic clarification on ambiguous answers   |
 
 ---
 
 ## 5. Knowledge Engine
 
 ### Input
+
 A `ParsedDocument` (from `packages/parser`): `{ chunks: Chunk[], metadata, language }`.
 
 ### Pipeline
@@ -236,17 +234,17 @@ const KnowledgeGraph = z.object({
 
 ## 6. Evaluation Engine — Adaptive Diagnosis
 
-This is the heart of MindMap. It must feel calm, fast, and *honest*.
+This is the heart of MindMap. It must feel calm, fast, and _honest_.
 
 ### Per-concept knowledge state
 
 ```ts
 type ConceptState = {
-  mastery:    number  // [0,1]  — estimate of true mastery
-  confidence: number  // [0,1]  — certainty about `mastery`
-  attempts:   number
-  correct:    number
-  lastSeen:   Date | null
+  mastery: number // [0,1]  — estimate of true mastery
+  confidence: number // [0,1]  — certainty about `mastery`
+  attempts: number
+  correct: number
+  lastSeen: Date | null
 }
 ```
 
@@ -292,7 +290,7 @@ discriminate at the user's current level.
 ```
 stop when:
   global_confidence ≥ 0.7    // weighted by importance
-  OR questionsAsked ≥ q_max  // Free: 12, Pro: 30 (FeatureFlag-tunable)
+  OR questionsAsked ≥ q_max  // default 30, admin-tunable via env
   OR 3 consecutive questions changed mastery by < 0.02
 ```
 
@@ -311,6 +309,7 @@ Capped at `[0,1]`. This is intentionally simple — it's a prior, not a measurem
 ### "I don't know" / "Skip"
 
 Both produce `c = 0` but with **different confidence penalties**:
+
 - "I don't know" → honest signal, `confidence += 0.1` (we learned something real)
 - "Skip" → no signal, `confidence -= 0.05` (we're more uncertain, not less)
 
@@ -333,7 +332,7 @@ Implemented as an `AsyncIterable<Token>` for SSE streaming.
 
 ### Why not SM-2 / Anki's curve?
 
-SM-2 assumes a fixed forgetting rate per card. MindMap has a *measured* mastery +
+SM-2 assumes a fixed forgetting rate per card. MindMap has a _measured_ mastery +
 confidence per concept. We adapt.
 
 ### Schedule function
@@ -358,7 +357,7 @@ Outputs a `dueAt` per `ConceptState`. `scheduleReviews(userId, documentId)` buil
 
 Every review re-runs the evaluation engine in a constrained mode (only probed concepts,
 no new concept discovery) and updates `ConceptState`. The next `interval` is computed
-from the *new* state — so a concept that's been forgotten gets shorter intervals, and
+from the _new_ state — so a concept that's been forgotten gets shorter intervals, and
 one that's solidified gets longer ones.
 
 ---
@@ -382,38 +381,35 @@ a single `sessionSummary` string to keep token cost bounded.
 
 ## 10. Cost Optimization
 
-| Lever | Implementation |
-|-------|----------------|
-| Cheap-first routing | 80%+ of calls go to Zen/DeepSeek-Flash |
-| Schema-validated outputs | Eliminates "regenerate because it didn't parse" loops |
-| Prompt caching | `@ai-sdk/openai-compatible` cache prefix for system prompts (where supported) |
-| Token budget per user | Router enforces daily caps; over-budget → calm UX |
-| Neighbor propagation | Reduces questions needed (one answer updates N concepts) |
-| No history bloat | Session memory windowed; long-term in DB, not in prompts |
-| Local scheduling | Timeline engine is pure math, zero LLM calls |
-| Streaming | `reason.clarify` streams so we can stop early if user is satisfied |
+| Lever                    | Implementation                                                                |
+| ------------------------ | ----------------------------------------------------------------------------- |
+| Cheap-first routing      | 80%+ of calls go to Zen/DeepSeek-Flash                                        |
+| Schema-validated outputs | Eliminates "regenerate because it didn't parse" loops                         |
+| Prompt caching           | `@ai-sdk/openai-compatible` cache prefix for system prompts (where supported) |
+| Token budget per user    | Router enforces daily caps; over-budget → calm UX                             |
+| Neighbor propagation     | Reduces questions needed (one answer updates N concepts)                      |
+| No history bloat         | Session memory windowed; long-term in DB, not in prompts                      |
+| Local scheduling         | Timeline engine is pure math, zero LLM calls                                  |
+| Streaming                | `reason.clarify` streams so we can stop early if user is satisfied            |
 
-### Estimated per-diagnosis cost (Free tier, 12 questions)
+### Estimated per-diagnosis cost (30 questions)
 
-- 12 × `reason.diagnose` (Zen, ~800 tokens in / 200 out) ≈ 12k tokens
-- 12 × `reason.evaluate` (Zen, ~600 in / 150 out) ≈ 9k tokens
-- Total ~21k tokens × DeepSeek-Flash pricing ≈ well under $0.01 per diagnosis.
-
-Pro tier (30 questions on MiMo) ≈ 3x tokens × 5-10x price ≈ $0.05–0.15 per diagnosis —
-sustainable at €5.99/mo for ~20 diagnoses.
+- 30 × `reason.diagnose` (Go, ~800 tokens in / 200 out) ≈ 30k tokens
+- 30 × `reason.evaluate` (Go, ~600 in / 150 out) ≈ 22.5k tokens
+- Total ~52.5k tokens × DeepSeek-Flash pricing ≈ well under $0.03 per diagnosis.
 
 ---
 
 ## 11. Conversation Strategy (UX-level)
 
-- The diagnosis is framed as a *conversation*, not a quiz. Copy uses "Let's check one
+- The diagnosis is framed as a _conversation_, not a quiz. Copy uses "Let's check one
   thing about X" not "Question 3 of 12".
 - No progress count is shown mid-diagnosis (only the calm progress ring). Counting
   questions makes users rush.
 - After each answer, a 1-line micro-feedback: "Yes, that's solid" / "Hmm, not quite —
   let's come back to this" — never verbose.
 - On completion, the Knowledge Map animates from grayscale to colored as mastery fills
-  in. This is the *moment* the product sells itself.
+  in. This is the _moment_ the product sells itself.
 
 ---
 
@@ -422,8 +418,8 @@ sustainable at €5.99/mo for ~20 diagnoses.
 - Every `ConversationTurn` records `provider`, `model`, `tokensIn`, `tokensOut` — this
   is our cost ledger.
 - `BrainError` is a discriminated union: `RateLimited | SchemaFailure | ProviderError |
-  BudgetExceeded`. Each maps to a specific calm UX state, never a stack trace.
-- (Phase 8) Wrap router calls in a lightweight OpenTelemetry span for trace correlation
+BudgetExceeded`. Each maps to a specific calm UX state, never a stack trace.
+- (Phase 7) Wrap router calls in a lightweight OpenTelemetry span for trace correlation
   with the user's `traceId`.
 
 ---

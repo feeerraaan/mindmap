@@ -22,10 +22,8 @@
   --spacing-24: 6rem;
 
   /* ─── Typography ───────────────────────────────────────── */
-  --font-sans:
-    var(--font-geist-sans), ui-sans-serif, system-ui, -apple-system, sans-serif;
-  --font-mono:
-    var(--font-geist-mono), ui-monospace, 'JetBrains Mono', 'Fira Code', monospace;
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, 'JetBrains Mono', 'Fira Code', monospace;
 
   /* ─── Neutrals (light) ──────────────────────────────────── */
   --color-bg: hsl(0 0% 100%);

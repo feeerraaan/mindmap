@@ -18,7 +18,12 @@ export interface StorageProvider {
   readonly id: 'vercel-blob' | 'local-fs'
   /** Persist `bytes` and return the key used. If `key` is provided, the
    *  bytes are stored under that exact key (idempotent re-upload). */
-  put(input: { bytes: Uint8Array; mimeType: string; filename: string; key?: string }): Promise<{ key: string; sizeBytes: number }>
+  put(input: {
+    bytes: Uint8Array
+    mimeType: string
+    filename: string
+    key?: string
+  }): Promise<{ key: string; sizeBytes: number }>
   /** Read the bytes for a key. Throws if the key is not found. */
   get(key: string): Promise<Uint8Array>
   /** Stream for large reads; not used yet but part of the interface. */
@@ -31,7 +36,11 @@ class LocalFsStorage implements StorageProvider {
   readonly id = 'local-fs' as const
   constructor(private readonly root: string) {}
 
-  async put(input: { bytes: Uint8Array; filename: string; key?: string }): Promise<{ key: string; sizeBytes: number }> {
+  async put(input: {
+    bytes: Uint8Array
+    filename: string
+    key?: string
+  }): Promise<{ key: string; sizeBytes: number }> {
     const key = input.key ?? this.newKey(input.filename)
     const full = this.resolve(key)
     await mkdir(path.dirname(full), { recursive: true })
@@ -64,8 +73,14 @@ class LocalFsStorage implements StorageProvider {
 class VercelBlobStorage implements StorageProvider {
   readonly id = 'vercel-blob' as const
 
-  async put(_input: { bytes: Uint8Array; filename: string; key?: string }): Promise<{ key: string; sizeBytes: number }> {
-    throw new Error('VercelBlobStorage not implemented (phase 3 stub). Set BLOB_READ_WRITE_TOKEN to use it.')
+  async put(_input: {
+    bytes: Uint8Array
+    filename: string
+    key?: string
+  }): Promise<{ key: string; sizeBytes: number }> {
+    throw new Error(
+      'VercelBlobStorage not implemented (phase 3 stub). Set BLOB_READ_WRITE_TOKEN to use it.',
+    )
   }
   async get(): Promise<Uint8Array> {
     throw new Error('VercelBlobStorage not implemented (phase 3 stub).')

@@ -20,7 +20,7 @@ export function EmptyState({ title, description, action, className }: EmptyState
   return (
     <div
       className={cn(
-        'flex flex-col items-center justify-center gap-4 rounded-lg border border-dashed border-[var(--color-border)] bg-[var(--color-surface)] px-6 py-16 text-center',
+        'flex flex-col items-center justify-center gap-4 rounded-lg border border-dashed border-[var(--color-border-strong)] bg-[var(--color-surface)] px-6 py-16 text-center',
         className,
       )}
     >
@@ -33,7 +33,7 @@ export function EmptyState({ title, description, action, className }: EmptyState
         }}
       />
       <div className="flex max-w-md flex-col gap-1.5">
-        <p className="text-base font-medium text-[var(--color-fg)]">{title}</p>
+        <p className="text-[17px] font-semibold text-[var(--color-fg)]">{title}</p>
         {description ? (
           <p className="text-sm leading-relaxed text-[var(--color-fg-muted)]">{description}</p>
         ) : null}

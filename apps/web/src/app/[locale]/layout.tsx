@@ -1,16 +1,14 @@
 import type { Metadata } from 'next'
 import { NextIntlClientProvider } from 'next-intl'
 import { getMessages, getTranslations, setRequestLocale } from 'next-intl/server'
-import { Geist, Geist_Mono } from 'next/font/google'
 import { notFound } from 'next/navigation'
 import { routing } from '@/i18n/routing'
 import { QueryProvider } from '@/lib/query-provider'
 import { ThemeScript } from '@/components/theme-script'
 import { getThemeCookie } from '@/lib/preferences'
+import { getCurrentUser } from '@mindmap/auth'
+import { Navbar } from '@/components/navbar'
 import '@mindmap/ui/styles'
-
-const geistSans = Geist({ subsets: ['latin'], variable: '--font-geist-sans', display: 'swap' })
-const geistMono = Geist_Mono({ subsets: ['latin'], variable: '--font-geist-mono', display: 'swap' })
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3100'),
@@ -60,65 +58,50 @@ export default async function LocaleLayout({
   const messages = await getMessages()
   const t = await getTranslations({ locale, namespace: 'common' })
   const theme = await getThemeCookie()
+  const user = await getCurrentUser()
 
   return (
-    <html
-      lang={locale}
-      data-theme={theme}
-      className={geistSans.variable + ' ' + geistMono.variable}
-      suppressHydrationWarning
-    >
+    <html lang={locale} data-theme={theme} suppressHydrationWarning>
       <head>
         <ThemeScript initialTheme={theme} />
         <link rel="manifest" href="/manifest.webmanifest" />
-        <meta name="theme-color" content="#1f8e9e" />
+        <meta name="theme-color" content="#000000" />
       </head>
       <body className="min-h-dvh bg-[var(--color-bg)] text-[var(--color-fg)] antialiased">
         <NextIntlClientProvider messages={messages} locale={locale}>
           <QueryProvider>
             <a
               href="#main"
-              className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-md focus:bg-[var(--color-surface)] focus:px-3 focus:py-2"
+              className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:rounded-md focus:bg-[var(--color-surface)] focus:px-3 focus:py-2"
             >
               Skip to main content
             </a>
             <div className="flex min-h-dvh flex-col">
-              <header className="border-b border-[var(--color-border)] bg-[var(--color-bg)]/80 px-6 py-4 backdrop-blur md:px-8">
-                <div className="mx-auto flex max-w-6xl items-center justify-between">
+              <header className="bg-[var(--color-nav)] px-6 md:px-8">
+                <div className="flex h-11 w-full items-center justify-between">
                   <a
-                    href={`/${locale}`}
-                    className="flex items-center gap-2 text-sm font-semibold tracking-tight text-[var(--color-fg)]"
+                    href={user ? `/${locale}/mind` : `/${locale}`}
+                    className="flex items-center gap-2 text-xs tracking-[-0.01em] text-white"
                   >
                     <span
                       aria-hidden
-                      className="inline-flex size-6 items-center justify-center rounded-md bg-[var(--color-accent)] text-[var(--color-accent-fg)]"
+                      className="inline-flex size-5 items-center justify-center rounded-[5px] bg-white text-[11px] font-semibold text-black"
                     >
                       M
                     </span>
                     {t('appName')}
                   </a>
-                  <nav className="flex items-center gap-3 text-sm">
-                    <a
-                      href={`/${locale}/sign-in`}
-                      className="text-[var(--color-fg-muted)] transition-colors hover:text-[var(--color-fg)]"
-                    >
-                      {t('signIn')}
-                    </a>
-                    <a
-                      href={`/${locale}/sign-in`}
-                      className="rounded-md bg-[var(--color-accent)] px-3 py-1.5 text-[var(--color-accent-fg)] shadow-sm transition-colors hover:bg-[var(--color-accent-hover)]"
-                    >
-                      {t('getStarted')}
-                    </a>
-                  </nav>
+                  <Navbar locale={locale} />
                 </div>
               </header>
               <main id="main" className="flex-1">
                 {children}
               </main>
-              <footer className="border-t border-[var(--color-border)] px-6 py-6 text-center text-xs text-[var(--color-fg-subtle)] md:px-8">
-                © {new Date().getFullYear()} MindMap
-              </footer>
+              {!user && (
+                <footer className="bg-[var(--color-bg-muted)] px-6 py-8 text-center text-xs leading-6 text-[var(--color-fg-muted)] md:px-8">
+                  © {new Date().getFullYear()} MindMap
+                </footer>
+              )}
             </div>
           </QueryProvider>
         </NextIntlClientProvider>

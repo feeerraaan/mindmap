@@ -42,8 +42,8 @@
          ▼
 ┌──────────────────────────────────────────────────────────────────────┐
 │  External LLM providers (only ever reached from packages/brain):       │
-│   • OpenCode ZEN  →  deepseek-v4-flash   (free tier, cheap tasks)      │
-│   • OpenCode GO   →  mimo-2.5-class      (pro tier, reasoning)         │
+│   • OpenCode ZEN  →  deepseek-v4-flash   (fallback, cheap tasks)      │
+│   • OpenCode GO   →  mimo-2.5-class      (reasoning)                  │
 │   both via @ai-sdk/openai-compatible (OpenAI-compatible base URLs)      │
 └──────────────────────────────────────────────────────────────────────┘
 ```
@@ -111,7 +111,7 @@ Handlers / React Query hooks), delegating to `packages/brain` and `packages/data
 apps/web/
 ├── app/
 │   ├── [locale]/                 # next-intl segment
-│   │   ├── (marketing)/          # landing, pricing — public, SSG
+│   │   ├── (marketing)/          # landing — public, SSG
 │   │   ├── (auth)/               # sign-in, magic callback
 │   │   ├── (app)/                # authenticated shell
 │   │   │   ├── onboarding/
@@ -127,7 +127,7 @@ apps/web/
 │   │   ├── uploads/              # signed URL issue (POST) + webhook (POST)
 │   │   ├── diagnosis/stream/     # SSE (GET/POST)
 │   │   ├── diagnosis/[id]/       # polling fallback (GET)
-│   │   └── coupons/redeem/       # POST
+│   
 │   └── manifest.ts               # PWA manifest (next-pwa)
 ├── components/
 │   ├── ui/                       # re-export from packages/ui
@@ -138,18 +138,18 @@ apps/web/
 │   ├── map/                      # react-flow nodes + edges
 │   ├── diagnosis/
 │   └── settings/
-├── features/                     # one folder per cohesive feature
-│   ├── documents/                # hooks, server actions, queries
-│   ├── diagnosis/
-│   ├── knowledge-map/
-│   ├── timeline/
-│   └── billing/
-├── lib/
-│   ├── auth.ts                   # re-export packages/auth
-│   ├── db.ts                     # Prisma client singleton
-│   ├── brain.ts                  # brain client
-│   ├── i18n.ts                   # next-intl config
-│   └── flags.ts                  # feature-flag helper (can())
+  ├── features/                     # one folder per cohesive feature
+  │   ├── documents/                # hooks, server actions, queries
+  │   ├── diagnosis/
+  │   ├── knowledge-map/
+  │   └── timeline/
+
+  ├── lib/
+  │   ├── auth.ts                   # re-export packages/auth
+  │   ├── db.ts                     # Prisma client singleton
+  │   ├── brain.ts                  # brain client
+  │   └── i18n.ts                   # next-intl config
+
 ├── middleware.ts                 # i18n + auth + feature-flag edge checks
 ├── messages/                     # next-intl catalogs
 │   ├── en.json
@@ -201,7 +201,7 @@ apps/web/
 
 - **Inngest from day 1.** Tempting (durable, retries, step functions) but adds a vendor
   and a dev-server to a hackathon. We keep the `JobRunner` interface ready so the swap is
-  a one-package change in Phase 7.
+  a one-package change post-MVP.
 - **WebSockets instead of SSE.** SSE is unidirectional and works over HTTP/2 with the
   existing Next server; WebSockets require a separate server (or Vercel's pending
   support) and complicate auth. Diagnosis only needs server→client streaming.
@@ -221,7 +221,7 @@ apps/web/
 ### 5.2 Validation
 
 - All Server Action inputs validated with Zod at the boundary.
-- All AI outputs validated with Zod schemas *before* being persisted — a malformed LLM
+- All AI outputs validated with Zod schemas _before_ being persisted — a malformed LLM
   response triggers a controlled retry (see `brain.md` §10), never a raw write.
 
 ### 5.3 Error handling
@@ -229,26 +229,12 @@ apps/web/
 - `Result<T, E>` pattern in `packages/shared` for expected-domain errors (no throw).
 - Unexpected errors throw and bubble to a Next `error.tsx` boundary with a calm UX.
 - Server errors log structured fields (`userId`, `traceId`, `feature`) — provider TBD
-  in phase 8 (Sentry candidate).
+  in phase 7 (Sentry candidate).
 
-### 5.4 Feature flags
-
-- DB table `FeatureFlag` (key, scope: user|workspace|global, value JSONB).
-- Edge middleware reads flags via a cached Prisma call (or `unstable_cache`).
-- Helper `can(user, feature)` used in RSC and Server Actions.
-- Fallback to env-var defaults if DB unreachable.
-
-### Alternatives
-
-- **GrowthBook / PostHog Flags.** Excellent products; both add a JS client + a separate
-  dashboard and SDK bundle. For 5 features during a hackathon, a DB table + helper is
-  leaner and trivially migratable: `BillingProvider.flag()` is the same interface either
-  way.
-
-### 5.5 i18n
+### 5.4 i18n
 
 - `next-intl` with locale segment in the URL (`/en`, `/es`).
-- Catalogs split per *namespace* (`messages/{locale}/{namespace}.json`) — never a single
+- Catalogs split per _namespace_ (`messages/{locale}/{namespace}.json`) — never a single
   giant file. Namespace = feature (`documents`, `diagnosis`, `onboarding`, …).
 - ICU MessageFormat for pluralization / gender (Spanish gender is real).
 - Adding a locale = drop a folder + update `i18n.ts`. Architecture supports unlimited.
@@ -269,7 +255,7 @@ apps/web/
 ### 5.7 Performance
 
 - RSC + streaming for first paint of any authenticated page.
-- `dynamic = 'force-static'` for marketing pages, `revalidate` for pricing.
+- `dynamic = 'force-static'` for marketing pages.
 - Knowledge Map is a client component but loads `react-flow` via dynamic import (no SSR)
   to keep the initial bundle lean.
 - Fonts: `next/font` (Geist Sans + Geist Mono, self-hosted, no FOUT).
@@ -298,7 +284,7 @@ export const Brain = {
     nextQuestion(sessionId): Promise<Question | null>
   },
   timeline: {
-    scheduleReviews(userId, documentId): Promise<ReviewPlan>
+    scheduleReviews(documentId): Promise<ReviewPlan>
   },
   conversation: {
     clarify(sessionId, message): AsyncIterable<Token>
@@ -313,13 +299,13 @@ Every method is provider-independent. Adding a new provider = adding a file unde
 
 ## 7. Storage Strategy
 
-| Need | Choice | Why |
-|------|--------|-----|
-| Relational data (users, workspaces, concepts, jobs, reviews, coupons) | **Neon Postgres** via Prisma | Serverless PG, branching for preview deploys, scales to thousands of users without ops |
-| Document binaries (PDF/PPTX/DOCX) | **Vercel Blob** | Signed URLs, zero-config, same bill as Vercel, S3-compatible enough for MVP |
-| Extracted text (parsed docs) | **Neon `DocumentChunk` table** | Queryable, no separate vector DB needed for MVP search |
-| Semantic search / RAG (future) | **Neon `pgvector`** (or Turbopuffer later) | Postgres extension keeps the stack single-store; we don't ship RAG in MVP |
-| Sessions / cache | **Neon** + Better Auth session table | No Redis dependency in MVP |
+| Need                                                                  | Choice                                     | Why                                                                                    |
+| --------------------------------------------------------------------- | ------------------------------------------ | -------------------------------------------------------------------------------------- |
+| Relational data (users, workspaces, concepts, jobs, reviews) | **Neon Postgres** via Prisma               | Serverless PG, branching for preview deploys, scales to thousands of users without ops |
+| Document binaries (PDF/PPTX/DOCX)                                     | **Vercel Blob**                            | Signed URLs, zero-config, same bill as Vercel, S3-compatible enough for MVP            |
+| Extracted text (parsed docs)                                          | **Neon `DocumentChunk` table**             | Queryable, no separate vector DB needed for MVP search                                 |
+| Semantic search / RAG (future)                                        | **Neon `pgvector`** (or Turbopuffer later) | Postgres extension keeps the stack single-store; we don't ship RAG in MVP              |
+| Sessions / cache                                                      | **Neon** + Better Auth session table       | No Redis dependency in MVP                                                             |
 
 ### Alternatives
 
@@ -354,15 +340,15 @@ Every method is provider-independent. Adding a new provider = adding a file unde
 
 ## 9. Coding Standards (enforced in CI)
 
-| Standard | Tool |
-|---------|------|
-| Formatting | Prettier (no debate, no per-file config) |
-| Linting | ESLint flat config, `next`, `typescript`, `import`, `jsx-a11y`, `unicorn` |
-| Type-check | `tsc --noEmit` via `turbo typecheck` |
-| Import boundaries | `eslint-plugin-import` `no-restricted-imports` + `import/no-cycle` |
-| Commit hygiene | Conventional Commits enforced via `commitlint` + `commitizen`-style helper |
-| Pre-commit | `lint-staged` runs Prettier + ESLint on staged files |
-| CI gates | typecheck → lint → build → (later) test. All must pass before merge. |
+| Standard          | Tool                                                                       |
+| ----------------- | -------------------------------------------------------------------------- |
+| Formatting        | Prettier (no debate, no per-file config)                                   |
+| Linting           | ESLint flat config, `next`, `typescript`, `import`, `jsx-a11y`, `unicorn`  |
+| Type-check        | `tsc --noEmit` via `turbo typecheck`                                       |
+| Import boundaries | `eslint-plugin-import` `no-restricted-imports` + `import/no-cycle`         |
+| Commit hygiene    | Conventional Commits enforced via `commitlint` + `commitizen`-style helper |
+| Pre-commit        | `lint-staged` runs Prettier + ESLint on staged files                       |
+| CI gates          | typecheck → lint → build → (later) test. All must pass before merge.       |
 
 ### Naming
 
@@ -379,20 +365,20 @@ Every method is provider-independent. Adding a new provider = adding a file unde
 - Never `export *`; named exports only.
 - No barrel files at the package level (they break tree-shaking and Turbo caching);
   sub-path exports via `package.json` `exports` field instead.
-- Comments only when *why* is non-obvious. Never restate *what* the code does.
+- Comments only when _why_ is non-obvious. Never restate _what_ the code does.
 
 ---
 
 ## 10. Scalability Decisions
 
-| Concern | Decision |
-|--------|---------|
-| Read scaling | Neon's read replicas (auto-scaling) + RSC streaming minimize TTFB |
-| Write scaling | Neon handles our MVP writes easily; `Job` table indexed on `(status, userId)` for pollers |
-| AI cost scaling | Router prefers cheap model (Zen/DeepSeek-Flash) for ≥80% of tokens; Pro users unlock GO/MiMo for diagnosis only |
-| Multi-tenancy | `Workspace` row owns all related rows via `workspaceId` FK — every query scopes by it |
-| Memory (Brain) | Per-session conversation memory capped (last N messages) + persisted `ConversationTurn` table for long-term |
-| Cold starts | Brain package is pure functions + lazy provider init; no module-level network calls |
+| Concern         | Decision                                                                                                        |
+| --------------- | --------------------------------------------------------------------------------------------------------------- |
+| Read scaling    | Neon's read replicas (auto-scaling) + RSC streaming minimize TTFB                                               |
+| Write scaling   | Neon handles our MVP writes easily; `Job` table indexed on `(status, userId)` for pollers                       |
+| AI cost scaling | Router prefers cheap model (Zen/DeepSeek-Flash) for ≥80% of tokens; GO/MiMo is the fallback for diagnosis when needed |
+| Multi-tenancy   | `Workspace` row owns all related rows via `workspaceId` FK — every query scopes by it                           |
+| Memory (Brain)  | Per-session conversation memory capped (last N messages) + persisted `ConversationTurn` table for long-term     |
+| Cold starts     | Brain package is pure functions + lazy provider init; no module-level network calls                             |
 
 ---
 

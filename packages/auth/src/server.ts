@@ -1,10 +1,8 @@
 /**
  * Server-side Better Auth instance.
  *
- * Uses Neon Postgres via the Prisma adapter. Email magic-link delivery is
- * stubbed for phase 1 — wire Resend in phase 3 when we need a real
- * "Sign in with email" path. The schema here matches the Better Auth
- * default; if you change the database models, update the plugin config.
+ * Uses Neon Postgres via the Prisma adapter. Supports email+password
+ * registration and login. Magic-link and Google OAuth are optional.
  *
  * Import this in apps/web only. Client code should use `@mindmap/auth/client`.
  */
@@ -15,9 +13,7 @@ import { prisma } from '@mindmap/database'
 
 const baseURL = process.env.BETTER_AUTH_URL ?? 'http://localhost:3100'
 
-const googleEnabled = Boolean(
-  process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET,
-)
+const googleEnabled = Boolean(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET)
 
 const magicLinkEnabled = process.env.NODE_ENV !== 'production'
 
@@ -31,7 +27,10 @@ export const auth = betterAuth({
   baseURL,
   database: prismaAdapter(prisma, { provider: 'postgresql' }),
   emailAndPassword: {
-    enabled: false,
+    enabled: true,
+    requireEmailVerification: false,
+    minPasswordLength: 8,
+    maxPasswordLength: 128,
   },
   socialProviders: googleEnabled
     ? {
@@ -41,6 +40,20 @@ export const auth = betterAuth({
         },
       }
     : {},
+  rateLimit: {
+    window: 60,
+    max: 10,
+    customRules: {
+      '/api/auth/sign-up/*': {
+        window: 60,
+        max: 3,
+      },
+      '/api/auth/sign-in/*': {
+        window: 60,
+        max: 5,
+      },
+    },
+  },
   plugins: [
     ...(magicLinkEnabled
       ? [
@@ -50,20 +63,17 @@ export const auth = betterAuth({
               // /api/dev/sign-in backdoor can read it (Better Auth hashes the
               // token before storing it, so the DB row is opaque).
               console.warn(`[magic-link] ${email} → ${url}`)
-              if (process.env.NODE_ENV !== 'production') {
-                try {
-                  const { writeFile, mkdir } = await import('node:fs/promises')
-                  const { tmpdir } = await import('node:os')
-                  const dir = `${tmpdir()}/mindmap-magic-links`
-                  await mkdir(dir, { recursive: true })
-                  const ts = Date.now()
-                  const safe = email.replace(/[^a-z0-9@.]/gi, '_')
-                  await writeFile(`${dir}/${ts}-${safe}.txt`, url)
-                } catch {
-                  /* best-effort */
-                }
+              try {
+                const { writeFile, mkdir } = await import('node:fs/promises')
+                const { tmpdir } = await import('node:os')
+                const dir = `${tmpdir()}/mindmap-magic-links`
+                await mkdir(dir, { recursive: true })
+                const ts = Date.now()
+                const safe = email.replace(/[^a-z0-9@.]/gi, '_')
+                await writeFile(`${dir}/${ts}-${safe}.txt`, url)
+              } catch {
+                /* best-effort */
               }
-              // TODO(phase 3 production): call Resend SDK
             },
             expiresIn: 60 * 15,
           }),

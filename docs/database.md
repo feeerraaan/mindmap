@@ -21,10 +21,6 @@ User 1───* Workspace 1───* Document 1───* Concept *───* 
                                                                             │
                                                                             └──1───? Answer
 
-User 1───* Subscription  *───1 Coupon   (m2m via Subscription.couponId)
-User 1───* FeatureFlag    (per-user overrides)
-Global FeatureFlag rows exist too.
-
 ReviewPlan 1───* ReviewSession 1───* ReviewItem
    │              │
    └─ belongs to   └─ belongs to
@@ -68,8 +64,6 @@ model User {
   sessions      Session[]
   accounts      Account[]
   workspaces    Workspace[]
-  subscription  Subscription?
-  featureFlags  FeatureFlag[]
   reviewSessions ReviewSession[]
 
   @@index([email])
@@ -407,81 +401,13 @@ model ReviewItem {
 }
 
 // ───────────────────────────────────────────────────────────────────
-// Billing & Flags
-// ───────────────────────────────────────────────────────────────────
-
-model Subscription {
-  id          String    @id @default(cuid())
-  userId      String    @unique
-  plan        Plan      @default(FREE)
-  status      SubStatus @default(ACTIVE)
-  couponId    String?
-  proUntil    DateTime? // when null + plan=PRO → lifetime (gift)
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-
-  coupon      Coupon?   @relation(fields: [couponId], references: [id])
-
-  @@index([status, proUntil])
-}
-
-enum Plan {
-  FREE
-  PRO
-}
-
-enum SubStatus {
-  ACTIVE
-  CANCELED
-  EXPIRED
-  PAST_DUE
-}
-
-model Coupon {
-  id           String    @id @default(cuid())
-  code         String    @unique
-  plan         Plan      @default(PRO)
-  durationDays Int?      // null → lifetime; e.g. 365 for "1 year judge access"
-  maxRedemptions Int     @default(1)
-  redemptions  Int       @default(0)
-  validFrom    DateTime
-  validUntil   DateTime?
-  note         String?   // "Hackathon judges 2026"
-  createdAt    DateTime  @default(now())
-
-  subscriptions Subscription[]
-
-  @@index([code])
-}
-
-model FeatureFlag {
-  id        String  @id @default(cuid())
-  key       String  // e.g. "diagnosis.maxQuestions"
-  scope     FlagScope
-  userId    String?  // null when scope = GLOBAL
-  value     Json     // { "free": 12, "pro": 30 } or boolean
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  user      User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([key, scope, userId])
-  @@index([key])
-}
-
-enum FlagScope {
-  GLOBAL
-  USER
-}
-
-// ───────────────────────────────────────────────────────────────────
 // Audit (lightweight in MVP)
 // ───────────────────────────────────────────────────────────────────
 
 model AuditEvent {
   id        String   @id @default(cuid())
   userId    String?
-  action    String   // "document.upload", "coupon.redeem", etc.
+  action    String   // "document.upload", etc.
   metadata  Json?
   ip        String?
   createdAt DateTime @default(now())
@@ -502,7 +428,6 @@ model AuditEvent {
   - `Job` by `(status, createdAt)` — worker poller (queued jobs)
   - `ConceptState` by `(userId, dueAt)` — "what's due today"
   - `ReviewSession` by `(userId, scheduledFor)` — timeline view
-  - `Coupon` by `code` — redemption lookup (unique)
 - **Future search:** `pg_trgm` GIN index on `Concept.title` and `Concept.summary` for
   fuzzy concept search inside a Mind. Not added in MVP to keep migration light.
 
@@ -516,14 +441,8 @@ model AuditEvent {
    emit `c-1, c-2…` per doc.
 3. **`ConceptState` is unique per `(conceptId, userId)`** — a concept can be probed by
    many users (Horizon 2) without collision.
-4. **`Subscription.proUntil` semantics:** if `plan = PRO` and `proUntil` is null →
-   lifetime Pro (only for founder/judge gifts). If `proUntil < now` → middleware treats
-   as `FREE` (computed, not stored).
-5. **Coupon redemption is atomic:** `UPDATE coupon SET redemptions = redemptions + 1
-   WHERE id = ? AND redemptions < maxRedemptions` — only if `rowCount = 1` do we create
-   the `Subscription`. This prevents races without serializable isolation.
-6. **Soft delete:** `User.deletedAt` cascades logically (queries filter `deletedAt IS
-   NULL`). Physical delete is a separate GDPR job (phase 8).
+4. **Soft delete:** `User.deletedAt` cascades logically (queries filter `deletedAt IS
+NULL`). Physical delete is a separate GDPR job (phase 7).
 
 ---
 
@@ -541,12 +460,12 @@ model AuditEvent {
 
 ## 6. Future Scalability
 
-| Concern | Plan |
-|--------|------|
-| Million+ `ConceptState` rows | Partition by `userId` (Neon supports declarative partitioning) once we cross 100k users |
-| `pgvector` embeddings for RAG | Already declared in `DocumentChunk.embedding`; populate post-MVP via background job |
-| Audit table bloat | Move to cold storage (S3 / BigQuery) after 90 days, summarized into daily counts |
-| Multi-region reads | Neon read replicas in `eu-west-1` and `us-east-1` — DNS-routed via Vercel Edge |
+| Concern                       | Plan                                                                                       |
+| ----------------------------- | ------------------------------------------------------------------------------------------ |
+| Million+ `ConceptState` rows  | Partition by `userId` (Neon supports declarative partitioning) once we cross 100k users    |
+| `pgvector` embeddings for RAG | Already declared in `DocumentChunk.embedding`; populate post-MVP via background job        |
+| Audit table bloat             | Move to cold storage (S3 / BigQuery) after 90 days, summarized into daily counts           |
+| Multi-region reads            | Neon read replicas in `eu-west-1` and `us-east-1` — DNS-routed via Vercel Edge             |
 | Cross-workspace concept dedup | Add `ConceptFingerprint` table (SimHash of title+summary) to merge duplicates in Horizon 2 |
 
 ---

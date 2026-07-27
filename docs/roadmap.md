@@ -15,6 +15,7 @@ Complexity scale: ●○○○ trivial · ●●○○ moderate · ●●●○ 
 landing page. Zero business features yet — everything that follows builds on this.
 
 ### Deliverables
+
 - `pnpm` workspace + Turborepo + `turbo.json` (build / typecheck / lint / dev / test
   pipelines, all cached).
 - `apps/web` (Next.js 16, App Router, RSC by default).
@@ -25,7 +26,7 @@ landing page. Zero business features yet — everything that follows builds on t
   `import/no-cycle` + `no-restricted-imports` enforcing the dependency graph from
   `architecture.md` §2.
 - `packages/types`: Zod schemas for `User, Workspace, Document, Concept,
-  KnowledgeGraph, DiagnosisSession` — the domain contract.
+KnowledgeGraph, DiagnosisSession` — the domain contract.
 - `packages/database`: Prisma schema from `database.md`, Neon connection, first
   migration applied, seed script (1 demo user + 1 sample graph).
 - `packages/auth`: Better Auth config (Google OAuth + Resend magic-link), session
@@ -37,12 +38,11 @@ landing page. Zero business features yet — everything that follows builds on t
   middleware, `manifest.ts` (PWA), service worker via `next-pwa` (offline shell).
 - Landing page (`(marketing)/`): hero + 3-step explainer + CTA, fully static,
   OG image, JSON-LD `SoftwareApplication`.
-- Pricing page: real layout, **"Redeem coupon" is the primary CTA** during the
-  hackathon window (Stripe not wired).
 - `/api/health` route.
 - Vercel project configured; preview deploys use Neon branching.
 
 ### Acceptance Criteria
+
 1. `pnpm install && pnpm build` green from a clean clone.
 2. `pnpm typecheck && pnpm lint` zero errors, zero `any`.
 3. A new user signs in with Google and lands on `/onboarding` (or their workspace if
@@ -54,19 +54,22 @@ landing page. Zero business features yet — everything that follows builds on t
 8. `vercel preview` deploy creates a Neon branch automatically; migrations apply.
 
 ### Risks
-- **Next 16 / React 19 / Better Auth / Prisma generator incompatibility.** *Mitigation:*
+
+- **Next 16 / React 19 / Better Auth / Prisma generator incompatibility.** _Mitigation:_
   pin patch versions at scaffold; `package.json` `overrides` for transitive React 18
   leaks; if Better Auth is incompatible, fall back to Auth.js (compatibility shim kept
   in `packages/auth`).
 - **Tailwind v4 + shadcn/ui initial friction** (shadcn historically targeted v3).
-  *Mitigation:* use shadcn's v4-compatible CLI; theme tokens via `@theme` block.
-- **next-pwa maintenance status.** *Mitigation:* if `next-pwa` doesn't support Next 16,
+  _Mitigation:_ use shadcn's v4-compatible CLI; theme tokens via `@theme` block.
+- **next-pwa maintenance status.** _Mitigation:_ if `next-pwa` doesn't support Next 16,
   switch to a manual service worker via `serwist` (kept as a documented fallback).
 
 ### Complexity
+
 ●●●○ (lots of wiring, low algorithmic difficulty)
 
 ### Dependencies
+
 None — this is the foundation.
 
 ---
@@ -77,6 +80,7 @@ None — this is the foundation.
 intuitively. The shell of the product exists.
 
 ### Deliverables
+
 - Onboarding flow: 3 steps (`purpose`, `confidence calibration`, `name your Mind`),
   Framer Motion horizontal-step transitions, "Not now" skippers with sensible defaults.
 - `Workspace` CRUD (only create + rename + delete; one workspace auto-created on
@@ -89,6 +93,7 @@ intuitively. The shell of the product exists.
   scaffold), language, theme (system/light/dark), delete account (soft delete).
 
 ### Acceptance Criteria
+
 1. A P3 (judge) completes onboarding in <40s and lands on a named Mind.
 2. Empty states render correctly for a fresh workspace.
 3. Sidebar navigation works on `md+`; bottom tab on `< md`.
@@ -98,16 +103,19 @@ intuitively. The shell of the product exists.
 6. Sign out returns to Landing; sign back in resumes at the right workspace.
 
 ### Risks
-- **Onboarding feels like a form.** *Mitigation:* one input per step, big friendly
+
+- **Onboarding feels like a form.** _Mitigation:_ one input per step, big friendly
   copy, progress as a thin line not a stepper; user-test the copy with at least 2
   people before merging.
-- **Theme flash on first paint.** *Mitigation:* inline script in `<head>` setting the
+- **Theme flash on first paint.** _Mitigation:_ inline script in `<head>` setting the
   class from cookie before hydration (the standard no-flash pattern).
 
 ### Complexity
+
 ●●○○
 
 ### Dependencies
+
 Phase 1.
 
 ---
@@ -118,6 +126,7 @@ Phase 1.
 representation, with a calm streaming-progress UX.
 
 ### Deliverables
+
 - `packages/parser`: adapter interface + concrete adapters
   - PDF: `pdf-parse` (text-layer) + `pdfjs-dist` (page count).
   - PPTX: `pptxtojson` or `mammoth`-equivalent for Open XML.
@@ -136,6 +145,7 @@ representation, with a calm streaming-progress UX.
   text…", "Reading chapter 3…") driven by `Job.progress` milestones.
 
 ### Acceptance Criteria
+
 1. Upload a 20-page text-based PDF; reaches `READY` in ≤45s median.
 2. Upload a `.docx` and a `.pptx`; both parse to `DocumentChunk` rows with non-empty
    `text`.
@@ -147,16 +157,19 @@ representation, with a calm streaming-progress UX.
    a Horizon 2 feature).
 
 ### Risks
-- **Serverless `maxDuration` (300s) hit on large docs.** *Mitigation:* 25 MB cap +
+
+- **Serverless `maxDuration` (300s) hit on large docs.** _Mitigation:_ 25 MB cap +
   architecture ready for `JobRunner` → Inngest swap (Phase 7).
-- **PPTX parsing libs are uneven in quality.** *Mitigation:* parse text-only first
+- **PPTX parsing libs are uneven in quality.** _Mitigation:_ parse text-only first
   (skip embedded images / charts); MVP needs text, not fidelity.
-- **Vercel Blob CORS.** *Mitigation:* configure allowed origins per environment.
+- **Vercel Blob CORS.** _Mitigation:_ configure allowed origins per environment.
 
 ### Complexity
+
 ●●●○
 
 ### Dependencies
+
 Phase 1 (DB, auth), Phase 2 (workspace shell to upload into).
 
 ---
@@ -167,6 +180,7 @@ Phase 1 (DB, auth), Phase 2 (workspace shell to upload into).
 `KnowledgeGraph` (concepts + dependencies), still without asking questions.
 
 ### Deliverables
+
 - `packages/brain`: full structure from `brain.md` §1.
 - `ProviderAdapter` + `zen.ts` + `go.ts` via `@ai-sdk/openai-compatible`; env-driven
   base URLs + keys; token bucket per provider.
@@ -184,6 +198,7 @@ Phase 1 (DB, auth), Phase 2 (workspace shell to upload into).
   count.
 
 ### Acceptance Criteria
+
 1. Upload a 30-page textbook PDF; `READY` with ≥20 concepts in ≤90s median.
 2. `Concept` rows have non-empty `title` and `summary`; ≥90% parse success.
 3. `ConceptDependency` graph is acyclic (validator rejects cycles, drops edges).
@@ -195,18 +210,21 @@ Phase 1 (DB, auth), Phase 2 (workspace shell to upload into).
 6. Daily budget exceeded → "Mind is resting" UX, no 429 leak.
 
 ### Risks
-- **Provider rate limits during demo bursts.** *Mitigation:* token bucket + exponential
+
+- **Provider rate limits during demo bursts.** _Mitigation:_ token bucket + exponential
   backoff; over-budget degrades to "resting" UX, never an error.
-- **Prompt regression after edits.** *Mitigation:* prompt files are versioned; an
+- **Prompt regression after edits.** _Mitigation:_ prompt files are versioned; an
   integration test runs the knowledge engine against a fixture PDF with a mock provider
   and asserts the expected graph shape.
-- **Schema-repair loops burning tokens.** *Mitigation:* hard cap of 2 retries; on second
+- **Schema-repair loops burning tokens.** _Mitigation:_ hard cap of 2 retries; on second
   failure the concept is dropped, not retried.
 
 ### Complexity
+
 ●●●● (the most algorithm-heavy phase alongside Phase 5)
 
 ### Dependencies
+
 Phase 1 (types, DB), Phase 3 (parser output as input).
 
 ---
@@ -217,6 +235,7 @@ Phase 1 (types, DB), Phase 3 (parser output as input).
 state evolves and is persisted.
 
 ### Deliverables
+
 - `EvaluationEngine`: IRT 1PL next-question selection (Fisher information), Bayesian
   update of `(mastery, confidence)`, stopping rule, neighbor propagation.
 - `ConversationEngine`: clarification loop with SSE streaming; bounded to 1
@@ -236,31 +255,31 @@ state evolves and is persisted.
   propagation, cycle detection (already from Phase 4).
 
 ### Acceptance Criteria
-1. Diagnose a 30-concept doc; completes in ≤12 questions median (Free tier) with
-   `global_confidence ≥ 0.7`.
+
+1. Diagnose a 30-concept doc; completes in ≤12 questions median with `global_confidence ≥ 0.7`.
 2. Probed vs unprobed concepts' mastery values differ by ≥0.15 (probing has signal).
 3. "I don't know" lowers mastery but raises confidence; "Skip" lowers confidence only.
 4. SSE delivers tokens incrementally; client `EventSource` reconnects once on drop; on
    second drop, polling takes over and the session resumes from `DiagnosisSession`
    state.
 5. Browser tab closed mid-diagnosis → reopening resumes from the last persisted turn.
-6. Free tier uses Zen for `reason.*`; Pro tier uses Go for `reason.diagnose` and
-   `reason.evaluate` (verify via `ConversationTurn.provider`).
-7. `pnpm test` covers IRT + Bayesian + scheduler math; all green.
+6. `pnpm test` covers IRT + Bayesian + scheduler math; all green.
 
 ### Risks
-- **IRT math bugs silently inflate mastery.** *Mitigation:* unit tests with hand-computed
+
+- **IRT math bugs silently inflate mastery.** _Mitigation:_ unit tests with hand-computed
   posteriors; property-based tests (mastery monotonic in correct answers).
-- **SSE disconnects on flaky demo wifi.** *Mitigation:* the fallback is part of the
-   contract, not a patch; the UX explicitly says "Reconnecting…" rather than failing.
-- **Pro-tier provider (Go/MiMo) unavailable day-of.** *Mitigation:* router falls back
-   to Zen for `reason.*` if Go is unreachable; feature flag to force Zen-only mode
-   during the demo.
+- **SSE disconnects on flaky demo wifi.** _Mitigation:_ the fallback is part of the
+  contract, not a patch; the UX explicitly says "Reconnecting…" rather than failing.
+- **Primary provider (Go) unavailable day-of.** _Mitigation:_ router falls back to
+  Zen for `reason.*` if Go is unreachable during the demo.
 
 ### Complexity
+
 ●●●●
 
 ### Dependencies
+
 Phase 4 (Brain, knowledge graph as input), Phase 2 (workspace shell to host the
 diagnosis route).
 
@@ -272,6 +291,7 @@ diagnosis route).
 schedule.
 
 ### Deliverables
+
 - `KnowledgeMap` client component: `react-flow` (dynamic import, no SSR), custom
   `ConceptNode` (mastery color, confidence ring opacity, priority badge), edges =
   dependencies.
@@ -292,6 +312,7 @@ schedule.
   "Open on a larger screen" hint.
 
 ### Acceptance Criteria
+
 1. A 60-concept map renders in ≤1.5s; pan/zoom ≥60fps on a 2020 mid-range laptop.
 2. Filters visually partition without overlap or clutter.
 3. Side panel opens on node click; keyboard arrow navigation works between nodes.
@@ -301,82 +322,30 @@ schedule.
 7. On `< md`, map degrades to list view gracefully; no horizontal scroll.
 
 ### Risks
-- **react-flow performance with 200+ nodes.** *Mitigation:* MVP caps at ~80 concepts
+
+- **react-flow performance with 200+ nodes.** _Mitigation:_ MVP caps at ~80 concepts
   per doc (Brain truncates beyond that with a "showing top 80 by importance" note);
   virtualization is react-flow's built-in.
-- **Completion animation feels gratuitous.** *Mitigation:* it's the only "rich" motion
+- **Completion animation feels gratuitous.** _Mitigation:_ it's the only "rich" motion
   in the app and lasts <1.5s; `prefers-reduced-motion` collapses it to a single fade.
 
 ### Complexity
+
 ●●●○
 
 ### Dependencies
+
 Phase 5 (knowledge state to visualize + schedule from).
 
 ---
 
-## Phase 7 — Premium Architecture, Feature Flags, Subscriptions
-
-**Goal** Two tiers exist as real product behavior. Coupons work end-to-end. Stripe is
-scaffolded but **not connected** — swapping it in post-hackathon is a one-day change.
-
-### Deliverables
-- `BillingProvider` interface in `packages/brain`-adjacent (likely `packages/auth` or a
-  new `packages/billing` — TBD during impl; recommend `packages/billing`):
-  ```ts
-  interface BillingProvider {
-    redeemCoupon(userId, code): Promise<Subscription>
-    checkEntitlements(userId): Promise<Entitlements>
-    createCheckoutSession?(...): never  // throws NotImplemented in MVP
-  }
-  ```
-- `NoopBillingProvider` (current): reads/writes `Coupon` + `Subscription` rows.
-- `StripeBillingProvider` (stubbed): full method signatures + types, throwing
-  `NotImplemented`; enabled via `BILLING_PROVIDER=stripe` env var (no-op default).
-- `FeatureFlag` helper `can(user, feature)` used in RSC + Server Actions + edge
-  middleware; flags for: `diagnosis.maxQuestions` (Free 12 / Pro 30),
-  `diagnosis.providerTier` (Free zen / Pro go), `map.export` (Pro), `timeline.horizon`
-  (Free 7 days / Pro 90 days).
-- Pricing page CTA: "Redeem coupon" (primary during hackathon), "Subscribe" (visible
-  but leads to a calm "Coming soon after the hackathon" note for now).
-- `POST /api/coupons/redeem`: atomic redemption (see `database.md` §4.6), creates /
-  updates `Subscription` with `proUntil`, returns entitlements.
-- Settings: shows current plan + expiry + "Redeem another coupon".
-- All Pro-only features gated; Free users see a calm "Pro feature" upgrade affordance,
-  never a hard paywall mid-flow.
-
-### Acceptance Criteria
-1. A judge redeems `JUDGE100`; Pro features unlock instantly; refresh persists; expiry
-   restores Free after `proUntil`.
-2. Atomic redemption: two concurrent redeems of a `maxRedemptions=1` coupon → exactly
-   one succeeds.
-3. Free user hitting `diagnosis.maxQuestions` sees a calm upgrade affordance after Q12.
-4. Switching `BILLING_PROVIDER=stripe` + implementing the stub's bodies is the only
-   change required to go live (verified by a code audit; we don't actually connect
-   Stripe).
-5. `FeatureFlag` lookup misses (DB down) fall back to env defaults — never block the
-   user.
-
-### Risks
-- **Over-engineering billing before product-market fit.** *Mitigation:* the
-  `BillingProvider` interface is the only abstraction; no Stripe SDK import in MVP.
-- **Coupon abuse.** *Mitigation:* `maxRedemptions` + per-user redemption limit
-  (one active coupon per user); audit-logged.
-
-### Complexity
-●●○○
-
-### Dependencies
-Phases 1–6 (everything that gets gated).
-
----
-
-## Phase 8 — Polish, Accessibility, Animations, SEO, Performance, Testing, Docs
+## Phase 7 — Polish, Accessibility, Animations, SEO, Performance, Testing, Docs
 
 **Goal** Production-grade quality bar. The difference between "hackathon demo" and
 "real SaaS".
 
 ### Deliverables
+
 - **Accessibility:** `axe-core` in CI (zero critical violations), manual VoiceOver /
   TalkBack pass on the diagnosis flow + map, full keyboard nav, `prefers-reduced-motion`
   honored everywhere, color-contrast audit on all states.
@@ -389,8 +358,8 @@ Phases 1–6 (everything that gets gated).
 - **Animations:** final Framer Motion pass — remove any motion that doesn't earn its
   place; ensure every transition uses the tokens from `ui.md`.
 - **Testing:** Vitest unit tests for Brain math, parser adapters, scheduler; React
-  Testing Library for the onboarding + diagnosis + coupon flows; Playwright E2E for
-  the critical path (sign in → upload → diagnose → see map → redeem coupon); a
+  Testing Library for the onboarding + diagnosis flows; Playwright E2E for
+  the critical path (sign in → upload → diagnose → see map); a
   `pnpm test:live` task gated on env vars for real provider calls.
 - **Observability:** structured logs (`pino`-like via Vercel's logger), error tracking
   (Sentry candidate — final choice in this phase), OpenTelemetry spans around Brain
@@ -405,28 +374,32 @@ Phases 1–6 (everything that gets gated).
   export job; account deletion honors soft-delete + 30-day purge.
 
 ### Acceptance Criteria
+
 1. `pnpm test` (unit + integration) green; `pnpm test:e2e` green against a preview
    deploy.
 2. Lighthouse: all key routes ≥90 on the four pillars.
 3. `axe-core` CI: zero critical/serious violations.
 4. `pnpm audit`: zero high/critical vulnerabilities, or documented exceptions.
 5. ADRs exist for: provider choice (Zen/Go), storage (Blob), SSE+fallback, IRT,
-  coupon-without-Stripe, Prisma+Neon.
+   Prisma+Neon.
 6. `AGENTS.md` lists the exact commands to typecheck/lint/test/build — so any future
    AI agent (or contributor) doesn't have to guess.
 7. Fresh-clone → `pnpm install && pnpm dev` works on port `3100` with no manual env
    beyond `.env.example` copied to `.env`.
 
 ### Risks
-- **Polish is unbounded.** *Mitigation:* timeboxed to a fixed pre-demo window; we ship
+
+- **Polish is unbounded.** _Mitigation:_ timeboxed to a fixed pre-demo window; we ship
   the must-haves above and explicitly defer the rest to a `docs/post-hackathon.md`.
-- **E2E flakiness on Vercel preview.** *Mitigation:* Playwright retries + a dedicated
+- **E2E flakiness on Vercel preview.** _Mitigation:_ Playwright retries + a dedicated
   preview environment for E2E, not the PR preview itself.
 
 ### Complexity
+
 ●●●○
 
 ### Dependencies
+
 All previous phases.
 
 ---
@@ -445,7 +418,7 @@ All previous phases.
 
 ## Suggested Phase Ordering for the Hackathon
 
-Phases 1 → 7 are required for a credible demo. Phase 8 is "as much as time allows",
+Phases 1 → 6 are required for a credible demo. Phase 7 is "as much as time allows",
 prioritized in this order: **a11y on the diagnosis flow → E2E test for the demo path →
 SEO + OG → Lighthouse pass → observability → the rest**. If time runs short, a working
 accessible demo with an E2E safety net beats a polished-but-fragile one.

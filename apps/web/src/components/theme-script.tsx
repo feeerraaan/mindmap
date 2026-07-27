@@ -5,11 +5,7 @@
  * <html> based on the cookie value (server-known) or the stored preference
  * in localStorage, falling back to the OS preference. Prevents theme flash.
  */
-export function ThemeScript({
-  initialTheme,
-}: {
-  initialTheme: 'light' | 'dark' | 'system'
-}) {
+export function ThemeScript({ initialTheme }: { initialTheme: 'light' | 'dark' | 'system' }) {
   // The actual work is done in the inline <script>; this is just a hook for
   // future client-side theme persistence (e.g. cross-tab sync).
   return (

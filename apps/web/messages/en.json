@@ -56,23 +56,6 @@
       "3": "Honest by default. We trend mastery downward when warranted.",
       "4": "Calm by design. No streaks, no shame, no urgency."
     },
-    "pricing": {
-      "title": "Pricing",
-      "free": {
-        "name": "Free",
-        "price": "€0",
-        "description": "Diagnose up to 3 documents per month. 12 questions per diagnosis.",
-        "cta": "Start free"
-      },
-      "pro": {
-        "name": "Pro",
-        "price": "€5.99",
-        "period": "/ month",
-        "yearly": "or €49.99 / year",
-        "description": "Unlimited documents. Deeper diagnosis. Adaptive review timeline.",
-        "cta": "Redeem coupon"
-      }
-    },
     "footer": {
       "madeWith": "Built with care for curious minds."
     }
@@ -80,17 +63,28 @@
   "auth": {
     "signIn": {
       "title": "Sign in to MindMap",
-      "subtitle": "Continue your learning without filling a form.",
-      "google": "Continue with Google",
+      "subtitle": "Continue your learning.",
+      "tabLogin": "Sign in",
       "emailLabel": "Email address",
       "emailPlaceholder": "you@example.com",
+      "passwordLabel": "Password",
+      "passwordPlaceholder": "At least 8 characters",
+      "signInButton": "Sign in",
+      "errorGeneric": "Invalid email or password.",
       "sendLink": "Email me a sign-in link",
       "linkSent": "Check your inbox. The link expires in 15 minutes."
+    },
+    "signUp": {
+      "tabRegister": "Create account",
+      "nameLabel": "Name",
+      "namePlaceholder": "Your name",
+      "registerButton": "Create account",
+      "errorGeneric": "Registration failed. The email may already be in use."
     }
   },
   "onboarding": {
     "title": "Let's set up your Mind",
-    "subtitle": "Three small steps. No forms. No friction.",
+    "subtitle": "A few small steps. No forms. No friction.",
     "step1": {
       "title": "What are you studying?",
       "subtitle": "Pick what fits best — you can change this later.",
@@ -114,6 +108,8 @@
       "title": "Name your Mind",
       "subtitle": "You can have as many as you want — one per subject.",
       "placeholder": "e.g. Cardiology Q1",
+      "examDate": "Exam date (optional)",
+      "examDatePlaceholder": "Pick the exam date",
       "skip": "Skip for now"
     },
     "next": "Next",
@@ -129,9 +125,12 @@
     "openMind": "Open Mind",
     "allMinds": "Your Minds",
     "untitled": "Untitled Mind",
+    "examDate": "Exam",
     "new": {
       "title": "New Mind",
       "placeholder": "Name your Mind",
+      "examDate": "Exam date",
+      "examDatePlaceholder": "Pick the exam date",
       "create": "Create Mind",
       "cancel": "Cancel"
     },
@@ -157,6 +156,152 @@
     "home": "Minds",
     "settings": "Settings",
     "signOut": "Sign out"
+  },
+  "upload": {
+    "title": "Add a document",
+    "dropTitle": "Drop a document here",
+    "dropBody": "or click to browse — PDF, PPTX, or DOCX up to 25 MB.",
+    "cancel": "Cancel",
+    "retry": "Retry",
+    "done": "Done",
+    "tooBig": "File is larger than 25 MB.",
+    "wrongType": "Only PDF, DOCX, or PPTX are supported.",
+    "errorGeneric": "We could not process this file.",
+    "reading": "Reading",
+    "uploading": "Uploading",
+    "parsing": "Reading structure",
+    "ready": "Ready"
+  },
+  "documents": {
+    "graphing": "Building the map",
+    "concepts": "{count, plural, =0 {no concepts yet} =1 {1 concept} other {# concepts}}",
+    "graphBuilt": "Map built",
+    "open": "Open",
+    "buildFailed": "We could not build the map for this document. Try re-uploading.",
+    "diagnose": "Begin diagnosis",
+    "continueDiagnosis": "Continue diagnosis",
+    "diagnoseHint": "A short, adaptive interview that maps what you know.",
+    "seeMap": "See map",
+    "viewDocuments": "Documents",
+    "viewTimeline": "Timeline",
+    "viewHistory": "History",
+    "viewMap": "Map"
+  },
+  "diagnosis": {
+    "thinking": "The Mind is thinking…",
+    "complete": "That's the picture.",
+    "mapReady": "Your knowledge map is ready.",
+    "startOver": "Start over",
+    "openMap": "See your map",
+    "iDontKnow": "I don't know",
+    "skip": "Skip",
+    "submit": "Submit",
+    "openPlaceholder": "Write your answer in your own words…",
+    "clarificationTitle": "Quick follow-up",
+    "clarificationPlaceholder": "A sentence or two is plenty.",
+    "clarificationSubmit": "Send",
+    "reconnecting": "Reconnecting…",
+    "connectionLost": "The Mind is taking a moment. Try again in a few seconds.",
+    "questionsCompleted": "Questions",
+    "confidence": "Overall confidence",
+    "thinkingTitle": "Mapping your understanding"
+  },
+  "map": {
+    "title": "Your knowledge map",
+    "subtitle": "Each node is a concept from your document. Color shows how well you know it.",
+    "filters": {
+      "all": "All",
+      "known": "What I know",
+      "thinkIKnow": "What I think I know",
+      "dontKnow": "What I don't",
+      "aboutToForget": "About to forget"
+    },
+    "legend": {
+      "title": "Color",
+      "known": "Known",
+      "weak": "Weak",
+      "unknown": "Unknown"
+    },
+    "node": {
+      "attempts": "{count, plural, =0 {Not yet probed} =1 {1 attempt} other {# attempts}}",
+      "lastSeen": "Last seen {when}",
+      "due": "Due {when}"
+    },
+    "side": {
+      "title": "Concept",
+      "close": "Close",
+      "openInTimeline": "Open in timeline",
+      "attempts": "Attempts",
+      "correct": "Correct",
+      "lastSeen": "Last seen",
+      "due": "Next due",
+      "dependsOn": "Depends on",
+      "dependedBy": "Needed for"
+    },
+    "empty": {
+      "title": "No map yet",
+      "body": "Run a diagnosis on this document to build its map."
+    },
+    "mobileHint": "Open on a larger screen to see the full map."
+  },
+  "timeline": {
+    "title": "Timeline",
+    "subtitle": "What to review, and when.",
+    "today": "Today",
+    "overdue": "Overdue",
+    "upcoming": "Upcoming",
+    "empty": {
+      "title": "Nothing due yet",
+      "body": "Once a diagnosis is done, your first review will appear here."
+    },
+    "itemCount": "{count, plural, =0 {Nothing scheduled} =1 {1 concept} other {# concepts}}",
+    "reasons": {
+      "decay": "Memory is fading",
+      "new-weakness": "New weakness",
+      "dependency-gap": "Dependency gap",
+      "first-review": "First review",
+      "priority": "Priority"
+    },
+    "actions": {
+      "start": "Start review",
+      "resume": "Resume review",
+      "viewMap": "View map"
+    },
+    "stats": {
+      "todayItems": "{count, plural, =0 {Nothing today} =1 {1 concept today} other {# concepts today}}",
+      "upcomingItems": "{count, plural, =0 {Nothing upcoming} =1 {1 upcoming} other {# upcoming}}"
+    }
+  },
+  "review": {
+    "title": "Review",
+    "subtitle": "A short check on what you already know.",
+    "knew": "I knew it",
+    "didnt": "I didn't",
+    "skip": "Skip",
+    "next": "Next",
+    "finish": "Finish review",
+    "complete": {
+      "title": "That's a wrap.",
+      "body": "Your map has been updated and the next review is scheduled.",
+      "viewTimeline": "Back to timeline"
+    },
+    "progress": "{current} of {total}"
+  },
+  "history": {
+    "title": "History",
+    "subtitle": "Your recent diagnoses and reviews.",
+    "diagnosis": "Diagnosis",
+    "review": "Review",
+    "confidence": "Final confidence",
+    "delta": "Δ {value}",
+    "noDelta": "First session",
+    "items": "{count} items",
+    "questions": "{count} questions",
+    "viewMap": "View map",
+    "empty": {
+      "title": "No history yet",
+      "body": "Your past diagnoses and reviews will show up here."
+    }
   },
   "settings": {
     "title": "Settings",
@@ -186,21 +331,6 @@
       "deleteBody": "We will sign you out and request account deletion. A confirmation email will follow.",
       "deleteCta": "Request deletion"
     }
-  },
-  "upload": {
-    "title": "Add a document",
-    "dropTitle": "Drop a document here",
-    "dropBody": "or click to browse — PDF, PPTX, or DOCX up to 25 MB.",
-    "cancel": "Cancel",
-    "retry": "Retry",
-    "done": "Done",
-    "tooBig": "File is larger than 25 MB.",
-    "wrongType": "Only PDF, DOCX, or PPTX are supported.",
-    "errorGeneric": "We could not process this file.",
-    "reading": "Reading",
-    "uploading": "Uploading",
-    "parsing": "Reading structure",
-    "ready": "Ready"
   },
   "errors": {
     "generic": "Something went wrong on our side. We've been notified.",

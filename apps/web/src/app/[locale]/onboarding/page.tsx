@@ -7,11 +7,7 @@ import { asLocale } from '@/lib/preferences'
 
 export const dynamic = 'force-dynamic'
 
-export default async function OnboardingPage({
-  params,
-}: {
-  params: Promise<{ locale: string }>
-}) {
+export default async function OnboardingPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale: rawLocale } = await params
   const locale = asLocale(rawLocale)
   setRequestLocale(locale)
@@ -50,6 +46,8 @@ export default async function OnboardingPage({
           mid: t('step2.mid'),
           high: t('step2.high'),
           placeholder: t('step3.placeholder'),
+          examDate: t('step3.examDate'),
+          examDatePlaceholder: t('step3.examDatePlaceholder'),
           skip: t('step3.skip'),
           next: t('next'),
           back: t('back'),

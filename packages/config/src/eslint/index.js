@@ -37,7 +37,7 @@ export default [
           message: 'Avoid `as any`. Use `unknown` + narrowing.',
         },
         {
-          selector: "TSAnyKeyword",
+          selector: 'TSAnyKeyword',
           message: 'Avoid `any`. Use `unknown` + narrowing.',
         },
       ],
@@ -50,6 +50,37 @@ export default [
       'import/no-self-import': 'error',
       eqeqeq: ['error', 'always'],
       'no-console': ['warn', { allow: ['warn', 'error'] }],
+      // Brain boundary (docs/architecture.md §6). Only `packages/brain` may
+      // import an AI SDK or call any LLM endpoint. The rule is package-aware
+      // via overrides below.
+      'no-restricted-imports': [
+        'error',
+        {
+          paths: [
+            { name: 'ai', message: 'AI SDKs may only be imported from packages/brain.' },
+            {
+              name: '@ai-sdk/openai-compatible',
+              message: 'AI SDKs may only be imported from packages/brain.',
+            },
+            {
+              name: '@ai-sdk/openai',
+              message: 'AI SDKs may only be imported from packages/brain.',
+            },
+            {
+              name: '@ai-sdk/anthropic',
+              message: 'AI SDKs may only be imported from packages/brain.',
+            },
+            { name: 'openai', message: 'AI SDKs may only be imported from packages/brain.' },
+            {
+              name: '@anthropic-ai/sdk',
+              message: 'AI SDKs may only be imported from packages/brain.',
+            },
+          ],
+          patterns: [
+            { group: ['@ai-sdk/*'], message: 'AI SDKs may only be imported from packages/brain.' },
+          ],
+        },
+      ],
     },
   },
 ]

@@ -30,15 +30,7 @@ interface Initial {
   uiLocale: 'en' | 'es'
 }
 
-export function SettingsForm({
-  locale,
-  initial,
-  labels,
-}: {
-  locale: 'en' | 'es'
-  initial: Initial
-  labels: Labels
-}) {
+export function SettingsForm({ initial, labels }: { initial: Initial; labels: Labels }) {
   const router = useRouter()
   const [name, setName] = useState(initial.name)
   const [theme, setTheme] = useState(initial.theme)
@@ -67,12 +59,14 @@ export function SettingsForm({
           localStorage.setItem('mindmap-theme', next)
         }
         document.documentElement.setAttribute('data-theme', next)
-        if (next === 'dark' || (next === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        if (
+          next === 'dark' ||
+          (next === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches)
+        ) {
           document.documentElement.classList.add('dark')
         } else {
           document.documentElement.classList.remove('dark')
         }
-        router.refresh()
       } catch {
         /* noop */
       }
@@ -91,18 +85,19 @@ export function SettingsForm({
     <div className="flex flex-col gap-6">
       <Card>
         <CardContent className="flex flex-col gap-4 p-6">
-          <h2 className="text-sm font-semibold uppercase tracking-wider text-[var(--color-fg-subtle)]">
-            {labels.account}
-          </h2>
+          <h2 className="text-sm font-semibold text-[var(--color-fg-muted)]">{labels.account}</h2>
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="name">{labels.name}</Label>
-            <Input id="name" value={name} onChange={(e) => setName(e.target.value)} maxLength={60} />
+            <Input
+              id="name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              maxLength={60}
+            />
           </div>
           <div className="flex flex-col gap-1.5">
             <Label>{labels.email}</Label>
-            <p className="text-sm text-[var(--color-fg-muted)]">
-              {labels.signedInAs.replace('{email}', initial.email)}
-            </p>
+            <p className="text-sm text-[var(--color-fg-muted)]">{labels.signedInAs}</p>
           </div>
           <div>
             <Button onClick={save} disabled={pending || name === initial.name}>
@@ -114,13 +109,13 @@ export function SettingsForm({
 
       <Card>
         <CardContent className="flex flex-col gap-4 p-6">
-          <h2 className="text-sm font-semibold uppercase tracking-wider text-[var(--color-fg-subtle)]">
+          <h2 className="text-sm font-semibold text-[var(--color-fg-muted)]">
             {labels.appearance}
           </h2>
           <div className="flex flex-col gap-2">
             <Label>{labels.themeLabel}</Label>
             <p className="text-xs text-[var(--color-fg-muted)]">{labels.themeHelp}</p>
-            <div className="mt-1 inline-flex rounded-full border border-[var(--color-border)] bg-[var(--color-surface-raised)] p-0.5">
+            <div className="mt-1 inline-flex rounded-full bg-[var(--color-bg-muted)] p-0.5">
               {(['light', 'dark', 'system'] as const).map((t) => (
                 <button
                   key={t}
@@ -128,10 +123,10 @@ export function SettingsForm({
                   onClick={() => setThemeAndPersist(t)}
                   aria-pressed={theme === t}
                   className={
-                    'rounded-full px-3 py-1 text-xs font-semibold transition-colors ' +
+                    'rounded-full px-3 py-1 text-xs transition-all duration-150 ease-in-out active:scale-95 ' +
                     (theme === t
-                      ? 'bg-[var(--color-bg)] text-[var(--color-fg)] shadow-sm'
-                      : 'text-[var(--color-fg-muted)] hover:text-[var(--color-fg)]')
+                      ? 'bg-[var(--color-surface)] font-semibold text-[var(--color-fg)] shadow-[0_1px_2px_rgba(0,0,0,0.08)]'
+                      : 'font-normal text-[var(--color-fg-muted)] hover:text-[var(--color-fg)]')
                   }
                 >
                   {t}
@@ -144,13 +139,11 @@ export function SettingsForm({
 
       <Card>
         <CardContent className="flex flex-col gap-4 p-6">
-          <h2 className="text-sm font-semibold uppercase tracking-wider text-[var(--color-fg-subtle)]">
-            {labels.language}
-          </h2>
+          <h2 className="text-sm font-semibold text-[var(--color-fg-muted)]">{labels.language}</h2>
           <div className="flex flex-col gap-2">
             <Label>{labels.languageLabel}</Label>
             <p className="text-xs text-[var(--color-fg-muted)]">{labels.languageHelp}</p>
-            <div className="mt-1 inline-flex rounded-full border border-[var(--color-border)] bg-[var(--color-surface-raised)] p-0.5">
+            <div className="mt-1 inline-flex rounded-full bg-[var(--color-bg-muted)] p-0.5">
               {(['en', 'es'] as const).map((l) => (
                 <button
                   key={l}
@@ -158,9 +151,9 @@ export function SettingsForm({
                   onClick={() => setLocaleAndPersist(l)}
                   aria-pressed={uiLocale === l}
                   className={
-                    'rounded-full px-3 py-1 text-xs font-semibold uppercase transition-colors ' +
+                    'rounded-full px-3 py-1 text-xs font-semibold uppercase transition-all duration-150 ease-in-out active:scale-95 ' +
                     (uiLocale === l
-                      ? 'bg-[var(--color-bg)] text-[var(--color-fg)] shadow-sm'
+                      ? 'bg-[var(--color-surface)] text-[var(--color-fg)] shadow-[0_1px_2px_rgba(0,0,0,0.08)]'
                       : 'text-[var(--color-fg-muted)] hover:text-[var(--color-fg)]')
                   }
                 >
@@ -176,9 +169,7 @@ export function SettingsForm({
 
       <Card>
         <CardContent className="flex flex-col gap-3 p-6">
-          <h2 className="text-sm font-semibold uppercase tracking-wider text-[var(--color-danger)]">
-            {labels.danger}
-          </h2>
+          <h2 className="text-sm font-semibold text-[var(--color-danger)]">{labels.danger}</h2>
           <h3 className="text-base font-semibold text-[var(--color-fg)]">{labels.deleteTitle}</h3>
           <p className="text-sm text-[var(--color-fg-muted)]">{labels.deleteBody}</p>
           <div>

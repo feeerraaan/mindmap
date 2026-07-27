@@ -38,9 +38,7 @@ export async function getThemeCookie(): Promise<'light' | 'dark' | 'system'> {
   return parsed.success ? parsed.data : 'system'
 }
 
-export async function setThemeCookie(
-  theme: 'light' | 'dark' | 'system',
-): Promise<void> {
+export async function setThemeCookie(theme: 'light' | 'dark' | 'system'): Promise<void> {
   const c = await cookies()
   c.set(THEME_COOKIE, theme, {
     path: '/',

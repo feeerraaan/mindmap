@@ -6,7 +6,7 @@ import Link from 'next/link'
 import { usePathname, useParams } from 'next/navigation'
 import { signOut } from '@mindmap/auth/client'
 import { Button, Separator } from '@mindmap/ui'
-import { Plus, Settings, Home, LogOut, BookOpen } from 'lucide-react'
+import { Settings, Home, LogOut, BookOpen } from 'lucide-react'
 
 interface AppShellProps {
   user: { name: string | null; email: string; image: string | null }
@@ -34,24 +34,13 @@ export function AppShell({ user, workspaces, labels, children }: AppShellProps) 
   return (
     <div className="flex min-h-dvh">
       {/* Sidebar — md+ */}
-      <aside className="sticky top-0 hidden h-dvh w-60 shrink-0 flex-col border-r border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-4 md:flex">
-        <div className="px-2 pb-4">
-          <Link
-            href={`/${locale}`}
-            className="flex items-center gap-2 text-sm font-semibold tracking-tight text-[var(--color-fg)]"
-          >
-            <span
-              aria-hidden
-              className="inline-flex size-6 items-center justify-center rounded-md bg-[var(--color-accent)] text-[var(--color-accent-fg)]"
-            >
-              M
-            </span>
-            MindMap
-          </Link>
-        </div>
-
+      <aside className="sticky top-0 hidden h-dvh w-60 shrink-0 flex-col border-r border-[var(--color-border-subtle)] bg-[var(--color-bg-muted)] px-3 py-4 md:flex">
         <nav className="flex flex-col gap-0.5 text-sm">
-          <SidebarLink href={`/${locale}/mind`} icon={<Home size={16} />} active={pathname === `/${locale}/mind`}>
+          <SidebarLink
+            href={`/${locale}/mind`}
+            icon={<Home size={16} />}
+            active={pathname === `/${locale}/mind`}
+          >
             {labels.home}
           </SidebarLink>
           <SidebarLink
@@ -65,17 +54,10 @@ export function AppShell({ user, workspaces, labels, children }: AppShellProps) 
 
         <Separator className="my-3" />
 
-        <div className="flex items-center justify-between px-2 pb-1.5 text-xs font-semibold uppercase tracking-wider text-[var(--color-fg-subtle)]">
+        <div className="flex items-center px-2 pb-1.5 text-xs text-[var(--color-fg-subtle)]">
           <span className="flex items-center gap-1.5">
             <BookOpen size={12} /> {labels.home}
           </span>
-          <Link
-            href={`/${locale}/mind`}
-            className="rounded-md p-1 text-[var(--color-fg-muted)] transition-colors hover:bg-[var(--color-bg-muted)] hover:text-[var(--color-fg)]"
-            aria-label={labels.newMind}
-          >
-            <Plus size={14} />
-          </Link>
         </div>
 
         <ul className="flex flex-1 flex-col gap-0.5 overflow-y-auto pb-2 text-sm">
@@ -88,8 +70,8 @@ export function AppShell({ user, workspaces, labels, children }: AppShellProps) 
                   className={
                     'flex items-center gap-2 rounded-md px-2 py-1.5 transition-colors ' +
                     (active
-                      ? 'bg-[var(--color-bg-muted)] text-[var(--color-fg)]'
-                      : 'text-[var(--color-fg-muted)] hover:bg-[var(--color-bg-muted)] hover:text-[var(--color-fg)]')
+                      ? 'bg-[var(--color-surface)] font-semibold text-[var(--color-fg)]'
+                      : 'text-[var(--color-fg-muted)] hover:bg-[var(--color-surface)] hover:text-[var(--color-fg)]')
                   }
                 >
                   <span aria-hidden className="text-base leading-none">
@@ -107,12 +89,14 @@ export function AppShell({ user, workspaces, labels, children }: AppShellProps) 
         <div className="flex items-center gap-2 px-2 py-1.5">
           <div
             aria-hidden
-            className="flex size-7 shrink-0 items-center justify-center rounded-full bg-[var(--color-bg-muted)] text-xs font-semibold text-[var(--color-fg-muted)]"
+            className="flex size-7 shrink-0 items-center justify-center rounded-full bg-[var(--color-primary)] text-xs font-semibold text-white"
           >
             {(user.name ?? user.email).slice(0, 1).toUpperCase()}
           </div>
           <div className="min-w-0 flex-1 text-xs">
-            <p className="truncate font-medium text-[var(--color-fg)]">{user.name ?? user.email}</p>
+            <p className="truncate font-semibold text-[var(--color-fg)]">
+              {user.name ?? user.email}
+            </p>
             <p className="truncate text-[var(--color-fg-subtle)]">{user.email}</p>
           </div>
           <button
@@ -120,7 +104,7 @@ export function AppShell({ user, workspaces, labels, children }: AppShellProps) 
             onClick={handleSignOut}
             disabled={signingOut}
             aria-label={labels.signOut}
-            className="rounded-md p-1.5 text-[var(--color-fg-muted)] transition-colors hover:bg-[var(--color-bg-muted)] hover:text-[var(--color-fg)] disabled:opacity-50"
+            className="rounded-full p-1.5 text-[var(--color-fg-muted)] transition-colors hover:bg-[var(--color-surface)] hover:text-[var(--color-fg)] disabled:opacity-50"
           >
             <LogOut size={14} />
           </button>
@@ -129,11 +113,11 @@ export function AppShell({ user, workspaces, labels, children }: AppShellProps) 
 
       {/* Mobile top bar */}
       <div className="flex flex-1 flex-col">
-        <header className="sticky top-0 z-10 flex items-center justify-between border-b border-[var(--color-border)] bg-[var(--color-bg)]/80 px-4 py-3 backdrop-blur md:hidden">
+        <header className="sticky top-0 z-10 flex items-center justify-between border-b border-[var(--color-border-subtle)] bg-[var(--color-bg)]/80 px-4 py-3 backdrop-blur-xl backdrop-saturate-150 md:hidden">
           <Link href={`/${locale}`} className="flex items-center gap-2 text-sm font-semibold">
             <span
               aria-hidden
-              className="inline-flex size-6 items-center justify-center rounded-md bg-[var(--color-accent)] text-[var(--color-accent-fg)]"
+              className="inline-flex size-6 items-center justify-center rounded-md bg-[var(--color-fg)] text-xs text-[var(--color-bg)]"
             >
               M
             </span>
@@ -147,9 +131,19 @@ export function AppShell({ user, workspaces, labels, children }: AppShellProps) 
         <main className="flex-1">{children}</main>
 
         {/* Mobile bottom tab */}
-        <nav className="sticky bottom-0 z-10 flex border-t border-[var(--color-border)] bg-[var(--surface)]/95 backdrop-blur md:hidden">
-          <BottomTab href={`/${locale}/mind`} icon={<Home size={18} />} label={labels.home} active={pathname.startsWith(`/${locale}/mind`)} />
-          <BottomTab href={`/${locale}/settings`} icon={<Settings size={18} />} label={labels.settings} active={pathname.startsWith(`/${locale}/settings`)} />
+        <nav className="sticky bottom-0 z-10 flex border-t border-[var(--color-border-subtle)] bg-[var(--color-bg)]/80 backdrop-blur-xl backdrop-saturate-150 md:hidden">
+          <BottomTab
+            href={`/${locale}/mind`}
+            icon={<Home size={18} />}
+            label={labels.home}
+            active={pathname.startsWith(`/${locale}/mind`)}
+          />
+          <BottomTab
+            href={`/${locale}/settings`}
+            icon={<Settings size={18} />}
+            label={labels.settings}
+            active={pathname.startsWith(`/${locale}/settings`)}
+          />
         </nav>
       </div>
     </div>
@@ -173,8 +167,8 @@ function SidebarLink({
       className={
         'flex items-center gap-2 rounded-md px-2 py-1.5 transition-colors ' +
         (active
-          ? 'bg-[var(--color-bg-muted)] text-[var(--color-fg)]'
-          : 'text-[var(--color-fg-muted)] hover:bg-[var(--color-bg-muted)] hover:text-[var(--color-fg)]')
+          ? 'bg-[var(--color-surface)] font-semibold text-[var(--color-fg)]'
+          : 'text-[var(--color-fg-muted)] hover:bg-[var(--color-surface)] hover:text-[var(--color-fg)]')
       }
     >
       <span aria-hidden>{icon}</span>
@@ -198,16 +192,16 @@ function BottomTab({
     <Link
       href={href}
       className={
-        'flex flex-1 flex-col items-center gap-1 py-2 text-[10px] transition-colors ' +
-        (active ? 'text-[var(--color-accent)]' : 'text-[var(--color-fg-muted)]')
+        'relative flex flex-1 flex-col items-center gap-1 py-2 text-[10px] transition-colors ' +
+        (active ? 'text-[var(--color-primary)]' : 'text-[var(--color-fg-muted)]')
       }
     >
       <AnimatePresence>
         {active ? (
           <motion.span
             layoutId="bottom-tab"
-            className="absolute inset-x-0 top-0 h-0.5 bg-[var(--color-accent)]"
-            transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
+            className="absolute inset-x-0 top-0 h-0.5 rounded-full bg-[var(--color-primary)]"
+            transition={{ duration: 0.25, ease: 'easeInOut' }}
           />
         ) : null}
       </AnimatePresence>

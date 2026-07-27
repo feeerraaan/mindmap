@@ -6,11 +6,15 @@ import { prisma } from '@mindmap/database'
 import { requireUser } from '@mindmap/auth'
 import { getStorage } from '@/lib/storage'
 import { getRunner } from '@/lib/jobs'
+import { unlink } from 'node:fs/promises'
+import path from 'node:path'
 
 const ACCEPTED_MIME = new Set<string>([
   'application/pdf',
   'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
   'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+  'text/plain',
+  'text/markdown',
 ])
 
 const MAX_BYTES = 25 * 1024 * 1024
@@ -100,7 +104,38 @@ export async function finalizeUpload(documentId: string) {
   if (doc.status !== 'QUEUED') return { jobId: null, documentId: doc.id }
 
   const { jobId } = await getRunner().enqueue('PARSE', doc.id)
-  const locale = ((await prisma.user.findUnique({ where: { id: user.id }, select: { locale: true } }))?.locale as 'en' | 'es' | null) ?? 'en'
+  const locale =
+    ((await prisma.user.findUnique({ where: { id: user.id }, select: { locale: true } }))
+      ?.locale as 'en' | 'es' | null) ?? 'en'
   revalidatePath(`/${locale}/mind/${doc.workspaceId}`)
   return { jobId, documentId: doc.id }
+}
+
+export async function deleteDocument(documentId: string) {
+  const user = await requireUser()
+  const doc = await prisma.document.findUnique({
+    where: { id: documentId },
+    include: { workspace: { select: { ownerId: true } } },
+  })
+  if (!doc) throw new Error('Document not found')
+  if (doc.workspace.ownerId !== user.id) throw new Error('Not authorized')
+
+  // Delete file from local storage
+  const blobDir = process.env.MINDMAP_LOCAL_BLOB_DIR ?? '/var/mindmap/blobs'
+  try {
+    await unlink(path.join(blobDir, doc.blobKey))
+  } catch {
+    // file might already be deleted
+  }
+
+  // Delete related rows
+  await prisma.concept.deleteMany({ where: { documentId: doc.id } })
+  await prisma.documentChunk.deleteMany({ where: { documentId: doc.id } })
+  await prisma.job.deleteMany({ where: { documentId: doc.id } })
+  await prisma.document.delete({ where: { id: doc.id } })
+
+  const locale =
+    ((await prisma.user.findUnique({ where: { id: user.id }, select: { locale: true } }))
+      ?.locale as 'en' | 'es' | null) ?? 'en'
+  revalidatePath(`/${locale}/mind/${doc.workspaceId}`)
 }

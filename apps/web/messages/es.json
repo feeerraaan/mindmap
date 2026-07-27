@@ -56,23 +56,6 @@
       "3": "Honesto por defecto. Bajamos tu maestría cuando los datos lo indican.",
       "4": "Calmado por diseño. Sin rachas, sin culpa, sin prisa."
     },
-    "pricing": {
-      "title": "Precios",
-      "free": {
-        "name": "Gratis",
-        "price": "0 €",
-        "description": "Diagnostica hasta 3 documentos al mes. 12 preguntas por diagnóstico.",
-        "cta": "Empezar gratis"
-      },
-      "pro": {
-        "name": "Pro",
-        "price": "5,99 €",
-        "period": "/ mes",
-        "yearly": "o 49,99 € / año",
-        "description": "Documentos ilimitados. Diagnóstico más profundo. Línea de repaso adaptativa.",
-        "cta": "Canjear cupón"
-      }
-    },
     "footer": {
       "madeWith": "Hecho con cuidado para mentes curiosas."
     }
@@ -80,12 +63,23 @@
   "auth": {
     "signIn": {
       "title": "Inicia sesión en MindMap",
-      "subtitle": "Continúa aprendiendo sin rellenar un formulario.",
-      "google": "Continuar con Google",
+      "subtitle": "Continúa aprendiendo.",
+      "tabLogin": "Iniciar sesión",
       "emailLabel": "Correo electrónico",
       "emailPlaceholder": "tu@ejemplo.com",
+      "passwordLabel": "Contraseña",
+      "passwordPlaceholder": "Mínimo 8 caracteres",
+      "signInButton": "Iniciar sesión",
+      "errorGeneric": "Correo o contraseña incorrectos.",
       "sendLink": "Envíame un enlace mágico",
       "linkSent": "Revisa tu bandeja. El enlace caduca en 15 minutos."
+    },
+    "signUp": {
+      "tabRegister": "Crear cuenta",
+      "nameLabel": "Nombre",
+      "namePlaceholder": "Tu nombre",
+      "registerButton": "Crear cuenta",
+      "errorGeneric": "Error al registrar. El correo ya puede estar en uso."
     }
   },
   "onboarding": {
@@ -114,6 +108,8 @@
       "title": "Nombra tu Mente",
       "subtitle": "Puedes tener tantas como quieras — una por tema.",
       "placeholder": "p. ej. Cardiología Q1",
+      "examDate": "Fecha del examen (opcional)",
+      "examDatePlaceholder": "Elige la fecha del examen",
       "skip": "Saltar"
     },
     "next": "Siguiente",
@@ -129,9 +125,12 @@
     "openMind": "Abrir Mente",
     "allMinds": "Tus Mentes",
     "untitled": "Mente sin título",
+    "examDate": "Examen",
     "new": {
       "title": "Nueva Mente",
       "placeholder": "Nombra tu Mente",
+      "examDate": "Fecha del examen",
+      "examDatePlaceholder": "Elige la fecha del examen",
       "create": "Crear Mente",
       "cancel": "Cancelar"
     },
@@ -201,6 +200,137 @@
     "uploading": "Subiendo",
     "parsing": "Leyendo estructura",
     "ready": "Listo"
+  },
+  "documents": {
+    "graphing": "Construyendo el mapa",
+    "concepts": "{count, plural, =0 {aún sin conceptos} =1 {1 concepto} other {# conceptos}}",
+    "graphBuilt": "Mapa listo",
+    "open": "Abrir",
+    "buildFailed": "No pudimos construir el mapa de este documento. Prueba a volver a subirlo.",
+    "diagnose": "Iniciar diagnóstico",
+    "continueDiagnosis": "Continuar diagnóstico",
+    "diagnoseHint": "Una entrevista corta y adaptativa que mapea lo que sabes.",
+    "seeMap": "Ver mapa",
+    "viewDocuments": "Documentos",
+    "viewTimeline": "Cronología",
+    "viewHistory": "Historial",
+    "viewMap": "Mapa"
+  },
+  "diagnosis": {
+    "thinking": "La Mente está pensando…",
+    "complete": "Ese es el panorama.",
+    "mapReady": "Tu mapa de conocimiento está listo.",
+    "startOver": "Empezar de nuevo",
+    "openMap": "Ver tu mapa",
+    "iDontKnow": "No lo sé",
+    "skip": "Saltar",
+    "submit": "Enviar",
+    "openPlaceholder": "Escribe tu respuesta con tus palabras…",
+    "clarificationTitle": "Pequeño seguimiento",
+    "clarificationPlaceholder": "Una o dos frases bastan.",
+    "clarificationSubmit": "Enviar",
+    "reconnecting": "Reconectando…",
+    "connectionLost": "La Mente está tomando un momento. Vuelve a intentarlo en unos segundos.",
+    "questionsCompleted": "Preguntas",
+    "confidence": "Confianza global",
+    "thinkingTitle": "Mapeando tu comprensión"
+  },
+  "map": {
+    "title": "Tu mapa de conocimiento",
+    "subtitle": "Cada nodo es un concepto de tu documento. El color muestra cuánto lo dominas.",
+    "filters": {
+      "all": "Todo",
+      "known": "Lo que sé",
+      "thinkIKnow": "Lo que creo saber",
+      "dontKnow": "Lo que no",
+      "aboutToForget": "A punto de olvidar"
+    },
+    "legend": {
+      "title": "Color",
+      "known": "Dominado",
+      "weak": "Débil",
+      "unknown": "Sin explorar"
+    },
+    "node": {
+      "attempts": "{count, plural, =0 {Sin explorar} =1 {1 intento} other {# intentos}}",
+      "lastSeen": "Visto por última vez {when}",
+      "due": "Repaso {when}"
+    },
+    "side": {
+      "title": "Concepto",
+      "close": "Cerrar",
+      "openInTimeline": "Ver en la cronología",
+      "attempts": "Intentos",
+      "correct": "Correctas",
+      "lastSeen": "Visto por última vez",
+      "due": "Próximo repaso",
+      "dependsOn": "Depende de",
+      "dependedBy": "Necesario para"
+    },
+    "empty": {
+      "title": "Aún no hay mapa",
+      "body": "Ejecuta un diagnóstico sobre este documento para construir su mapa."
+    },
+    "mobileHint": "Abre el mapa en una pantalla más grande para verlo completo."
+  },
+  "timeline": {
+    "title": "Cronología",
+    "subtitle": "Qué repasar y cuándo.",
+    "today": "Hoy",
+    "overdue": "Retrasado",
+    "upcoming": "Próximos",
+    "empty": {
+      "title": "Nada pendiente",
+      "body": "Cuando un diagnóstico termine, tu primer repaso aparecerá aquí."
+    },
+    "itemCount": "{count, plural, =0 {Nada programado} =1 {1 concepto} other {# conceptos}}",
+    "reasons": {
+      "decay": "La memoria se desvanece",
+      "new-weakness": "Nueva debilidad",
+      "dependency-gap": "Falta un prerrequisito",
+      "first-review": "Primer repaso",
+      "priority": "Prioridad"
+    },
+    "actions": {
+      "start": "Empezar repaso",
+      "resume": "Continuar repaso",
+      "viewMap": "Ver mapa"
+    },
+    "stats": {
+      "todayItems": "{count, plural, =0 {Nada hoy} =1 {1 concepto hoy} other {# conceptos hoy}}",
+      "upcomingItems": "{count, plural, =0 {Nada próximo} =1 {1 próximo} other {# próximos}}"
+    }
+  },
+  "review": {
+    "title": "Repaso",
+    "subtitle": "Una comprobación corta de lo que ya sabes.",
+    "knew": "Lo sabía",
+    "didnt": "No lo sabía",
+    "skip": "Saltar",
+    "next": "Siguiente",
+    "finish": "Terminar repaso",
+    "complete": {
+      "title": "Listo.",
+      "body": "Tu mapa se ha actualizado y el próximo repaso está programado.",
+      "viewTimeline": "Volver a la cronología"
+    },
+    "progress": "{current} de {total}"
+  },
+  "history": {
+    "title": "Historial",
+    "subtitle": "Tus diagnósticos y repasos recientes.",
+    "diagnosis": "Diagnóstico",
+    "review": "Repaso",
+    "confidence": "Confianza final",
+    "delta": "Δ {value}",
+    "noDelta": "Primera sesión",
+    "items": "{count} conceptos",
+    "questions": "{count} preguntas",
+    "viewMap": "Ver mapa",
+    "empty": {
+      "title": "Sin historial",
+      "body": "Tus diagnósticos y repasos aparecerán aquí."
+    }
   },
   "errors": {
     "generic": "Algo ha fallado por nuestra parte. Ya estamos avisados.",

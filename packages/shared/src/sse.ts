@@ -45,9 +45,7 @@ export function sseResponse(events: AsyncIterable<SseEvent>): Response {
  * remaining unparsed text. Intended for manual fetch streaming; for the
  * browser we use EventSource directly.
  */
-export function parseSSEChunk(
-  buffer: string,
-): { event: SseEvent | null; rest: string } {
+export function parseSSEChunk(buffer: string): { event: SseEvent | null; rest: string } {
   const sep = buffer.indexOf('\n\n')
   if (sep === -1) return { event: null, rest: buffer }
 

@@ -16,7 +16,10 @@ const MAX_BYTES = 25 * 1024 * 1024
  * split lets us return 200 quickly and avoid the serverless timeout on
  * big uploads.
  */
-export async function PUT(req: NextRequest, { params }: { params: Promise<{ documentId: string }> }) {
+export async function PUT(
+  req: NextRequest,
+  { params }: { params: Promise<{ documentId: string }> },
+) {
   const { documentId } = await params
   const user = await getCurrentUser()
   if (!user) return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
@@ -26,8 +29,10 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ docu
     include: { workspace: { select: { ownerId: true } } },
   })
   if (!doc) return NextResponse.json({ error: 'not found' }, { status: 404 })
-  if (doc.workspace.ownerId !== user.id) return NextResponse.json({ error: 'forbidden' }, { status: 403 })
-  if (doc.status !== 'QUEUED') return NextResponse.json({ error: 'already uploaded' }, { status: 409 })
+  if (doc.workspace.ownerId !== user.id)
+    return NextResponse.json({ error: 'forbidden' }, { status: 403 })
+  if (doc.status !== 'QUEUED')
+    return NextResponse.json({ error: 'already uploaded' }, { status: 409 })
 
   const lengthHeader = req.headers.get('content-length')
   const declaredLength = lengthHeader ? Number(lengthHeader) : doc.sizeBytes

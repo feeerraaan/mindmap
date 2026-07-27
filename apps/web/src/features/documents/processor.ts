@@ -5,7 +5,8 @@
  *   1. Read bytes from storage
  *   2. parseDocument() → DocumentChunk[]
  *   3. Persist chunks
- *   4. Update Document.status (PARSING → READY)
+ *   4. Update Document.status (PARSING → GRAPHING)
+ *   5. Return ok=true so the runner can chain a BUILD_GRAPH job.
  *
  * On error, set status = FAILED and write a structured message to Job.error.
  */
@@ -18,6 +19,7 @@ export interface ProcessInput {
 }
 
 export interface ProcessResult {
+  ok: boolean
   chunkCount: number
   pageCount: number | null
 }
@@ -62,10 +64,12 @@ export async function processDocument(input: ProcessInput): Promise<ProcessResul
     })),
   })
 
+  // Hand the document off to the graphing stage. The runner will pick up
+  // the BUILD_GRAPH job that this status change is paired with.
   await prisma.document.update({
     where: { id: doc.id },
     data: {
-      status: 'READY',
+      status: 'GRAPHING',
       pageCount: parsed.pageCount ?? doc.pageCount,
       language: parsed.language ?? doc.language,
     },
@@ -75,5 +79,5 @@ export async function processDocument(input: ProcessInput): Promise<ProcessResul
     data: { status: 'COMPLETED', finishedAt: new Date(), progress: 1.0 },
   })
 
-  return { chunkCount: parsed.chunks.length, pageCount: parsed.pageCount ?? null }
+  return { ok: true, chunkCount: parsed.chunks.length, pageCount: parsed.pageCount ?? null }
 }

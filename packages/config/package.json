@@ -15,7 +15,10 @@
     "./tsconfig/node-library": "./tsconfig.node-library.json",
     "./tailwind": "./src/tailwind/preset.css"
   },
-  "files": ["src", "tsconfig.*.json"],
+  "files": [
+    "src",
+    "tsconfig.*.json"
+  ],
   "scripts": {
     "lint": "echo \"(config has no runtime)\" && exit 0",
     "typecheck": "echo \"(config has no runtime)\" && exit 0",

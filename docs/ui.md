@@ -1,395 +1,245 @@
 # MindMap — UI / Design System
 
-> Calm. Premium. Honest. Every pixel earns its place. Every animation has a purpose.
+> Apple-inspired design system. Product-first, quiet UI, a single accent, and a single press gesture.
 
 ---
 
 ## 1. Design Philosophy
 
-MindMap is a clinic, not a casino. The UI must feel like the medical equipment in a
-premium specialist's office: precise, quiet, reassuring. We take inspiration from
-**Linear** (motion density), **Notion** (text-as-UI), **Raycast** (command density),
-**Apple** (restraint), **Vercel** (type & whitespace), and **Arc Browser** (delight in
-transitions).
+MindMap is presented as a clean, premium productivity app. We take Apple's web design language as the primary reference: **SF Pro typography**, **Action Blue (#0066cc)** as the only accent, **white/parchment/neutral-black tiles** as the rhythm, and **hairline borders** instead of shadows. The UI recedes so the content (the Mind, the documents, the concepts) can speak.
 
-### Anti-principles (what we do NOT do)
+### Anti-principles
 
-- No streaks, no XP, no confetti.
-- No red urgency. Errors are calm, blue-grey, actionable.
-- No modal stacking. One focus at a time.
-- No "Are you sure?" on safe actions; "Are you sure?" only on destructive ones, and it
-  says what will happen, not "Confirm".
+- No decorative gradients.
+- No shadows on UI chrome. The only shadow is reserved for product photography (not applicable here).
+- No second accent color. Action Blue carries every interactive element.
+- No uppercase micro-labels. Labels are small, gray, and sentence-case.
+- No weight 500. The ladder is 300 / 400 / 600 / 700.
 - No emoji in product copy (onboarding emoji is the user's choice, not our branding).
-- No `text-xs` grey-on-grey disclaimers. If it matters, it's readable.
+- No `text-xs` gray-on-grey disclaimers. If it matters, it's readable.
 
 ---
 
-## 2. Spacing
+## 2. Typography
 
-A 4px base grid. The scale is **geometric (×2 every two steps)** to give clear jumps:
+- **Display / Headlines:** SF Pro Display, weight 600, tight negative tracking.
+- **Body / UI:** SF Pro Text, weight 400, 17px, line-height 1.47.
+- **Fallback stack:** `system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif`.
 
-| Token | px | Use |
-|------|----|----|
-| `space-0` | 0 | — |
-| `space-1` | 4 | inline icon ↔ text |
-| `space-2` | 8 | tight grouping |
-| `space-3` | 12 | control padding (default) |
-| `space-4` | 16 | element ↔ element |
-| `space-6` | 24 | group ↔ group |
-| `space-8` | 32 | section ↔ section |
-| `space-12` | 48 | page-level rhythm |
-| `space-16` | 64 | hero spacing |
-| `space-24` | 96 | landing section spacing |
+### Type scale
 
-Implemented as CSS variables in Tailwind v4's `@theme`:
-
-```css
-@theme {
-  --spacing-1: 0.25rem;
-  --spacing-2: 0.5rem;
-  --spacing-3: 0.75rem;
-  /* ... */
-}
-```
-
-`Tailwind` utilities `p-3`, `gap-6`, `mt-8` map to these.
-
----
-
-## 3. Typography
-
-- **Sans:** Geist Sans (via `next/font/google`, self-hosted, no FOUT).
-- **Mono:** Geist Mono (for numbers, status codes, code samples).
-- **No serif.** A serif would imply editorial warmth; MindMap is clinical.
-
-### Type scale (modular, 1.125 ratio)
-
-| Token | rem (16px base) | Use |
-|------|------|----|
-| `text-xs` | 0.75 | metadata, timestamps |
-| `text-sm` | 0.875 | secondary text, table cells |
-| `text-base` | 1 | body |
-| `text-lg` | 1.125 | lead paragraph |
-| `text-xl` | 1.25 | card titles |
-| `text-2xl` | 1.5 | section H3 |
-| `text-3xl` | 1.875 | section H2 |
-| `text-4xl` | 2.25 | page H1 |
-| `text-5xl` | 3 | landing hero |
-| `text-6xl` | 3.75 | landing display (used sparingly) |
-
-### Line heights
-
-- Body: `leading-relaxed` (1.625) — reading comfort for explanations.
-- Headings: `leading-tight` (1.2).
-- UI text: `leading-normal` (1.5).
-
-### Weight
-
-- Two weights only: **400** (body), **600** (emphasis / headings / buttons).
-- No 300 (too thin on low-DPI), no 700+ (too shouty).
+| Utility         | Size | Weight | Line height | Letter spacing | Use                   |
+| --------------- | ---- | ------ | ----------- | -------------- | --------------------- |
+| `text-hero`     | 56px | 600    | 1.07        | -0.28px        | Landing hero          |
+| `text-display`  | 40px | 600    | 1.10        | -0.01em        | Section H1s           |
+| `text-headline` | 34px | 600    | 1.18        | -0.023em       | Page titles           |
+| `text-tagline`  | 21px | 600    | 1.19        | 0.014em        | Card headers          |
+| `text-lead`     | 28px | 400    | 1.14        | 0.012em        | Large subcopy         |
+| `text-[17px]`   | 17px | 400    | 1.47        | -0.022em       | Body, buttons, inputs |
+| `text-sm`       | 14px | 400    | 1.43        | -0.014em       | Captions, metadata    |
+| `text-xs`       | 12px | 400    | 1.0         | -0.012em       | Fine print            |
 
 ### Numbers
 
-- Tabular figures (`font-variant-numeric: tabular-nums`) for any mastery %, confidence,
-  token counts — so they don't jitter as they update.
+- Tabular figures (`font-variant-numeric: tabular-nums`) for percentages, counts, dates.
 
 ---
 
-## 4. Color
-
-### Base palette (HSL-based, single hue family per role)
-
-A near-neutral, slightly cool grey base (Linear/Vercel-like) with a single accent.
+## 3. Color
 
 ```css
 @theme {
-  /* Neutrals — cool grey */
-  --color-bg:                  hsl(0 0% 100%);       /* light bg */
-  --color-bg-subtle:           hsl(210 20% 99%);
-  --color-bg-muted:            hsl(210 20% 97%);
-  --color-surface:             hsl(0 0% 100%);
-  --color-surface-raised:      hsl(210 20% 98%);
-  --color-border:              hsl(210 16% 90%);
-  --color-border-strong:       hsl(210 16% 82%);
-  --color-fg:                  hsl(210 24% 16%);
-  --color-fg-muted:            hsl(210 12% 45%);
-  --color-fg-subtle:           hsl(210 10% 60%);
+  --color-bg: #ffffff;
+  --color-bg-subtle: #fafafc;
+  --color-bg-muted: #f5f5f7;
+  --color-surface: #ffffff;
+  --color-surface-raised: #fafafc;
+  --color-nav: #000000;
+  --color-tile-dark: #272729;
 
-  /* Accent — calm teal (clinical, premium, color-blind safe) */
-  --color-accent:              hsl(186 72% 38%);
-  --color-accent-fg:           hsl(186 80% 98%);
-  --color-accent-hover:        hsl(186 72% 32%);
+  --color-border: #e0e0e0;
+  --color-border-strong: #d2d2d7;
+  --color-border-subtle: #f0f0f0;
 
-  /* Semantic — desaturated, never shouty */
-  --color-success:             hsl(152 50% 38%);
-  --color-warning:             hsl(38 80% 45%);
-  --color-danger:              hsl(0 60% 52%);
-  --color-info:                hsl(210 70% 45%);
+  --color-fg: #1d1d1f;
+  --color-fg-muted: #6e6e73;
+  --color-fg-subtle: #86868b;
+
+  --color-primary: #0066cc;
+  --color-primary-fg: #ffffff;
+  --color-primary-hover: #005fb8;
+  --color-primary-focus: #0071e3;
+  --color-primary-on-dark: #2997ff;
+
+  --color-success: #34c759;
+  --color-warning: #ff9500;
+  --color-danger: #ff3b30;
+  --color-info: #0066cc;
+
+  --color-mastery-0: #d2d2d7;
+  --color-mastery-1: #7fb3e8;
+  --color-mastery-2: #0066cc;
+  --color-mastery-3: #30b455;
+  --color-mastery-4: #34c759;
 }
 ```
 
-### Dark mode (preferred by target audience — self-learners study at night)
+### Dark mode
 
 ```css
 .dark {
-  --color-bg:                  hsl(210 24% 8%);
-  --color-bg-subtle:           hsl(210 24% 10%);
-  --color-bg-muted:            hsl(210 24% 13%);
-  --color-surface:             hsl(210 24% 11%);
-  --color-surface-raised:      hsl(210 24% 14%);
-  --color-border:              hsl(210 16% 22%);
-  --color-border-strong:       hsl(210 16% 30%);
-  --color-fg:                  hsl(210 30% 96%);
-  --color-fg-muted:            hsl(210 12% 70%);
-  --color-fg-subtle:           hsl(210 10% 50%);
-
-  --color-accent:              hsl(186 70% 50%);
-  --color-accent-fg:           hsl(186 80% 8%);
-  --color-accent-hover:        hsl(186 70% 58%);
-
-  --color-success:             hsl(152 50% 50%);
-  --color-warning:             hsl(38 85% 55%);
-  --color-danger:              hsl(0 60% 60%);
-  --color-info:                hsl(210 70% 60%);
+  --color-bg: #000000;
+  --color-bg-subtle: #111113;
+  --color-bg-muted: #1c1c1e;
+  --color-surface: #1c1c1e;
+  --color-surface-raised: #2c2c2e;
+  --color-border: #38383a;
+  --color-fg: #ffffff;
+  --color-fg-muted: #98989d;
+  --color-primary: #2997ff;
 }
 ```
 
-### Mastery color ramp (Knowledge Map nodes)
+---
 
-A **perceptually uniform, color-blind safe** ramp from cool-grey (unknown) to teal
-(known), avoiding red/green confusion:
+## 4. Spacing
 
+Apple's base unit is 8px. The MindMap app uses the existing 4px grid, so the two systems are compatible.
+
+| Token  | Use                              |
+| ------ | -------------------------------- |
+| `4px`  | inline icon ↔ text               |
+| `8px`  | tight grouping                   |
+| `12px` | control padding                  |
+| `16px` | element ↔ element                |
+| `24px` | card internal padding            |
+| `32px` | section gutters                  |
+| `48px` | large section gaps               |
+| `80px` | full-bleed tile vertical padding |
+
+---
+
+## 5. Radius
+
+Apple's grammar:
+
+- `rounded-md` (11px) — utility buttons, inputs, segmented controls.
+- `rounded-lg` (18px) — cards, utility surfaces.
+- `rounded-full` (pill) — primary CTAs, secondary-pill CTAs, search inputs, chips.
+- `rounded-md` (8px) — small nav controls.
+- `rounded-none` — full-bleed tiles (not used in-app).
+
+---
+
+## 6. Components
+
+### Buttons
+
+Primary CTAs are **blue pills**:
+
+```jsx
+<Button size="md">Primary</Button>
 ```
-0.0  hsl(210 12% 75%)   // unknown — cool grey
-0.25 hsl(195 30% 65%)   // barely
-0.5  hsl(186 50% 52%)   // partial — teal mid
-0.75 hsl(172 55% 42%)   // solid
-1.0  hsl(160 60% 35%)   // mastered — deep green-teal
-```
 
-Confidence is rendered as **node ring opacity** (low confidence = faint ring), not as
-another color — avoiding double-encoding on the same channel.
+- `primary` — blue pill, white text, hover darker blue.
+- `secondary` — ghost pill, blue border, blue text.
+- `outline` — pearl capsule, hairline border, near-black text.
+- `ghost` — transparent, gray text, hover bg-muted.
+- `danger` — red pill.
+- `link` — Action Blue text.
 
-### Why teal, not blue or purple?
+All buttons have `active:scale-95` as the system-wide press gesture.
 
-- Blue is overused by tech (Vercel, Twitter, Linear-ish) and reads generic.
-- Purple reads "AI magic" — MindMap is *not* a magic-wand product, it's diagnostic.
-- Teal sits between clinical blue and calm green; rare enough to be ownable; passes
-  WCAG AA on both light and dark backgrounds at the chosen saturation.
+### Inputs
 
----
+- Height 44px (`h-11`).
+- `rounded-md` (11px).
+- 1px hairline border.
+- Focus: 2px ring in `--color-primary-focus`.
 
-## 5. Components (shadcn/ui-based)
+### Cards
 
-`packages/ui` re-exports and themes shadcn/ui primitives. We add MindMap-specific
-composites on top.
+- White background, `rounded-lg` (18px), 1px hairline border.
+- No shadow.
+- Internal padding 24px (`p-6`).
 
-### Primitives (shadcn, themed)
+### Segmented controls
 
-Button, Input, Textarea, Select, Label, Card, Dialog, Sheet, Tabs, Tooltip, Toast,
-ScrollArea, Separator, Skeleton, Avatar, Badge, Progress, Switch, Checkbox, RadioGroup,
-DropdownMenu, Popover, AlertDialog.
+- Track: `rounded-full` with `bg-[var(--color-bg-muted)]`.
+- Active thumb: white surface, tiny shadow, semibold text.
+- Used for theme picker, language picker, and map filters.
 
-### Composites (MindMap-specific, in `packages/ui/composites/`)
+### Navigation
 
-| Component | Purpose |
-|-----------|---------|
-| `<CalmProgress>` | Thin progress line; no percentage by default; subtle pulse |
-| `<StatusBadge>` | Maps `DocumentStatus` enum → label + dot color |
-| `<ConceptNode>` | react-flow node for the Knowledge Map |
-| `<MasteryRing>` | Circular progress ring with tabular mastery % |
-| `<EmptyState>` | Calm empty states with one affordance, never an error look |
-| `<DiagnosisCard>` | Single question card; MCQ or free-text variant |
-| `<TimelineDay>` | A day in the review timeline; list of ReviewItems |
-| `<CouponInput>` | Single-field "Redeem coupon" with inline validation |
-| `<LocaleSwitch>` | EN / ES segmented control |
-| `<MindHeader>` | Workspace header with name + emoji + status |
+- **Global nav (marketing):** 44px black bar, white text, 12px nav links, blue pill CTA.
+- **App sidebar:** parchment background, subtle selection, rounded-md active items.
+- **App sub-nav:** frosted glass strip (`backdrop-blur-xl backdrop-saturate-150`, parchment 80%) with pill tabs.
 
-### Component rules
+### Badges
 
-- **Props in, events out.** No data fetching inside `packages/ui`.
-- All interactive components accept `className` (merged via `cn`).
-- All composites have a Storybook story (phase 8) — but we keep stories out of the
-  runtime bundle.
-- All copy is **externalized** — components accept labels as props or read from
-  `next-intl` `useTranslations` only in `apps/web`, never inside `packages/ui`.
+- Small pill, solid color.
+- `accent` = Action Blue.
+- `success` = Apple green.
+- `danger` = Apple red.
+- `warning` = Apple orange.
+
+### Mastery / Progress
+
+- `CalmProgress` uses Action Blue fill on a `bg-muted` track.
+- `MasteryRing` uses the mastery ramp from chip-gray → blue → green.
 
 ---
 
-## 6. Motion
+## 7. Motion
 
-Framer Motion. **Motion density must stay low** — Linear, not Apple Keynote.
-
-### Duration tokens
-
-| Token | ms | Use |
-|------|----|----|
-| `instant` | 80 | hover, focus state |
-| `quick` | 150 | button press, toggle |
-| `base` | 220 | default transition (enter/exit, layout) |
-| `slow` | 360 | page transitions, map layout reflow |
-| `deliberate` | 600 | mastery fill animation on map completion |
-
-### Easing
-
-- Default: `[0.22, 1, 0.36, 1]` (out-expo-ish, calm).
-- Enter from below: `translateY(8px) → 0` + opacity `0 → 1` over `base`.
-- Exit: opacity only, `quick`. Never move on exit (jarring).
-- Layout transitions: `layout` prop on Framer Motion with `base` duration.
-
-### Specific motion choices
-
-- **Onboarding step transitions:** horizontal slide + crossfade, `slow`. Feels like
-  flipping a card, not navigating a form.
-- **Document status changes:** the status badge crossfades; no positional move (the
-  card stays put — predictability matters).
-- **Diagnosis question → answer micro-feedback:** a 1-line fade-in below the question,
-  `quick`, then the next question slides in from the right (`base`).
-- **Knowledge Map completion:** nodes fade from grey to their mastery color in a
-  staggered cascade (50ms per node, capped at 1.5s total) — this is the product's
-  hero moment, the only place we allow slightly more motion.
-- **No parallax, no spring bounce on scroll.** The clinic metaphor forbids it.
-
-### Reduced motion
-
-`@media (prefers-reduced-motion: reduce)` → all transitions collapse to instant opacity
-fades only. Tested in phase 8.
+- Framer Motion for layout/enter/exit.
+- Default duration 250ms, ease `ease-in-out`.
+- Button press: `scale(0.95)`.
+- Layout transitions: `layout` prop.
+- Reduced motion: collapse to instant opacity-only transitions.
 
 ---
 
-## 7. Accessibility (WCAG 2.2 AA target)
+## 8. Layout & Responsive
 
-- All interactive elements are keyboard reachable; visible focus ring (2px accent
-  outline, never removed).
-- Color is never the sole carrier of information — node mastery is shown by **ring
-  size + label** in addition to color.
-- `aria-live="polite"` on diagnosis feedback and on document status updates.
-- Touch targets ≥44×44px (mobile).
-- All form fields have associated `<label>`; errors are `aria-describedby` linked.
-- Knowledge Map: keyboard navigation via react-flow's built-in arrow-key graph
-  traversal; each node is a `button` with an accessible name (`concept title +
-  mastery%`).
-- Lang attribute set per locale on `<html>`; next-intl handles this.
-- Tested with `axe-core` in CI (phase 8) and a manual VoiceOver pass on the diagnosis
-  flow before launch.
+- Marketing: full-bleed alternating tiles (white → parchment → white → parchment).
+- App: centered max-width containers (`max-w-3xl`, `max-w-5xl`), padded sections.
+- Mobile: global header collapses, bottom tab bar with blue active indicator.
 
 ---
 
-## 8. Iconography
+## 9. Accessibility
 
-- **Lucide** (matches shadcn default; consistent stroke width 1.5).
-- No filled icons except in mastery rings.
-- No emoji in UI chrome (allowed only as user-set workspace emoji).
-- Icon ↔ text gap: `space-2`.
-- Icon size: 16px (inline), 20px (in buttons), 24px (in headers), 32px (in empty
-  states).
-
----
-
-## 9. Layout & Responsive
-
-### Breakpoints
-
-| Name | min-width | Target |
-|------|-----------|--------|
-| `sm` | 640 | large phone landscape |
-| `md` | 768 | tablet |
-| `lg` | 1024 | laptop |
-| `xl` | 1280 | desktop |
-| `2xl` | 1536 | wide |
-
-### Mobile-first philosophy
-
-- Every page is designed mobile-first, then enhanced upward.
-- The **Knowledge Map** is the one exception: it's desktop-recommended. On mobile, we
-  show a **vertical concept list** with the same mastery/confidence encoding, and a
-  "Open the full map on a larger screen" hint. Forcing a 60-node graph onto a phone
-  is anti-calm.
-- Navigation: bottom tab bar on `< md`, sidebar on `≥ md`.
-
-### Containers
-
-- Marketing: `max-w-5xl` centered, generous `px-6`.
-- App: full-bleed with a fixed-width sidebar (`w-60` on `lg`, collapsible on `md`).
-- Reading content (diagnosis explanations): `max-w-2xl` centered.
-
-### Density
-
-- App is **comfortable density** by default. A future "compact" preference is
-  architecture-ready (a `density` flag) but not built in MVP — premature.
+- Visible focus ring: 2px `--color-primary-focus` outline, 2px offset.
+- Touch targets ≥ 44px (buttons are h-11).
+- Color is never the sole information carrier — mastery rings include numeric labels and node size.
+- `aria-live` regions for status updates.
+- Lang attribute set per locale.
 
 ---
 
-## 10. Empty & Error States
+## 10. Copy & Tone
 
-### Empty states (the most under-designed surface in most apps — we treat them as prime)
-
-Every empty state has:
-1. A single calm sentence describing what *will* be here.
-2. A single primary affordance.
-3. No illustration of a sad person or empty box. We use a small geometric mark in
-   `--color-fg-subtle` — restraint.
-
-Examples:
-- "No documents yet. Drop a PDF to begin." + upload affordance.
-- "You haven't been diagnosed on this Mind. Diagnose to see your map."
-- "No reviews due today. Take a breath." (literally — calm copy matters)
-
-### Error states
-
-- **Recoverable (network, parse fail):** inline calm card, blue-grey, "We couldn't
-  process this file. Try a different one, or continue without it." + retry.
-- **Auth required:** redirect to `/sign-in?callbackPath=...`, never a 403 page.
-- **Budget exceeded:** "Your Mind is resting for today. Come back tomorrow, or upgrade
-  to Pro for more." — *never* "Error 429".
-- **Fatal (5xx):** Next `error.tsx` boundary, calm "Something went wrong on our side.
-  We've been notified." + a "Reload" button. No stack traces, no error codes.
+- Expert, calm, second-person.
+- Sentence case in UI. Periods at end of sentences, none in button labels.
+- Apple-style: short, direct, no exclamation marks.
 
 ---
 
-## 11. Copy & Tone
+## 11. PWA / Brand Assets
 
-- **Voice:** expert, calm, second-person, never enthusiastic. Closer to a thoughtful
-  doctor than a coach.
-- "Let's check what you know about X" not "Get ready to ace your exam!"
-- "We couldn't read this PDF" not "Oops! Something went wrong 🤖".
-- Sentence case in UI (not Title Case). Periods at the end of empty-state sentences,
-  no periods in button labels.
-- Spanish translations match tone — not literal. "Tu Mente" not "Su Mente" (informal
-  `tú` — matches the audience: adult self-learners, not corporate).
+- `manifest.ts`: `background_color: #ffffff`, `theme_color: #0066cc`.
+- `icon.svg`: Action Blue rounded rectangle with white "M" glyph.
+- OG image: white background, near-black headline, Action Blue brand mark.
 
 ---
 
-## 12. Loading States
+## 12. Source of Truth
 
-- **Skeletons** for full-page loads (Workspace list, Map structure).
-- **CalmProgress** for known-duration work (parse, diagnosis).
-- **Inline shimmer** for small card content.
-- **Never** a generic full-screen spinner. If we don't know what's loading, we don't
-  show progress — we show a calm empty state with the expected next state.
-
-### The "Mind is thinking" state
-
-During AI calls, instead of a spinner we show a slow-pulsing accent dot + a one-line
-status ("Reading chapter 3…", "Composing a question about mitosis…"). This converts
-wait time into perceived competence — the same trick Linear uses for "Syncing".
+Imported Apple DESIGN.md lives at the repo root: `/root/mindmap/DESIGN.md`.
 
 ---
 
-## 13. PWA Considerations
+## 13. RTL Readiness
 
-- `manifest.ts` with maskable icons (192/512), `theme_color` = accent, `display:
-  standalone`.
-- Splash color: `--color-bg` (matches first paint, no flash).
-- Offline-cached routes: Workspace list + last opened Map (read-only).
-- Install prompt: a subtle "Install MindMap" item in Settings — never a banner
-  hijacking the screen.
-
----
-
-## 14. RTL Readiness (future)
-
-Even though MVP ships EN + ES (both LTR), the layout uses **logical properties**
-(`ps-`, `pe-`, `ms-`, `me-`) instead of `pl-`/`pr-` wherever it matters, so adding
-Arabic/Hebrew later is a `dir="rtl"` flip, not a refactor. Tracked as a phase-8
-acceptance criterion for the design system.
+The layout uses logical properties where relevant. Adding `dir="rtl"` later is a flip, not a refactor.

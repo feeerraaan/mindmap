@@ -1,6 +1,7 @@
 {
   "$schema": "https://turborepo.com/schema.json",
   "ui": "stream",
+  "concurrency": "2",
   "globalDependencies": [".env", ".env.local", "tsconfig.base.json", ".env.example"],
   "globalEnv": [
     "NODE_ENV",
@@ -19,12 +20,7 @@
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
-      "inputs": [
-        "$TURBO_DEFAULT$",
-        "!**/*.test.ts",
-        "!**/*.test.tsx",
-        "!**/*.spec.ts"
-      ],
+      "inputs": ["$TURBO_DEFAULT$", "!**/*.test.ts", "!**/*.test.tsx", "!**/*.spec.ts"],
       "outputs": [".next/**", "!.next/cache/**", "dist/**", "build/**", "!.next/types/**"]
     },
     "dev": {
@@ -32,27 +28,20 @@
       "persistent": true
     },
     "lint": {
-      "dependsOn": ["^build"],
-      "inputs": [
-        "$TURBO_DEFAULT$",
-        "!.next/**",
-        "!dist/**",
-        "!build/**",
-        "!node_modules/**"
-      ]
+      "inputs": ["$TURBO_DEFAULT$", "!.next/**", "!dist/**", "!build/**", "!node_modules/**"],
+      "outputs": []
     },
     "typecheck": {
-      "dependsOn": ["^build"],
-      "inputs": [
-        "$TURBO_DEFAULT$",
-        "!.next/**",
-        "!dist/**",
-        "!build/**",
-        "!node_modules/**"
-      ]
+      "inputs": ["$TURBO_DEFAULT$", "!.next/**", "!dist/**", "!build/**", "!node_modules/**"],
+      "outputs": []
     },
     "clean": {
       "cache": false
+    },
+    "test": {
+      "dependsOn": ["^build"],
+      "inputs": ["$TURBO_DEFAULT$", "!**/*.test.ts", "!**/*.test.tsx", "!**/*.spec.ts"],
+      "outputs": []
     }
   }
 }

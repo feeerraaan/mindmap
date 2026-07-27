@@ -6,7 +6,7 @@ Accepted (2026-07-23).
 
 ## Context
 
-MindMap needs two tiers of LLM capability:
+MindMap needs:
 
 - A **cheap, fast** model for classification, extraction, metadata, parsing — the
   bulk of the AI spend.
@@ -18,13 +18,8 @@ cheap models improve every quarter, and we want to be able to switch without a r
 
 ## Decision
 
-- **Free tier:** OpenCode ZEN with the `deepseek-v4-flash` model for *all* tasks
-  (including `reason.*`). Cost is the dominant constraint for the free path; we
-  accept slightly lower diagnosis quality and compensate with the router's
-  `downgradePlan` fallback if the user's plan is bumped.
-- **Pro tier:** OpenCode GO with the `mimo-2.5-class` model for `reason.diagnose`
-  and `reason.evaluate`. Everything else stays on ZEN/Flash — the Pro upgrade
-  buys a *better diagnosis*, not a faster classification.
+- **Primary:** OpenCode GO with the `deepseek-v4-flash` model for all tasks.
+- **Fallback:** OpenCode ZEN with the `ling-3.0-flash-free` model if GO is unavailable.
 - All provider access goes through the `ProviderAdapter` interface in
   `packages/brain/providers/`. Engines never import a provider SDK directly.
 - Base URLs and keys live in env vars only. No provider name is hardcoded
@@ -36,10 +31,8 @@ cheap models improve every quarter, and we want to be able to switch without a r
   in `packages/brain`. Adding OpenAI direct or Anthropic is a new file in
   `providers/`.
 - A/B testing model switches is a one-line policy edit.
-- If a provider is unreachable, the router downgrades the plan (e.g. Pro user
-  gets Zen for `reason.*` instead of an error) and logs the event.
-- The hackathon's judge coupon `JUDGE100` grants Pro, so judges exercise the
-  Pro code path during demo.
+- If a provider is unreachable, the router falls through to the next candidate
+  instead of returning an error, and logs the event.
 
 ## Alternatives considered
 

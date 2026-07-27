@@ -7,7 +7,8 @@
   "main": "./src/index.ts",
   "exports": {
     ".": "./src/index.ts",
-    "./loader": "./src/loader.ts"
+    "./loader": "./src/loader.ts",
+    "./prompts": "./prompts"
   },
   "scripts": {
     "lint": "eslint .",
@@ -16,10 +17,13 @@
     "clean": "rm -rf .turbo dist"
   },
   "dependencies": {
-    "@mindmap/types": "workspace:*"
+    "@mindmap/types": "workspace:*",
+    "gray-matter": "^4.0.3",
+    "mustache": "^4.2.0"
   },
   "devDependencies": {
     "@mindmap/config": "workspace:*",
+    "@types/mustache": "^4.2.5",
     "typescript": "^5.6.0",
     "eslint": "^9.16.0",
     "typescript-eslint": "^8.18.0",

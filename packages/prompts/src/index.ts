@@ -1,2 +1,2 @@
-export { loadPrompt, loadAllPrompts } from './loader'
+export { loadPrompt, loadAllPrompts, _resetPromptCache } from './loader'
 export type { PromptFrontmatter, LoadedPrompt } from './loader'

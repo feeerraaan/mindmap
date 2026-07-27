@@ -25,7 +25,9 @@ function pickAdapter(mimeType: string): ParserAdapter | null {
 const MAX_BYTES = 25 * 1024 * 1024
 const MIN_TEXT_CHARS = 8
 
-export async function parseDocument(input: ParseInput): Promise<Result<ParsedDocument, ParseError>> {
+export async function parseDocument(
+  input: ParseInput,
+): Promise<Result<ParsedDocument, ParseError>> {
   if (input.bytes.byteLength === 0) {
     return Err({ kind: 'EmptyDocument', message: 'The file is empty.' })
   }
@@ -41,11 +43,15 @@ export async function parseDocument(input: ParseInput): Promise<Result<ParsedDoc
   }
   const result = await adapter.parse(input)
   if (result.ok) {
-    const text = result.value.chunks.map((c) => c.text).join('\n').trim()
+    const text = result.value.chunks
+      .map((c) => c.text)
+      .join('\n')
+      .trim()
     if (text.length < MIN_TEXT_CHARS) {
       return Err({
         kind: 'EmptyDocument',
-        message: 'We could not extract readable text from this file. If it is a scanned PDF, OCR is not yet supported.',
+        message:
+          'We could not extract readable text from this file. If it is a scanned PDF, OCR is not yet supported.',
       })
     }
   }

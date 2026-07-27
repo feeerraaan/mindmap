@@ -37,6 +37,7 @@ export const WorkspaceSchema = z.object({
   ownerId: z.string(),
   name: z.string().min(1).max(60),
   emoji: z.string().max(8).nullable(),
+  examDate: z.date().nullable(),
   prior: z.record(z.unknown()).default({}),
   createdAt: z.date(),
   updatedAt: z.date(),
@@ -209,56 +210,6 @@ export const ReviewItemSchema = z.object({
 export type ReviewItem = z.infer<typeof ReviewItemSchema>
 
 /* ──────────────────────────────────────────────────────────────────
- * Billing & Feature flags
- * ────────────────────────────────────────────────────────────────── */
-
-export const PlanSchema = z.enum(['FREE', 'PRO'])
-export type Plan = z.infer<typeof PlanSchema>
-
-export const SubStatusSchema = z.enum(['ACTIVE', 'CANCELED', 'EXPIRED', 'PAST_DUE'])
-export type SubStatus = z.infer<typeof SubStatusSchema>
-
-export const SubscriptionSchema = z.object({
-  id: z.string(),
-  userId: z.string(),
-  plan: PlanSchema,
-  status: SubStatusSchema,
-  couponId: z.string().nullable(),
-  proUntil: z.date().nullable(),
-  createdAt: z.date(),
-  updatedAt: z.date(),
-})
-export type Subscription = z.infer<typeof SubscriptionSchema>
-
-export const CouponSchema = z.object({
-  id: z.string(),
-  code: z.string().min(1).max(40),
-  plan: PlanSchema.default('PRO'),
-  durationDays: z.number().int().positive().nullable(),
-  maxRedemptions: z.number().int().positive().default(1),
-  redemptions: z.number().int().nonnegative().default(0),
-  validFrom: z.date(),
-  validUntil: z.date().nullable(),
-  note: z.string().nullable(),
-  createdAt: z.date(),
-})
-export type Coupon = z.infer<typeof CouponSchema>
-
-export const FlagScopeSchema = z.enum(['GLOBAL', 'USER'])
-export type FlagScope = z.infer<typeof FlagScopeSchema>
-
-export const FeatureFlagSchema = z.object({
-  id: z.string(),
-  key: z.string(),
-  scope: FlagScopeSchema,
-  userId: z.string().nullable(),
-  value: z.record(z.unknown()),
-  createdAt: z.date(),
-  updatedAt: z.date(),
-})
-export type FeatureFlag = z.infer<typeof FeatureFlagSchema>
-
-/* ──────────────────────────────────────────────────────────────────
  * Job
  * ────────────────────────────────────────────────────────────────── */
 
@@ -329,7 +280,11 @@ export type ProviderId = z.infer<typeof ProviderIdSchema>
  * ────────────────────────────────────────────────────────────────── */
 
 export const BrainErrorSchema = z.discriminatedUnion('kind', [
-  z.object({ kind: z.literal('RateLimited'), provider: ProviderIdSchema, retryAfterMs: z.number() }),
+  z.object({
+    kind: z.literal('RateLimited'),
+    provider: ProviderIdSchema,
+    retryAfterMs: z.number(),
+  }),
   z.object({ kind: z.literal('SchemaFailure'), task: TaskTypeSchema, message: z.string() }),
   z.object({ kind: z.literal('ProviderError'), provider: ProviderIdSchema, message: z.string() }),
   z.object({ kind: z.literal('BudgetExceeded'), userId: z.string() }),

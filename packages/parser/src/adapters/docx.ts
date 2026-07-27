@@ -2,17 +2,18 @@
  * DOCX adapter — uses mammoth for raw-text extraction.
  */
 import { Err, Ok, type Result } from '@mindmap/shared'
-import type { ParsedDocument, DocumentChunk } from '@mindmap/types'
+import type { ParsedDocument } from '@mindmap/types'
 import type { ParserAdapter, ParseError, ParseInput } from '../types'
 
 export const docxAdapter: ParserAdapter = {
   id: 'docx',
-  supports: (m) =>
-    m === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  supports: (m) => m === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
   async parse(input: ParseInput): Promise<Result<ParsedDocument, ParseError>> {
     try {
       const mammoth = (await import('mammoth')) as unknown as {
-        extractRawText: (input: { buffer: Buffer }) => Promise<{ value: string; messages: unknown[] }>
+        extractRawText: (input: {
+          buffer: Buffer
+        }) => Promise<{ value: string; messages: unknown[] }>
       }
       const buf = Buffer.from(input.bytes)
       const result = await mammoth.extractRawText({ buffer: buf })

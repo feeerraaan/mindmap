@@ -10,7 +10,10 @@
     "start": "next start -p 3100",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
-    "clean": "rm -rf .next .turbo"
+    "clean": "rm -rf .next .turbo",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
     "@mindmap/analytics": "workspace:*",
@@ -23,32 +26,39 @@
     "@mindmap/types": "workspace:*",
     "@mindmap/ui": "workspace:*",
     "@prisma/client": "^6.0.0",
+    "@tailwindcss/postcss": "^4.0.0",
     "@tanstack/react-query": "^5.62.0",
     "@vercel/blob": "^0.27.0",
+    "@xyflow/react": "^12.11.2",
     "framer-motion": "^11.13.0",
     "lucide-react": "^0.460.0",
     "next": "16.0.0",
     "next-intl": "^3.26.0",
-    "react": "^19.0.0",
-    "react-dropzone": "^14.3.0",
-    "react-dom": "^19.0.0",
-    "tailwindcss": "^4.0.0",
-    "@tailwindcss/postcss": "^4.0.0",
     "postcss": "^8.4.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "react-dropzone": "^14.3.0",
+    "tailwindcss": "^4.0.0",
     "zod": "^3.23.0"
   },
   "devDependencies": {
     "@mindmap/config": "workspace:*",
     "@next/eslint-plugin-next": "16.0.0",
+    "@testing-library/jest-dom": "^6.6.0",
+    "@testing-library/react": "^16.1.0",
     "@types/node": "^22.10.0",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
+    "axe-core": "^4.10.0",
     "eslint": "^9.16.0",
     "eslint-plugin-import": "^2.31.0",
     "eslint-plugin-jsx-a11y": "^6.10.0",
     "eslint-plugin-react": "^7.37.0",
     "eslint-plugin-react-hooks": "^5.0.0",
+    "jsdom": "^25.0.0",
     "typescript": "^5.6.0",
-    "typescript-eslint": "^8.18.0"
+    "typescript-eslint": "^8.18.0",
+    "vitest": "^3.1.0",
+    "@vercel/og": "^0.8.0"
   }
 }

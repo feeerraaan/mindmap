@@ -1,6 +1,6 @@
 /**
  * Result<T, E> — explicit, no-throw error handling for expected domain failures.
- * Use for things like "coupon already redeemed" or "feature flag missing".
+ * Use for things like "document already uploaded" or "invalid session state".
  * Reserve `throw` for genuinely unexpected conditions.
  */
 export type Result<T, E> = { ok: true; value: T } | { ok: false; error: E }

@@ -7,7 +7,7 @@ const nextConfig: NextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
   // Allow the public IP of the VPS to hit the dev server.
-  allowedDevOrigins: ['212.227.246.72', 'localhost'],
+  allowedDevOrigins: ['212.227.246.72', 'localhost', 'mindmap.azpy.es'],
   // Workspace packages ship TS source with .js import paths (ESM convention).
   // We let Next transpile them and add .ts/.tsx to Turbopack's resolve extensions
   // so `./client.js` correctly resolves to `./client.ts`.
@@ -37,6 +37,16 @@ const nextConfig: NextConfig = {
   },
   async headers() {
     return [
+      {
+        source: '/(.*)',
+        headers: [
+          { key: 'X-Content-Type-Options', value: 'nosniff' },
+          { key: 'X-Frame-Options', value: 'DENY' },
+          { key: 'X-XSS-Protection', value: '1; mode=block' },
+          { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+          { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=()' },
+        ],
+      },
       {
         source: '/sw.js',
         headers: [

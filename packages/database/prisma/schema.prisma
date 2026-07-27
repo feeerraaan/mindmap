@@ -30,9 +30,7 @@ model User {
   sessions       Session[]
   accounts       Account[]
   workspaces     Workspace[]
-  featureFlags   FeatureFlag[]
   reviewSessions ReviewSession[]
-  subscription   Subscription?
 
   @@index([email])
   @@index([deletedAt])
@@ -87,13 +85,14 @@ model Verification {
 }
 
 model Workspace {
-  id        String   @id @default(cuid())
+  id        String    @id @default(cuid())
   ownerId   String
   name      String
   emoji     String?
-  prior     Json     @default("{}")
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  examDate  DateTime?
+  prior     Json      @default("{}")
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
 
   owner     User       @relation(fields: [ownerId], references: [id], onDelete: Cascade)
   documents Document[]
@@ -379,75 +378,6 @@ model ReviewItem {
   session ReviewSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
 
   @@index([sessionId])
-}
-
-// ─────────────────────────────────────────────────────────────────
-// Billing & Flags
-// ─────────────────────────────────────────────────────────────────
-
-model Subscription {
-  id        String    @id @default(cuid())
-  userId    String    @unique
-  plan      Plan      @default(FREE)
-  status    SubStatus @default(ACTIVE)
-  couponId  String?
-  proUntil  DateTime?
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-
-  user   User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  coupon Coupon?  @relation(fields: [couponId], references: [id])
-
-  @@index([status, proUntil])
-}
-
-enum Plan {
-  FREE
-  PRO
-}
-
-enum SubStatus {
-  ACTIVE
-  CANCELED
-  EXPIRED
-  PAST_DUE
-}
-
-model Coupon {
-  id             String    @id @default(cuid())
-  code           String    @unique
-  plan           Plan      @default(PRO)
-  durationDays   Int?
-  maxRedemptions Int       @default(1)
-  redemptions    Int       @default(0)
-  validFrom      DateTime
-  validUntil     DateTime?
-  note           String?
-  createdAt      DateTime  @default(now())
-
-  subscriptions Subscription[]
-
-  @@index([code])
-}
-
-model FeatureFlag {
-  id        String    @id @default(cuid())
-  key       String
-  scope     FlagScope
-  userId    String?
-  value     Json
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-
-  user User? @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([key, scope, userId])
-  @@index([key])
-}
-
-enum FlagScope {
-  GLOBAL
-  USER
 }
 
 // ─────────────────────────────────────────────────────────────────

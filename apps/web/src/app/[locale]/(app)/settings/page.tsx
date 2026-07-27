@@ -7,11 +7,7 @@ import { SettingsForm } from '@/components/settings/settings-form'
 
 export const dynamic = 'force-dynamic'
 
-export default async function SettingsPage({
-  params,
-}: {
-  params: Promise<{ locale: string }>
-}) {
+export default async function SettingsPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale: rawLocale } = await params
   const locale = asLocale(rawLocale)
   setRequestLocale(locale)
@@ -29,11 +25,12 @@ export default async function SettingsPage({
   return (
     <div className="mx-auto max-w-2xl px-4 py-8 md:px-8 md:py-12">
       <header className="flex flex-col gap-1 pb-8">
-        <h1 className="text-2xl font-semibold tracking-tight text-[var(--color-fg)]">{t('title')}</h1>
+        <h1 className="text-headline font-semibold tracking-[-0.023em] text-[var(--color-fg)]">
+          {t('title')}
+        </h1>
         <p className="text-sm text-[var(--color-fg-muted)]">{t('subtitle')}</p>
       </header>
       <SettingsForm
-        locale={locale}
         initial={{
           name: dbUser?.name ?? user.name ?? '',
           email: dbUser?.email ?? user.email,
@@ -47,7 +44,7 @@ export default async function SettingsPage({
           danger: t('sections.danger'),
           name: t('account.name'),
           email: t('account.email'),
-          signedInAs: t('account.signedInAs'),
+          signedInAs: t('account.signedInAs', { email: dbUser?.email ?? user.email }),
           saveName: t('account.saveName'),
           themeLabel: t('appearance.theme'),
           themeHelp: t('appearance.themeHelp'),

@@ -16,6 +16,7 @@ const OnboardingSchema = z.object({
     .max(60)
     .optional()
     .transform((v) => (v && v.length > 0 ? v : null)),
+  examDate: z.coerce.date().optional(),
   locale: z.enum(['en', 'es']).default('en'),
 })
 
@@ -30,16 +31,28 @@ export async function completeOnboarding(input: z.input<typeof OnboardingSchema>
   }
 
   const defaultName = data.mindName ?? 'My first Mind'
-  const emoji = data.purpose === 'medicine' ? '🩺' : data.purpose === 'law' ? '⚖️' : data.purpose === 'finance' ? '📈' : data.purpose === 'engineering' ? '🛠️' : data.purpose === 'language' ? '🌐' : '🧠'
+  const emoji =
+    data.purpose === 'medicine'
+      ? '🩺'
+      : data.purpose === 'law'
+        ? '⚖️'
+        : data.purpose === 'finance'
+          ? '📈'
+          : data.purpose === 'engineering'
+            ? '🛠️'
+            : data.purpose === 'language'
+              ? '🌐'
+              : '🧠'
 
   const workspace = await prisma.workspace.upsert({
     where: { id: `ws_${user.id}_first` },
-    update: { name: defaultName, emoji, prior },
+    update: { name: defaultName, emoji, examDate: data.examDate, prior },
     create: {
       id: `ws_${user.id}_first`,
       ownerId: user.id,
       name: defaultName,
       emoji,
+      examDate: data.examDate,
       prior,
     },
   })
@@ -56,12 +69,13 @@ export async function completeOnboarding(input: z.input<typeof OnboardingSchema>
 
   revalidatePath('/mind')
   revalidatePath('/onboarding')
-  redirect(`/mind/${workspace.id}`)
+  redirect(`/${data.locale}/mind/${workspace.id}`)
 }
 
 const CreateMindSchema = z.object({
   name: z.string().trim().min(1).max(60),
   emoji: z.string().max(8).optional(),
+  examDate: z.coerce.date().optional(),
   locale: z.enum(['en', 'es']).default('en'),
 })
 
@@ -73,10 +87,11 @@ export async function createMind(input: z.input<typeof CreateMindSchema>) {
       ownerId: user.id,
       name: data.name,
       emoji: data.emoji ?? null,
+      examDate: data.examDate,
     },
   })
   revalidatePath('/mind')
-  redirect(`/mind/${workspace.id}`)
+  redirect(`/${data.locale}/mind/${workspace.id}`)
 }
 
 const RenameMindSchema = z.object({
@@ -104,7 +119,9 @@ export async function deleteMind(id: string) {
   if (!ws || ws.ownerId !== user.id) throw new Error('Not found')
   await prisma.workspace.delete({ where: { id } })
   revalidatePath('/mind')
-  redirect('/mind')
+  const dbUser = await prisma.user.findUnique({ where: { id: user.id }, select: { locale: true } })
+  const locale = dbUser?.locale === 'es' ? 'es' : 'en'
+  redirect(`/${locale}/mind`)
 }
 
 const UpdateProfileSchema = z.object({

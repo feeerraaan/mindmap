@@ -3,6 +3,11 @@
  *
  * Tailwind v4 — single CSS file, no JS config. The `@source` directives tell
  * the scanner where to look for class names so it can tree-shake correctly.
+ *
+ * Design language: Apple (see DESIGN.md at the repo root).
+ * One Action Blue (#0066cc), near-black ink #1d1d1f, white/parchment canvases,
+ * SF Pro typography at 17px body, pill CTAs, hairline borders, no shadows on
+ * chrome, frosted sticky bars, and a single system-wide `scale(0.95)` press.
  */
 
 @import 'tailwindcss';
@@ -15,7 +20,7 @@
 /* ─── Theme tokens (single source of truth) ───────────────────── */
 
 @theme {
-  /* Spacing (4px grid) */
+  /* Spacing (Apple 8px base, 4px sub-steps) */
   --spacing-0: 0;
   --spacing-1: 0.25rem;
   --spacing-2: 0.5rem;
@@ -25,83 +30,132 @@
   --spacing-8: 2rem;
   --spacing-12: 3rem;
   --spacing-16: 4rem;
+  --spacing-20: 5rem;
   --spacing-24: 6rem;
 
-  /* Typography */
-  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, -apple-system, sans-serif;
-  --font-mono: var(--font-geist-mono), ui-monospace, 'JetBrains Mono', 'Fira Code', monospace;
+  /* Typography — SF Pro Text / Display with system fallbacks */
+  --font-sans:
+    'SF Pro Text', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-display:
+    'SF Pro Display', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: ui-monospace, 'SF Mono', 'JetBrains Mono', 'Fira Code', monospace;
 
-  /* Neutrals (light) */
-  --color-bg: hsl(0 0% 100%);
-  --color-bg-subtle: hsl(210 20% 99%);
-  --color-bg-muted: hsl(210 20% 97%);
-  --color-surface: hsl(0 0% 100%);
-  --color-surface-raised: hsl(210 20% 98%);
-  --color-border: hsl(210 16% 90%);
-  --color-border-strong: hsl(210 16% 82%);
-  --color-fg: hsl(210 24% 16%);
-  --color-fg-muted: hsl(210 12% 45%);
-  --color-fg-subtle: hsl(210 10% 60%);
+  /* Display scale — 600 weight, "Apple tight" negative tracking */
+  --text-hero: 3.5rem;
+  --text-hero--line-height: 1.07;
+  --text-hero--letter-spacing: -0.0175rem;
+  --text-hero--font-weight: 600;
+  --text-display: 2.5rem;
+  --text-display--line-height: 1.1;
+  --text-display--letter-spacing: -0.01em;
+  --text-display--font-weight: 600;
+  --text-headline: 2.125rem;
+  --text-headline--line-height: 1.18;
+  --text-headline--letter-spacing: -0.023em;
+  --text-headline--font-weight: 600;
+  --text-lead: 1.75rem;
+  --text-lead--line-height: 1.14;
+  --text-lead--letter-spacing: 0.012em;
+  --text-lead--font-weight: 400;
+  --text-tagline: 1.3125rem;
+  --text-tagline--line-height: 1.19;
+  --text-tagline--letter-spacing: 0.014em;
+  --text-tagline--font-weight: 600;
 
-  /* Accent (calm teal) */
-  --color-accent: hsl(186 72% 38%);
-  --color-accent-fg: hsl(186 80% 98%);
-  --color-accent-hover: hsl(186 72% 32%);
+  /* Surfaces (light) — white canvas, parchment rhythm, near-black ink */
+  --color-bg: #ffffff;
+  --color-bg-subtle: #fafafc;
+  --color-bg-muted: #f5f5f7;
+  --color-surface: #ffffff;
+  --color-surface-raised: #fafafc;
+  --color-nav: #000000;
+  --color-tile-dark: #272729;
+  --color-tile-dark-2: #2a2a2c;
 
-  /* Semantic */
-  --color-success: hsl(152 50% 38%);
-  --color-warning: hsl(38 80% 45%);
-  --color-danger: hsl(0 60% 52%);
-  --color-info: hsl(210 70% 45%);
+  /* Hairlines — borders are whisper-thin, never decorative */
+  --color-border: #e0e0e0;
+  --color-border-strong: #d2d2d7;
+  --color-border-subtle: #f0f0f0;
 
-  /* Mastery ramp */
-  --color-mastery-0: hsl(210 12% 75%);
-  --color-mastery-1: hsl(195 30% 65%);
-  --color-mastery-2: hsl(186 50% 52%);
-  --color-mastery-3: hsl(172 55% 42%);
-  --color-mastery-4: hsl(160 60% 35%);
+  /* Ink */
+  --color-fg: #1d1d1f;
+  --color-fg-muted: #6e6e73;
+  --color-fg-subtle: #86868b;
 
-  /* Motion */
-  --ease-out-expo: cubic-bezier(0.22, 1, 0.36, 1);
+  /* The single accent — Action Blue, plus its dark-surface sibling */
+  --color-accent: #0066cc;
+  --color-accent-fg: #ffffff;
+  --color-accent-hover: #005fb8;
+  --color-primary: #0066cc;
+  --color-primary-fg: #ffffff;
+  --color-primary-hover: #005fb8;
+  --color-primary-focus: #0071e3;
+  --color-primary-on-dark: #2997ff;
+
+  /* Semantic — Apple system colors */
+  --color-success: #34c759;
+  --color-warning: #ff9500;
+  --color-danger: #ff3b30;
+  --color-info: #0066cc;
+
+  /* Mastery ramp — chip gray → Action Blue → Apple green */
+  --color-mastery-0: #d2d2d7;
+  --color-mastery-1: #7fb3e8;
+  --color-mastery-2: #0066cc;
+  --color-mastery-3: #30b455;
+  --color-mastery-4: #34c759;
+
+  /* Motion — quick, physical, always resolved */
   --duration-instant: 80ms;
   --duration-quick: 150ms;
-  --duration-base: 220ms;
-  --duration-slow: 360ms;
-  --duration-deliberate: 600ms;
+  --duration-base: 250ms;
+  --duration-slow: 350ms;
+  --duration-deliberate: 500ms;
 
-  /* Radius */
-  --radius-sm: 0.375rem;
-  --radius-md: 0.5rem;
-  --radius-lg: 0.75rem;
-  --radius-xl: 1rem;
+  /* Radius — Apple grammar: 8 utility, 11 capsules, 18 cards, pill CTAs */
+  --radius-sm: 8px;
+  --radius-md: 11px;
+  --radius-lg: 18px;
+  --radius-xl: 18px;
 }
 
 .dark {
-  --color-bg: hsl(210 24% 8%);
-  --color-bg-subtle: hsl(210 24% 10%);
-  --color-bg-muted: hsl(210 24% 13%);
-  --color-surface: hsl(210 24% 11%);
-  --color-surface-raised: hsl(210 24% 14%);
-  --color-border: hsl(210 16% 22%);
-  --color-border-strong: hsl(210 16% 30%);
-  --color-fg: hsl(210 30% 96%);
-  --color-fg-muted: hsl(210 12% 70%);
-  --color-fg-subtle: hsl(210 10% 50%);
+  --color-bg: #000000;
+  --color-bg-subtle: #111113;
+  --color-bg-muted: #1c1c1e;
+  --color-surface: #1c1c1e;
+  --color-surface-raised: #2c2c2e;
+  --color-nav: #000000;
+  --color-tile-dark: #1c1c1e;
+  --color-tile-dark-2: #2c2c2e;
 
-  --color-accent: hsl(186 70% 50%);
-  --color-accent-fg: hsl(186 80% 8%);
-  --color-accent-hover: hsl(186 70% 58%);
+  --color-border: #38383a;
+  --color-border-strong: #545456;
+  --color-border-subtle: #2c2c2e;
 
-  --color-success: hsl(152 50% 50%);
-  --color-warning: hsl(38 85% 55%);
-  --color-danger: hsl(0 60% 60%);
-  --color-info: hsl(210 70% 60%);
+  --color-fg: #ffffff;
+  --color-fg-muted: #98989d;
+  --color-fg-subtle: #6c6c70;
 
-  --color-mastery-0: hsl(210 12% 35%);
-  --color-mastery-1: hsl(195 30% 42%);
-  --color-mastery-2: hsl(186 50% 50%);
-  --color-mastery-3: hsl(172 55% 56%);
-  --color-mastery-4: hsl(160 60% 62%);
+  --color-accent: #2997ff;
+  --color-accent-fg: #ffffff;
+  --color-accent-hover: #4da6ff;
+  --color-primary: #2997ff;
+  --color-primary-fg: #ffffff;
+  --color-primary-hover: #4da6ff;
+  --color-primary-focus: #2997ff;
+  --color-primary-on-dark: #2997ff;
+
+  --color-success: #30d158;
+  --color-warning: #ff9f0a;
+  --color-danger: #ff453a;
+  --color-info: #2997ff;
+
+  --color-mastery-0: #515154;
+  --color-mastery-1: #6aa9f0;
+  --color-mastery-2: #2997ff;
+  --color-mastery-3: #30d158;
+  --color-mastery-4: #34c759;
 }
 
 @layer base {
@@ -116,7 +170,19 @@
     background-color: var(--color-bg);
     color: var(--color-fg);
     font-family: var(--font-sans);
-    font-feature-settings: 'rlig' 1, 'calt' 1, 'tnum' 1;
+    font-size: 17px;
+    line-height: 1.47;
+    letter-spacing: -0.022em;
+    font-feature-settings:
+      'rlig' 1,
+      'calt' 1;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-display);
   }
 
   .num,
@@ -125,12 +191,12 @@
   }
 
   ::selection {
-    background-color: color-mix(in oklch, var(--color-accent) 22%, transparent);
+    background-color: color-mix(in oklch, var(--color-primary) 22%, transparent);
     color: var(--color-fg);
   }
 
   :where(button, a, input, select, textarea, [tabindex]):focus-visible {
-    outline: 2px solid var(--color-accent);
+    outline: 2px solid var(--color-primary-focus);
     outline-offset: 2px;
     border-radius: var(--radius-sm);
   }

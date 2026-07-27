@@ -7,7 +7,8 @@ export const dynamic = 'force-dynamic'
 
 /**
  * GET /api/documents/[id]/status — used by the workspace list poller.
- * Returns the document's current status + an inferred progress in [0,1].
+ * Returns the document's current status, an inferred progress in [0,1], and
+ * the concept count once the graph is built.
  */
 export async function GET(_req: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
@@ -23,7 +24,15 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
   }
 
   const progress = inferProgress(doc.status)
-  return NextResponse.json({ status: doc.status, progress })
+  const response: { status: string; progress: number; conceptCount?: number } = {
+    status: doc.status,
+    progress,
+  }
+  if (doc.status === 'READY' || doc.status === 'DIAGNOSING' || doc.status === 'MAPPED') {
+    const conceptCount = await prisma.concept.count({ where: { documentId: doc.id } })
+    response.conceptCount = conceptCount
+  }
+  return NextResponse.json(response)
 }
 
 function inferProgress(status: string): number {

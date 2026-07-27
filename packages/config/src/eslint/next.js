@@ -58,6 +58,37 @@ export default [
       'import/no-cycle': 'error',
       'import/no-self-import': 'error',
       eqeqeq: ['error', 'always'],
+      // Brain boundary (docs/architecture.md §6). Only `packages/brain` may
+      // import an AI SDK or call any LLM endpoint. The Next app routes
+      // through `Brain.knowledge.buildGraph`, never directly to a provider.
+      'no-restricted-imports': [
+        'error',
+        {
+          paths: [
+            { name: 'ai', message: 'AI SDKs may only be imported from packages/brain.' },
+            {
+              name: '@ai-sdk/openai-compatible',
+              message: 'AI SDKs may only be imported from packages/brain.',
+            },
+            {
+              name: '@ai-sdk/openai',
+              message: 'AI SDKs may only be imported from packages/brain.',
+            },
+            {
+              name: '@ai-sdk/anthropic',
+              message: 'AI SDKs may only be imported from packages/brain.',
+            },
+            { name: 'openai', message: 'AI SDKs may only be imported from packages/brain.' },
+            {
+              name: '@anthropic-ai/sdk',
+              message: 'AI SDKs may only be imported from packages/brain.',
+            },
+          ],
+          patterns: [
+            { group: ['@ai-sdk/*'], message: 'AI SDKs may only be imported from packages/brain.' },
+          ],
+        },
+      ],
     },
   },
 ]

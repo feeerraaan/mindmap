@@ -9,7 +9,7 @@ export default async function NotFound() {
   return (
     <div className="mx-auto flex min-h-[60vh] max-w-md flex-col items-center justify-center gap-4 px-6 text-center">
       <p className="text-sm font-medium text-[var(--color-fg-muted)]">404</p>
-      <h1 className="text-2xl font-semibold tracking-tight text-[var(--color-fg)]">
+      <h1 className="text-headline font-semibold tracking-[-0.023em] text-[var(--color-fg)]">
         Page not found
       </h1>
       <p className="text-sm leading-relaxed text-[var(--color-fg-muted)]">

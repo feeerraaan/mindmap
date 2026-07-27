@@ -10,7 +10,7 @@ export function Skeleton({ className, ...rest }: HTMLAttributes<HTMLDivElement>)
     <div
       className={cn(
         'relative overflow-hidden rounded-md bg-[var(--color-bg-muted)]',
-        'after:absolute after:inset-0 after:translate-x-[-100%] after:animate-[shimmer_1.6s_infinite] after:bg-gradient-to-r after:from-transparent after:via-white/10 after:to-transparent',
+        'after:absolute after:inset-0 after:translate-x-[-100%] after:animate-[shimmer_1.6s_infinite] after:bg-gradient-to-r after:from-transparent after:via-black/5 after:to-transparent dark:after:via-white/10',
         className,
       )}
       {...rest}

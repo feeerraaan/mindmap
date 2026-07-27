@@ -22,13 +22,6 @@ interface UploadItem {
 
 const MAX_BYTES = 25 * 1024 * 1024
 
-const COPY = {
-  idle: {
-    title: 'Drop a document here',
-    body: 'or click to browse — PDF, PPTX, or DOCX up to 25 MB.',
-  },
-}
-
 interface UploadDropzoneProps {
   workspaceId: string
   locale: 'en' | 'es'
@@ -149,6 +142,8 @@ export function UploadDropzone({ workspaceId, locale, labels, onUploaded }: Uplo
           'application/pdf',
           'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
           'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+          'text/plain',
+          'text/markdown',
         ]
         if (!allowed.includes(file.type)) {
           setItems((prev) => [
@@ -187,10 +182,10 @@ export function UploadDropzone({ workspaceId, locale, labels, onUploaded }: Uplo
         className={
           'flex flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed px-6 py-12 text-center transition-colors ' +
           (isDragActive && !isDragReject
-            ? 'border-[var(--color-accent)] bg-[var(--color-accent)]/5'
+            ? 'border-[var(--color-primary)] bg-[var(--color-primary)]/5'
             : isDragReject
               ? 'border-[var(--color-danger)] bg-[var(--color-danger)]/5'
-              : 'border-[var(--color-border)] bg-[var(--color-surface)] hover:border-[var(--color-border-strong)]')
+              : 'border-[var(--color-border-strong)] bg-[var(--color-surface)] hover:border-[var(--color-fg-subtle)]')
         }
       >
         <input {...getInputProps()} aria-label="file-input" />
@@ -208,22 +203,22 @@ export function UploadDropzone({ workspaceId, locale, labels, onUploaded }: Uplo
                 initial={{ opacity: 0, y: 4 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -4 }}
-                transition={{ duration: 0.18 }}
-                className="flex items-center gap-3 rounded-md border border-[var(--color-border)] bg-[var(--color-surface)] p-3 text-sm"
+                transition={{ duration: 0.25, ease: 'easeInOut' }}
+                className="flex items-center gap-3 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] p-3 text-sm"
               >
                 <FileText size={16} className="shrink-0 text-[var(--color-fg-muted)]" />
                 <div className="min-w-0 flex-1">
-                  <p className="truncate font-medium text-[var(--color-fg)]">{it.filename}</p>
+                  <p className="truncate font-semibold text-[var(--color-fg)]">{it.filename}</p>
                   <p className="text-xs text-[var(--color-fg-muted)]">
                     {phaseLabel(it.phase, labels)} · {(it.sizeBytes / 1024).toFixed(0)} KB
                   </p>
                   {it.phase === 'uploading' || it.phase === 'parsing' || it.phase === 'reading' ? (
                     <div className="mt-1 h-1 w-full overflow-hidden rounded-full bg-[var(--color-bg-muted)]">
                       <motion.div
-                        className="h-full bg-[var(--color-accent)]"
+                        className="h-full bg-[var(--color-primary)]"
                         initial={{ width: 0 }}
                         animate={{ width: `${Math.round(it.progress * 100)}%` }}
-                        transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+                        transition={{ duration: 0.35, ease: 'easeInOut' }}
                       />
                     </div>
                   ) : null}
@@ -238,11 +233,9 @@ export function UploadDropzone({ workspaceId, locale, labels, onUploaded }: Uplo
                 ) : null}
                 <button
                   type="button"
-                  onClick={() =>
-                    setItems((prev) => prev.filter((x) => x.id !== it.id))
-                  }
+                  onClick={() => setItems((prev) => prev.filter((x) => x.id !== it.id))}
                   aria-label={labels.cancel}
-                  className="rounded-md p-1 text-[var(--color-fg-subtle)] hover:bg-[var(--color-bg-muted)] hover:text-[var(--color-fg)]"
+                  className="rounded-full p-1 text-[var(--color-fg-subtle)] hover:bg-[var(--color-bg-muted)] hover:text-[var(--color-fg)]"
                 >
                   <X size={14} />
                 </button>

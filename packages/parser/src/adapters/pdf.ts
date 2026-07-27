@@ -21,7 +21,7 @@ interface PdftotextOutput {
 
 function pdftotext(buf: Buffer): Promise<PdftotextOutput> {
   return new Promise((resolve, reject) => {
-    const proc = spawn('pdftotext', ['-layout', '-q', '-', '-'], {
+    const proc = spawn('pdftotext', ['-q', '-', '-'], {
       stdio: ['pipe', 'pipe', 'pipe'],
     })
     let out = ''
@@ -34,12 +34,51 @@ function pdftotext(buf: Buffer): Promise<PdftotextOutput> {
         reject(new Error(`pdftotext exited ${code}: ${err.trim()}`))
         return
       }
-      // Use the form-feed page separator that pdftotext emits by default.
-      const pages = out.split('\f')
-      resolve({ text: out, pageCount: Math.max(1, pages.length - 1) })
+      const cleaned = cleanPdfText(out)
+      const pages = cleaned.split('\f')
+      resolve({ text: cleaned, pageCount: Math.max(1, pages.length - 1) })
     })
     proc.stdin.end(buf)
   })
+}
+
+function cleanPdfText(raw: string): string {
+  const pages = raw.split('\f')
+  return pages.map((page) => cleanPage(page)).join('\f')
+}
+
+function cleanPage(page: string): string {
+  const lines = page.split('\n')
+  const result: string[] = []
+  let buf = ''
+
+  for (const line of lines) {
+    const trimmed = line.trim()
+    if (trimmed === '') {
+      if (buf) {
+        result.push(buf)
+        buf = ''
+      }
+      continue
+    }
+    if (buf === '') {
+      buf = trimmed
+      continue
+    }
+    const prev = buf
+    const prevEndsSentence = /[.:;!?)]$/.test(prev)
+    const prevIsList = /^[-•*]\s/.test(prev) || /^\d+[.)]\s/.test(prev)
+    const curIsList = /^[-•*]\s/.test(trimmed) || /^\d+[.)]\s/.test(trimmed)
+
+    if (prevEndsSentence || prevIsList || curIsList) {
+      result.push(buf)
+      buf = trimmed
+    } else {
+      buf += ' ' + trimmed
+    }
+  }
+  if (buf) result.push(buf)
+  return result.join('\n')
 }
 
 export const pdfAdapter: ParserAdapter = {

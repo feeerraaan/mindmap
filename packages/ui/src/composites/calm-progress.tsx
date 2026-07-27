@@ -38,13 +38,13 @@ export function CalmProgress({
         )}
       >
         <div
-          className="h-full rounded-full bg-[var(--color-accent)] transition-[width] duration-slow ease-out-expo"
+          className="duration-base h-full rounded-full bg-[var(--color-primary)] transition-[width] ease-in-out"
           style={{ width: `${pct}%` }}
         />
       </div>
       {showLabel ? (
         <span
-          className="min-w-[3ch] text-right text-xs tabular-nums text-[var(--color-fg-muted)]"
+          className="min-w-[3ch] text-right text-xs text-[var(--color-fg-muted)] tabular-nums"
           data-num
         >
           {pct}%

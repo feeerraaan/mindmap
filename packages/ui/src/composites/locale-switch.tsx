@@ -22,7 +22,7 @@ export function LocaleSwitch({ value, onChange, className }: LocaleSwitchProps) 
       role="tablist"
       aria-label="Language"
       className={cn(
-        'inline-flex items-center rounded-full border border-[var(--color-border)] bg-[var(--color-surface-raised)] p-0.5',
+        'inline-flex items-center rounded-full bg-[var(--color-bg-muted)] p-0.5',
         className,
       )}
     >
@@ -36,10 +36,10 @@ export function LocaleSwitch({ value, onChange, className }: LocaleSwitchProps) 
             aria-selected={active}
             onClick={() => onChange?.(opt.value)}
             className={cn(
-              'rounded-full px-3 py-1 text-xs font-semibold transition-colors duration-quick ease-out-expo',
+              'duration-quick rounded-full px-3 py-1 text-xs transition-all ease-in-out active:scale-95',
               active
-                ? 'bg-[var(--color-bg)] text-[var(--color-fg)] shadow-sm'
-                : 'text-[var(--color-fg-muted)] hover:text-[var(--color-fg)]',
+                ? 'bg-[var(--color-surface)] font-semibold text-[var(--color-fg)] shadow-[0_1px_2px_rgba(0,0,0,0.08)]'
+                : 'font-normal text-[var(--color-fg-muted)] hover:text-[var(--color-fg)]',
             )}
           >
             {opt.label}

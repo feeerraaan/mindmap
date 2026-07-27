@@ -20,11 +20,14 @@
     "db:push": "pnpm --filter @mindmap/database push",
     "db:migrate": "pnpm --filter @mindmap/database migrate",
     "db:seed": "pnpm --filter @mindmap/database seed",
-    "db:studio": "pnpm --filter @mindmap/database studio"
+    "db:studio": "pnpm --filter @mindmap/database studio",
+    "test": "turbo test",
+    "test:watch": "pnpm --filter @mindmap/web test:watch"
   },
   "devDependencies": {
     "@types/node": "^22.10.0",
     "prettier": "^3.4.0",
+    "prettier-plugin-tailwindcss": "^0.8.1",
     "turbo": "^2.3.0",
     "typescript": "^5.6.0"
   }

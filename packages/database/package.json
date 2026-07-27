@@ -28,6 +28,7 @@
     "@prisma/client": "^6.0.0"
   },
   "devDependencies": {
+    "@mindmap/brain": "workspace:*",
     "@mindmap/config": "workspace:*",
     "@mindmap/shared": "workspace:*",
     "@mindmap/types": "workspace:*",

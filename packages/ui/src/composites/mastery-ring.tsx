@@ -74,12 +74,12 @@ export function MasteryRing({
           strokeDasharray={circumference}
           strokeDashoffset={offset}
           strokeLinecap="round"
-          style={{ opacity, transition: 'all 360ms cubic-bezier(0.22, 1, 0.36, 1)' }}
+          style={{ opacity, transition: 'all 250ms ease-in-out' }}
         />
       </svg>
       {showLabel ? (
         <span
-          className="absolute text-xs font-semibold tabular-nums text-[var(--color-fg)]"
+          className="absolute text-xs font-semibold text-[var(--color-fg)] tabular-nums"
           data-num
         >
           {pct}
