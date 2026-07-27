@@ -13,8 +13,8 @@ import '@mindmap/ui/styles'
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3100'),
   title: {
-    default: 'MindMap — An MRI scan for knowledge',
-    template: '%s · MindMap',
+    default: 'Mindmap',
+    template: '%s · Mindmap',
   },
   description:
     'MindMap diagnoses what you truly know vs. what you think you know. Upload a document, get a calm visual knowledge map and a personalized review timeline.',
@@ -24,12 +24,12 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     siteName: 'MindMap',
-    title: 'MindMap — An MRI scan for knowledge',
+    title: 'Mindmap',
     description: 'Discover what you truly know. Calm, honest, diagnostic.',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'MindMap — An MRI scan for knowledge',
+    title: 'Mindmap',
     description: 'Discover what you truly know. Calm, honest, diagnostic.',
   },
   robots: { index: true, follow: true },
