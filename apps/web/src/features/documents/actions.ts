@@ -6,8 +6,6 @@ import { prisma } from '@mindmap/database'
 import { requireUser } from '@mindmap/auth'
 import { getStorage } from '@/lib/storage'
 import { getRunner } from '@/lib/jobs'
-import { unlink } from 'node:fs/promises'
-import path from 'node:path'
 
 const ACCEPTED_MIME = new Set<string>([
   'application/pdf',
@@ -69,17 +67,10 @@ export async function initUpload(input: z.input<typeof InitSchema>): Promise<Ini
     },
   })
 
-  // Local FS path: client PUTs to /api/uploads/[documentId].
-  // Vercel Blob path: client PUTs to the signed URL directly.
-  if (storage.id === 'vercel-blob') {
-    return {
-      documentId: doc.id,
-      uploadUrl: 'https://example.invalid/vercel-blob-stub',
-      blobKey,
-      method: 'PUT',
-      headers: {},
-    }
-  }
+  // The client PUTs to our own same-origin route. The route forwards the
+  // bytes to whatever storage adapter is configured (LocalFsStorage in dev,
+  // VercelBlobStorage in prod). This keeps the client identical across
+  // environments and lets the server hold the storage token.
   return {
     documentId: doc.id,
     uploadUrl: `/api/uploads/${doc.id}`,
@@ -120,12 +111,12 @@ export async function deleteDocument(documentId: string) {
   if (!doc) throw new Error('Document not found')
   if (doc.workspace.ownerId !== user.id) throw new Error('Not authorized')
 
-  // Delete file from local storage
-  const blobDir = process.env.MINDMAP_LOCAL_BLOB_DIR ?? '/var/mindmap/blobs'
+  // Remove the underlying file/blob before deleting the row.
+  const storage = getStorage()
   try {
-    await unlink(path.join(blobDir, doc.blobKey))
+    await storage.delete(doc.blobKey)
   } catch {
-    // file might already be deleted
+    // Storage deletion is best-effort; the row cleanup is what matters.
   }
 
   // Delete related rows
