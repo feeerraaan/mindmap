@@ -1,6 +1,5 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "installCommand": "corepack enable && corepack prepare pnpm@11.13.1 --activate && pnpm install",
-  "buildCommand": "pnpm turbo build --filter=@mindmap/web...",
-  "outputDirectory": "apps/web/.next"
+  "buildCommand": "pnpm turbo build --filter=@mindmap/web..."
 }
