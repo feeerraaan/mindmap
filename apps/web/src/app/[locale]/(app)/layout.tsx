@@ -32,6 +32,8 @@ export default async function AppLayout({
     take: 20,
   })
 
+  type WorkspaceSummary = { id: string; name: string; emoji: string | null }
+
   return (
     <AppShell
       user={{
@@ -39,7 +41,7 @@ export default async function AppLayout({
         email: user.email,
         image: typeof user.image === 'string' ? user.image : null,
       }}
-      workspaces={workspaces.map((w) => ({
+      workspaces={workspaces.map((w: WorkspaceSummary) => ({
         id: w.id,
         name: w.name,
         emoji: w.emoji,

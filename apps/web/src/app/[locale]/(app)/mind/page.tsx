@@ -33,6 +33,14 @@ export default async function MindIndexPage({ params }: { params: Promise<{ loca
 
   const firstId = workspaces[0]?.id
 
+  type WorkspaceSummary = {
+    id: string
+    name: string
+    emoji: string | null
+    updatedAt: Date
+    _count: { documents: number }
+  }
+
   return (
     <div className="mx-auto max-w-3xl px-4 py-8 md:px-8 md:py-12">
       <MindHeader
@@ -57,7 +65,7 @@ export default async function MindIndexPage({ params }: { params: Promise<{ loca
       ) : (
         <MindList
           locale={locale}
-          workspaces={workspaces.map((w) => ({
+          workspaces={workspaces.map((w: WorkspaceSummary) => ({
             id: w.id,
             name: w.name,
             emoji: w.emoji,
