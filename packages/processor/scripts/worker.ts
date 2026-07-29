@@ -12,27 +12,33 @@
  * UPDATE so scaling to multiple workers is a matter of starting more
  * processes.
  */
-import { readFile } from 'node:fs/promises'
-import path from 'node:path'
 import { prisma } from '@mindmap/database'
 import { processParseJob, processBuildGraphJob } from '../src'
+import { head as vercelHead } from '@vercel/blob'
 
-const BLOB_DIR = process.env.MINDMAP_LOCAL_BLOB_DIR ?? '/var/mindmap/blobs'
 const IDLE_POLL_MS = 2_000
 const SHUTDOWN_GRACE_MS = 15_000
 
 let running: Promise<void> | null = null
 let stopRequested = false
 
-async function readBytesFromDisk(blobKey: string): Promise<Uint8Array> {
-  if (!blobKey || blobKey.includes('..') || blobKey.startsWith('/') || blobKey.includes('\\')) {
-    throw new Error('Invalid blob key')
+async function readBytesFromBlob(blobKey: string): Promise<Uint8Array> {
+  // blobKey is a Vercel Blob pathname (e.g. "documents/blob_xxx.pdf"). Use
+  // the SDK to resolve it to the authoritative public URL (the subdomain
+  // pattern is not safe to construct by hand — it's the store id without
+  // the "store_" prefix and lowercased), then download the file.
+  const token =
+    process.env.MINDMAPBLOB_READ_WRITE_TOKEN ?? process.env.BLOB_READ_WRITE_TOKEN
+  if (!token) {
+    throw new Error('No BLOB token configured for the worker')
   }
-  if (!/^[A-Za-z0-9._/-]+$/.test(blobKey)) {
-    throw new Error('Invalid blob key')
+  const meta = await vercelHead(blobKey, { token })
+  const res = await fetch(meta.url)
+  if (!res.ok) {
+    throw new Error(`Fetch ${blobKey} failed: ${res.status}`)
   }
-  const buf = await readFile(path.join(BLOB_DIR, blobKey))
-  return new Uint8Array(buf)
+  const ab = await res.arrayBuffer()
+  return new Uint8Array(ab)
 }
 
 async function claimNextJob() {
@@ -73,10 +79,10 @@ async function processOne() {
   console.log(`${log} claimed`)
   try {
     if (job.type === 'PARSE') {
-      const result = await processParseJob({
-        documentId: job.documentId,
-        readBytes: readBytesFromDisk,
-      })
+        const result = await processParseJob({
+          documentId: job.documentId,
+          readBytes: readBytesFromBlob,
+        })
       if (result.ok) {
         console.log(`${log} parsed ${result.chunkCount} chunks`)
         await enqueueBuildGraph(job.documentId)
@@ -108,7 +114,7 @@ function sleep(ms: number) {
 }
 
 async function loop() {
-  console.log(`[worker] started, blob dir = ${BLOB_DIR}`)
+  console.log(`[worker] started, blob source = vercel-blob`)
   while (!stopRequested) {
     try {
       const did = await processOne()

@@ -370,6 +370,9 @@ importers:
       '@mindmap/types':
         specifier: workspace:*
         version: link:../types
+      '@vercel/blob':
+        specifier: ^0.27.3
+        version: 0.27.3
     devDependencies:
       '@mindmap/config':
         specifier: workspace:*
