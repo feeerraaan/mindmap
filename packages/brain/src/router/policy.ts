@@ -14,7 +14,7 @@ export interface Candidate {
 }
 
 const GO_MODEL = process.env.OPENCODE_GO_MODEL ?? 'deepseek-v4-flash'
-const FALLBACK_MODEL = 'ling-3.0-flash-free'
+const FALLBACK_MODEL = 'deepseek-v4-flash-free'
 
 const primaryWith = (overrides: Partial<Candidate>): Candidate[] => [
   { provider: 'go', model: GO_MODEL, ...overrides },

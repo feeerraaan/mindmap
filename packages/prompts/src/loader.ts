@@ -6,6 +6,7 @@
  * that is rendered via `renderPrompt(prompt, vars)`.
  */
 import { readFile, readdir } from 'node:fs/promises'
+import { readdirSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import matter from 'gray-matter'
@@ -28,7 +29,31 @@ export interface LoadedPrompt {
   render(vars: Record<string, unknown>): string
 }
 
-const PROMPTS_DIR = resolve(dirname(fileURLToPath(import.meta.url)), '..', 'prompts')
+function resolvePromptsDir(): string {
+  // In development, import.meta.url points to the source file.
+  // In production (Next.js), the compiled JS is in .next/server/... so we
+  // walk up until we find the packages/prompts/prompts directory.
+  const fromMeta = resolve(dirname(fileURLToPath(import.meta.url)), '..', 'prompts')
+  try {
+    readdirSync(fromMeta)
+    return fromMeta
+  } catch {
+    // Fallback: walk up from cwd to find the prompts directory.
+    const parts = process.cwd().split('/').filter(Boolean)
+    for (let i = parts.length; i >= 0; i--) {
+      const candidate = '/' + parts.slice(0, i).join('/') + '/packages/prompts/prompts'
+      try {
+        readdirSync(candidate)
+        return candidate
+      } catch {
+        continue
+      }
+    }
+    return fromMeta
+  }
+}
+
+const PROMPTS_DIR = resolvePromptsDir()
 
 let cache: Map<string, LoadedPrompt> | null = null
 
