@@ -264,7 +264,11 @@ export function getStorage(): StorageProvider {
     cached = new VpsStorage(vpsUrl, vpsToken)
     return cached
   }
-  const token = process.env.BLOB_READ_WRITE_TOKEN
+  // Vercel "Connect Store" creates the env var with a fixed prefix
+  // (MINDMAPBLOB_READ_WRITE_TOKEN); older setups set the plain
+  // BLOB_READ_WRITE_TOKEN. Accept either so the choice of store
+  // doesn't force a code change.
+  const token = process.env.BLOB_READ_WRITE_TOKEN ?? process.env.MINDMAPBLOB_READ_WRITE_TOKEN
   if (token && token.length > 0) {
     cached = new VercelBlobStorage()
     return cached

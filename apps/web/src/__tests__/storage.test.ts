@@ -4,6 +4,7 @@ const ENV_KEYS = [
   'MINDMAP_STORAGE_URL',
   'MINDMAP_STORAGE_TOKEN',
   'BLOB_READ_WRITE_TOKEN',
+  'MINDMAPBLOB_READ_WRITE_TOKEN',
   'MINDMAP_LOCAL_BLOB_DIR',
   'VERCEL',
 ] as const
@@ -41,6 +42,19 @@ describe('getStorage provider selection', () => {
 
   it('falls back to Vercel Blob when only the blob token is set', async () => {
     process.env.BLOB_READ_WRITE_TOKEN = 'vercel-token'
+    const storage = await freshStorage()
+    expect(storage.id).toBe('vercel-blob')
+  })
+
+  it('falls back to Vercel Blob under the prefixed MINDMAPBLOB_READ_WRITE_TOKEN', async () => {
+    process.env.MINDMAPBLOB_READ_WRITE_TOKEN = 'vercel-token'
+    const storage = await freshStorage()
+    expect(storage.id).toBe('vercel-blob')
+  })
+
+  it('prefers BLOB_READ_WRITE_TOKEN when both are set', async () => {
+    process.env.BLOB_READ_WRITE_TOKEN = 'plain'
+    process.env.MINDMAPBLOB_READ_WRITE_TOKEN = 'prefixed'
     const storage = await freshStorage()
     expect(storage.id).toBe('vercel-blob')
   })
