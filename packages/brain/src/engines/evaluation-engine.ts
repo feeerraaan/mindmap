@@ -393,21 +393,19 @@ export async function batchAskNext(
 > {
   const questions: { conceptId: string; question: DiagnosisQuestion; pending: PendingQuestion }[] =
     []
-  let lastError: BrainError | null = null
   for (let i = 0; i < count; i++) {
     const result = await askNext(state)
     if (!result.ok) {
-      lastError = result.error
-      break
+      // If we generated some questions before the error, discard them
+      // and return the error — a partial batch leads to a dead-end
+      // where the user answers a few questions and then gets stuck.
+      return Err(result.error)
     }
     questions.push({
       conceptId: result.value.pending.conceptId,
       question: result.value.question,
       pending: result.value.pending,
     })
-  }
-  if (questions.length === 0 && lastError) {
-    return Err(lastError)
   }
   return Ok({ state, questions })
 }
