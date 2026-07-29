@@ -91,10 +91,9 @@ export default async function LocaleLayout({
                   >
                     <img
                       src="/icons/icon-64.png"
-                      alt=""
-                      className="size-7 rounded-[5px]"
+                      alt="MindMap"
+                      className="size-8 rounded-md"
                     />
-                    {t('appName')}
                   </a>
                   <Navbar locale={locale} />
                 </div>

@@ -117,10 +117,9 @@ export function AppShell({ user, workspaces, labels, children }: AppShellProps) 
           <Link href={`/${locale}`} className="flex items-center gap-2 text-sm font-semibold">
               <img
                 src="/icons/icon-64.png"
-                alt=""
-                className="size-8 rounded-md"
+                alt="MindMap"
+                className="size-9 rounded-lg"
               />
-            MindMap
           </Link>
           <Button variant="ghost" size="sm" onClick={handleSignOut} disabled={signingOut}>
             <LogOut size={14} />
