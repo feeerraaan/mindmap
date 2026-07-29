@@ -52,9 +52,9 @@ describe('getStorage provider selection', () => {
     expect(storage.id).toBe('vercel-blob')
   })
 
-  it('prefers BLOB_READ_WRITE_TOKEN when both are set', async () => {
-    process.env.BLOB_READ_WRITE_TOKEN = 'plain'
-    process.env.MINDMAPBLOB_READ_WRITE_TOKEN = 'prefixed'
+  it('prefers MINDMAPBLOB_READ_WRITE_TOKEN when both are set', async () => {
+    process.env.BLOB_READ_WRITE_TOKEN = 'old-private'
+    process.env.MINDMAPBLOB_READ_WRITE_TOKEN = 'new-public'
     const storage = await freshStorage()
     expect(storage.id).toBe('vercel-blob')
   })
