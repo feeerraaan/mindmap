@@ -90,9 +90,9 @@ export default async function LocaleLayout({
                     className="flex items-center gap-2 text-xs tracking-[-0.01em] text-white"
                   >
                     <img
-                      src="/icons/icon-48.png"
+                      src="/icons/icon-64.png"
                       alt=""
-                      className="size-5 rounded-[5px]"
+                      className="size-7 rounded-[5px]"
                     />
                     {t('appName')}
                   </a>

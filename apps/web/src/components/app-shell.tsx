@@ -115,11 +115,11 @@ export function AppShell({ user, workspaces, labels, children }: AppShellProps) 
       <div className="flex flex-1 flex-col">
         <header className="sticky top-0 z-10 flex items-center justify-between border-b border-[var(--color-border-subtle)] bg-[var(--color-bg)]/80 px-4 py-3 backdrop-blur-xl backdrop-saturate-150 md:hidden">
           <Link href={`/${locale}`} className="flex items-center gap-2 text-sm font-semibold">
-            <img
-              src="/icons/icon-48.png"
-              alt=""
-              className="size-6 rounded-md"
-            />
+              <img
+                src="/icons/icon-64.png"
+                alt=""
+                className="size-8 rounded-md"
+              />
             MindMap
           </Link>
           <Button variant="ghost" size="sm" onClick={handleSignOut} disabled={signingOut}>
