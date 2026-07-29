@@ -5,6 +5,10 @@ import { getStorage } from '@/lib/storage'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
+// The route streams up to ~4.5 MB (Vercel's request body cap) through to
+// the storage backend. The default 10 s maxDuration is too tight for that
+// plus a TLS handshake + fetch to the VPS, so we raise it.
+export const maxDuration = 60
 
 const MAX_BYTES = 25 * 1024 * 1024
 
@@ -47,7 +51,18 @@ export async function PUT(
   }
 
   const storage = getStorage()
-  await storage.put({ bytes, mimeType: doc.mimeType, filename: doc.filename, key: doc.blobKey })
+  try {
+    await storage.put({ bytes, mimeType: doc.mimeType, filename: doc.filename, key: doc.blobKey })
+  } catch (err) {
+    console.error(
+      `[upload ${documentId}] storage.put failed (${bytes.byteLength} bytes, ${doc.mimeType}):`,
+      err,
+    )
+    return NextResponse.json(
+      { error: err instanceof Error ? err.message : 'storage put failed' },
+      { status: 502 },
+    )
+  }
 
   return NextResponse.json({ ok: true, documentId: doc.id, sizeBytes: bytes.byteLength })
 }
