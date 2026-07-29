@@ -1,21 +1,27 @@
 /**
  * Storage provider — abstracts where uploaded document bytes live.
  *
- * Two implementations:
- *   - VercelBlobStorage  (production — set BLOB_READ_WRITE_TOKEN)
- *   - LocalFsStorage     (dev / preview — set MINDMAP_LOCAL_BLOB_DIR)
+ * Three implementations:
+ *   - VpsStorage        (production — set MINDMAP_STORAGE_URL + MINDMAP_STORAGE_TOKEN)
+ *   - VercelBlobStorage (alternative for Vercel — set BLOB_READ_WRITE_TOKEN)
+ *   - LocalFsStorage    (dev / preview — set MINDMAP_LOCAL_BLOB_DIR)
+ *
+ * VpsStorage points at scripts/storage-server.mjs running on the VPS, so
+ * document originals stay on our own disk instead of a third-party store.
+ * The selection order in getStorage() is: VPS → Vercel Blob → local FS.
  *
  * The `blobKey` we persist in the Document row is an opaque token whose
  * meaning is owned by the storage adapter:
- *   - LocalFsStorage   → relative path under MINDMAP_LOCAL_BLOB_DIR
+ *   - LocalFsStorage    → relative path under MINDMAP_LOCAL_BLOB_DIR
+ *   - VpsStorage        → same relative path, resolved on the VPS
  *   - VercelBlobStorage → full public URL returned by `@vercel/blob` put()
  *
  * Resolving a `blobKey` for read / delete always goes through this module.
  *
  * On Vercel the filesystem is read-only outside `/tmp`, so falling back to
  * LocalFsStorage there would silently break uploads. `getStorage()` detects
- * `process.env.VERCEL === '1'` and fails loudly if BLOB_READ_WRITE_TOKEN is
- * missing instead.
+ * `process.env.VERCEL === '1'` and fails loudly if neither MINDMAP_STORAGE_URL
+ * nor BLOB_READ_WRITE_TOKEN is set instead.
  */
 import { mkdir, readFile, writeFile, stat, unlink } from 'node:fs/promises'
 import { createReadStream } from 'node:fs'
@@ -26,7 +32,7 @@ import { put as vercelPut, del as vercelDel, head as vercelHead } from '@vercel/
 import { newId } from '@mindmap/shared'
 
 export interface StorageProvider {
-  readonly id: 'vercel-blob' | 'local-fs'
+  readonly id: 'vps' | 'vercel-blob' | 'local-fs'
   /** Persist `bytes` and return the key used. If `key` is provided, the
    *  bytes are stored under that exact key (idempotent re-upload). */
   put(input: {
@@ -165,10 +171,99 @@ class VercelBlobStorage implements StorageProvider {
   }
 }
 
+class VpsStorage implements StorageProvider {
+  readonly id = 'vps' as const
+  private readonly baseUrl: string
+
+  constructor(
+    baseUrl: string,
+    private readonly token: string,
+  ) {
+    this.baseUrl = baseUrl.replace(/\/+$/, '')
+  }
+
+  async put(input: {
+    bytes: Uint8Array
+    mimeType: string
+    filename: string
+    key?: string
+  }): Promise<{ key: string; sizeBytes: number }> {
+    const key = input.key ?? this.newKey(input.filename)
+    const res = await fetch(this.url(key), {
+      method: 'PUT',
+      headers: {
+        authorization: `Bearer ${this.token}`,
+        'content-type': input.mimeType,
+      },
+      body: Buffer.from(input.bytes),
+    })
+    if (!res.ok) {
+      throw new Error(`VPS storage PUT ${key} failed: ${res.status} ${res.statusText}`)
+    }
+    return { key, sizeBytes: input.bytes.byteLength }
+  }
+
+  async get(key: string): Promise<Uint8Array> {
+    const res = await this.fetchBlob(key)
+    const ab = await res.arrayBuffer()
+    return new Uint8Array(ab)
+  }
+
+  stream(key: string): NodeJS.ReadableStream {
+    const passthrough = new PassThrough()
+    this.fetchBlob(key)
+      .then((res) => {
+        const node = Readable.fromWeb(
+          res.body as unknown as import('node:stream/web').ReadableStream,
+        )
+        node.on('error', (e: Error) => passthrough.destroy(e))
+        node.pipe(passthrough)
+      })
+      .catch((e: unknown) => passthrough.destroy(e as Error))
+    return passthrough
+  }
+
+  async delete(key: string): Promise<void> {
+    const res = await fetch(this.url(key), {
+      method: 'DELETE',
+      headers: { authorization: `Bearer ${this.token}` },
+    })
+    if (!res.ok && res.status !== 404) {
+      throw new Error(`VPS storage DELETE ${key} failed: ${res.status} ${res.statusText}`)
+    }
+  }
+
+  newKey(filename: string): string {
+    const id = newId('blob')
+    const ext = path.extname(filename).toLowerCase() || ''
+    return `${id}${ext}`
+  }
+
+  private url(key: string): string {
+    return `${this.baseUrl}/blobs/${encodeURI(key)}`
+  }
+
+  private async fetchBlob(key: string): Promise<Response> {
+    const res = await fetch(this.url(key), {
+      headers: { authorization: `Bearer ${this.token}` },
+    })
+    if (!res.ok || !res.body) {
+      throw new Error(`VPS storage GET ${key} failed: ${res.status} ${res.statusText}`)
+    }
+    return res
+  }
+}
+
 let cached: StorageProvider | null = null
 
 export function getStorage(): StorageProvider {
   if (cached) return cached
+  const vpsUrl = process.env.MINDMAP_STORAGE_URL
+  const vpsToken = process.env.MINDMAP_STORAGE_TOKEN
+  if (vpsUrl && vpsToken) {
+    cached = new VpsStorage(vpsUrl, vpsToken)
+    return cached
+  }
   const token = process.env.BLOB_READ_WRITE_TOKEN
   if (token && token.length > 0) {
     cached = new VercelBlobStorage()
@@ -176,10 +271,9 @@ export function getStorage(): StorageProvider {
   }
   if (process.env.VERCEL === '1') {
     throw new Error(
-      'BLOB_READ_WRITE_TOKEN is not set. Vercel Blob is required in production ' +
-        'because the Vercel filesystem is read-only outside /tmp. Create a Blob ' +
-        'store at https://vercel.com/dashboard → Storage → Blob, copy the read-write ' +
-        'token, and add it as BLOB_READ_WRITE_TOKEN in the project environment.',
+      'No storage configured. Set MINDMAP_STORAGE_URL + MINDMAP_STORAGE_TOKEN ' +
+        'to use the VPS storage service, or BLOB_READ_WRITE_TOKEN for Vercel Blob. ' +
+        'Local disk is not an option on Vercel: the filesystem is read-only outside /tmp.',
     )
   }
   const root = process.env.MINDMAP_LOCAL_BLOB_DIR ?? '/var/mindmap/blobs'

@@ -70,7 +70,17 @@ packages/config    ──► { }                 (leaf)
 ## Ports
 
 - Web dev server: **3100** (avoiding 3000 which is occupied on this machine).
+- VPS storage service (`scripts/storage-server.mjs`, pm2 `mindmap-storage`): **3200**,
+  loopback only — nginx exposes it as `https://storage.azpy.es`.
 - Prisma Studio: 5555 (default).
+
+## Uploads storage
+
+`apps/web/src/lib/storage.ts` picks a provider by env, in this order:
+
+1. `MINDMAP_STORAGE_URL` + `MINDMAP_STORAGE_TOKEN` → VPS storage (production).
+2. `BLOB_READ_WRITE_TOKEN` → Vercel Blob.
+3. Otherwise local FS under `MINDMAP_LOCAL_BLOB_DIR` (dev only — throws on Vercel).
 
 ## Environment
 
