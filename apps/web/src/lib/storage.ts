@@ -102,9 +102,11 @@ class VercelBlobStorage implements StorageProvider {
   }): Promise<{ key: string; sizeBytes: number }> {
     const pathname = input.key ?? this.newKey(input.filename)
     const result = await vercelPut(pathname, Buffer.from(input.bytes), {
-      // The 0.27 typings only declare 'public', but the runtime accepts
-      // 'private' for stores created in private mode. The cast is safe.
-      access: 'private' as 'public',
+      // @vercel/blob only supports 'public' — the private-blob beta was
+      // discontinued and the SDK throws if access is anything else. The URL
+      // stays unguessable (random id in the pathname), and reads go through
+      // head() → downloadUrl anyway.
+      access: 'public',
       contentType: input.mimeType,
       addRandomSuffix: false,
     })
