@@ -127,7 +127,7 @@ apps/web/
 │   │   ├── uploads/              # signed URL issue (POST) + webhook (POST)
 │   │   ├── diagnosis/stream/     # SSE (GET/POST)
 │   │   ├── diagnosis/[id]/       # polling fallback (GET)
-│   
+│
 │   └── manifest.ts               # PWA manifest (next-pwa)
 ├── components/
 │   ├── ui/                       # re-export from packages/ui
@@ -299,13 +299,13 @@ Every method is provider-independent. Adding a new provider = adding a file unde
 
 ## 7. Storage Strategy
 
-| Need                                                                  | Choice                                     | Why                                                                                    |
-| --------------------------------------------------------------------- | ------------------------------------------ | -------------------------------------------------------------------------------------- |
+| Need                                                         | Choice                                     | Why                                                                                    |
+| ------------------------------------------------------------ | ------------------------------------------ | -------------------------------------------------------------------------------------- |
 | Relational data (users, workspaces, concepts, jobs, reviews) | **Neon Postgres** via Prisma               | Serverless PG, branching for preview deploys, scales to thousands of users without ops |
-| Document binaries (PDF/PPTX/DOCX)                                     | **Vercel Blob**                            | Signed URLs, zero-config, same bill as Vercel, S3-compatible enough for MVP            |
-| Extracted text (parsed docs)                                          | **Neon `DocumentChunk` table**             | Queryable, no separate vector DB needed for MVP search                                 |
-| Semantic search / RAG (future)                                        | **Neon `pgvector`** (or Turbopuffer later) | Postgres extension keeps the stack single-store; we don't ship RAG in MVP              |
-| Sessions / cache                                                      | **Neon** + Better Auth session table       | No Redis dependency in MVP                                                             |
+| Document binaries (PDF/PPTX/DOCX)                            | **Vercel Blob**                            | Signed URLs, zero-config, same bill as Vercel, S3-compatible enough for MVP            |
+| Extracted text (parsed docs)                                 | **Neon `DocumentChunk` table**             | Queryable, no separate vector DB needed for MVP search                                 |
+| Semantic search / RAG (future)                               | **Neon `pgvector`** (or Turbopuffer later) | Postgres extension keeps the stack single-store; we don't ship RAG in MVP              |
+| Sessions / cache                                             | **Neon** + Better Auth session table       | No Redis dependency in MVP                                                             |
 
 ### Alternatives
 
@@ -371,14 +371,14 @@ Every method is provider-independent. Adding a new provider = adding a file unde
 
 ## 10. Scalability Decisions
 
-| Concern         | Decision                                                                                                        |
-| --------------- | --------------------------------------------------------------------------------------------------------------- |
-| Read scaling    | Neon's read replicas (auto-scaling) + RSC streaming minimize TTFB                                               |
-| Write scaling   | Neon handles our MVP writes easily; `Job` table indexed on `(status, userId)` for pollers                       |
+| Concern         | Decision                                                                                                              |
+| --------------- | --------------------------------------------------------------------------------------------------------------------- |
+| Read scaling    | Neon's read replicas (auto-scaling) + RSC streaming minimize TTFB                                                     |
+| Write scaling   | Neon handles our MVP writes easily; `Job` table indexed on `(status, userId)` for pollers                             |
 | AI cost scaling | Router prefers cheap model (Zen/DeepSeek-Flash) for ≥80% of tokens; GO/MiMo is the fallback for diagnosis when needed |
-| Multi-tenancy   | `Workspace` row owns all related rows via `workspaceId` FK — every query scopes by it                           |
-| Memory (Brain)  | Per-session conversation memory capped (last N messages) + persisted `ConversationTurn` table for long-term     |
-| Cold starts     | Brain package is pure functions + lazy provider init; no module-level network calls                             |
+| Multi-tenancy   | `Workspace` row owns all related rows via `workspaceId` FK — every query scopes by it                                 |
+| Memory (Brain)  | Per-session conversation memory capped (last N messages) + persisted `ConversationTurn` table for long-term           |
+| Cold starts     | Brain package is pure functions + lazy provider init; no module-level network calls                                   |
 
 ---
 

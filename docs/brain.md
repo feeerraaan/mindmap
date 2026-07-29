@@ -109,15 +109,15 @@ type TaskType =
 
 ### Router policy (default)
 
-| Task                | Provider       | Model             | Rationale                                                         |
-| ------------------- | -------------- | ----------------- | ----------------------------------------------------------------- |
-| `classify.*`        | go             | deepseek-v4-flash | pure categorization, no reasoning needed                          |
-| `extract.*`         | go             | deepseek-v4-flash | structured output, schema-validated, retries handle errors        |
-| `summarize.concept` | go             | deepseek-v4-flash | short-form summarization                                          |
-| `reason.diagnose`   | go             | deepseek-v4-flash | fast adaptive probing; zen fallback if go is unavailable          |
-| `reason.evaluate`   | go             | deepseek-v4-flash | correctness scoring                                               |
-| `reason.clarify`    | go             | deepseek-v4-flash | short, low-stakes                                                 |
-| `schedule.review`   | — (local math) | —                 | no LLM call; pure function in `timeline-engine`                   |
+| Task                | Provider       | Model             | Rationale                                                  |
+| ------------------- | -------------- | ----------------- | ---------------------------------------------------------- |
+| `classify.*`        | go             | deepseek-v4-flash | pure categorization, no reasoning needed                   |
+| `extract.*`         | go             | deepseek-v4-flash | structured output, schema-validated, retries handle errors |
+| `summarize.concept` | go             | deepseek-v4-flash | short-form summarization                                   |
+| `reason.diagnose`   | go             | deepseek-v4-flash | fast adaptive probing; zen fallback if go is unavailable   |
+| `reason.evaluate`   | go             | deepseek-v4-flash | correctness scoring                                        |
+| `reason.clarify`    | go             | deepseek-v4-flash | short, low-stakes                                          |
+| `schedule.review`   | — (local math) | —                 | no LLM call; pure function in `timeline-engine`            |
 
 The policy is **data, not code** — a `policy.ts` map. Adjusting which model handles a
 task is a one-line edit.

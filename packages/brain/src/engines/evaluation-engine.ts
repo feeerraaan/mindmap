@@ -298,6 +298,7 @@ export async function askNext(
   // Track selection so batch generation doesn't repeat the same concept.
   state.selectedInBatch.add(picked.externalId)
   const kind = pickKindForState(state, picked.concept)
+  console.error(`[askNext] concept="${picked.concept.title}" kind=${kind} mastery=${picked.state.mastery.toFixed(3)} confidence=${picked.state.confidence.toFixed(3)}`)
   const promptId = kind === 'EASY' ? 'reason.diagnose.easy' : 'reason.diagnose.hard'
   const prompt = await loadPrompt(promptId)
   if (!prompt) {
@@ -326,7 +327,11 @@ export async function askNext(
     schema,
     buildUser: (previous) => (previous ? `${user}\n\n${repairHint(previous.error, kind)}` : user),
   })
-  if (!result.ok) return result
+  if (!result.ok) {
+    console.error(`[askNext] LLM FAILED: ${JSON.stringify(result.error)}`)
+    return result
+  }
+  console.error(`[askNext] LLM OK: provider=${result.value.providerId} model=${result.value.model}`)
   recordCallTokens(
     { userId: state.userId, task: 'reason.diagnose' },
     { provider: result.value.providerId, model: result.value.model },
@@ -981,6 +986,7 @@ async function llmCallWithFallback<S extends z.ZodTypeAny>(opts: {
         model: result.value.model,
       })
     }
+    console.error(`[llmCallWithFallback] attempt=${attempt} provider=${picked.value.decision.provider} model=${picked.value.decision.model} error=${JSON.stringify(result.error)}`)
     if (result.error.kind === 'SchemaFailure') {
       markProviderBad(picked.value.decision.provider, picked.value.decision.model)
       lastErr = result.error

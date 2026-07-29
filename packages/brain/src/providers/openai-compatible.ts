@@ -75,7 +75,7 @@ export function openAiCompatibleAdapter(env: OpenAICompatibleEnv): ProviderAdapt
           throw new ProviderRateLimited(env.provider, 60_000)
         }
         if (/abort|timeout/i.test(message)) {
-          throw new ProviderError(env.provider, `Timeout after 30s waiting for ${env.provider}`)
+          throw new ProviderRateLimited(env.provider, 5_000)
         }
         throw new ProviderError(env.provider, message)
       } finally {

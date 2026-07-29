@@ -91,7 +91,6 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
           </ul>
         </div>
       </section>
-
     </div>
   )
 }
