@@ -501,7 +501,7 @@ export async function batchAskNext(
             microFeedback: result.value.value.microFeedback,
           }
     const pending: PendingQuestion = {
-      conceptId: s.picked.externalId,
+      conceptId: s.picked.concept.id,
       kind: s.kind,
       question,
       tokensIn: result.value.tokensIn,
@@ -571,7 +571,7 @@ export async function scoreAnswer(
     return Err({ kind: 'InvalidInput', message: 'No pending question to answer.' })
   }
   const pending = state.pending
-  const conceptExternal = state.concepts.find((c) => c.id === pending.conceptId)?.externalId
+  const conceptExternal = state.concepts.find((c) => c.id === pending.conceptId || c.externalId === pending.conceptId)?.externalId
   if (!conceptExternal) {
     return Err({ kind: 'InvalidInput', message: 'Pending question references a missing concept.' })
   }
@@ -990,7 +990,7 @@ export async function generateClarification(
   if (!prompt) {
     return Err({ kind: 'InvalidInput', message: 'Prompt reason.clarify missing.' })
   }
-  const concept = state.concepts.find((c) => c.id === pending.conceptId)
+  const concept = state.concepts.find((c) => c.id === pending.conceptId || c.externalId === pending.conceptId)
   if (!concept) return Err({ kind: 'InvalidInput', message: 'Concept missing.' })
   const user = prompt.render({
     concept: { title: concept.title, summary: concept.summary },
