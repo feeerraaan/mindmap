@@ -1,0 +1,32 @@
+{
+  "name": "@mindmap/processor",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Document job processors (PARSE, BUILD_GRAPH). Runs in the VPS worker, not in the web request path.",
+  "type": "module",
+  "main": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "build": "tsc --noEmit",
+    "clean": "rm -rf .turbo dist"
+  },
+  "dependencies": {
+    "@mindmap/brain": "workspace:*",
+    "@mindmap/database": "workspace:*",
+    "@mindmap/parser": "workspace:*",
+    "@mindmap/shared": "workspace:*",
+    "@mindmap/types": "workspace:*"
+  },
+  "devDependencies": {
+    "@mindmap/config": "workspace:*",
+    "eslint": "^9.16.0",
+    "eslint-plugin-import": "^2.31.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.6.0",
+    "typescript-eslint": "^8.18.0"
+  }
+}

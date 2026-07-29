@@ -1,5 +1,5 @@
 /**
- * Build-graph processor — runs after PARSE finishes.
+ * BUILD_GRAPH job — run by the VPS worker after a PARSE job finishes.
  *
  * Pipeline:
  *   1. Read DocumentChunk rows for the document
@@ -10,18 +10,17 @@
  * The processor is the only place that touches Prisma from the Brain
  * pipeline. The engine itself returns a KnowledgeGraph and never
  * reads/writes the DB, so the boundary from docs/architecture.md §2
- * stays clean: `apps/web` depends on `@mindmap/brain`, not the other
- * way around.
+ * stays clean.
  */
 import { Brain, type KnowledgeBuildOutput } from '@mindmap/brain'
 import { prisma } from '@mindmap/database'
 import type { ParsedDocument } from '@mindmap/types'
 
-export interface BuildGraphInput {
+export interface BuildGraphJobInput {
   documentId: string
 }
 
-export interface BuildGraphResult {
+export interface BuildGraphJobResult {
   ok: boolean
   conceptCount: number
   edgeCount: number
@@ -29,9 +28,12 @@ export interface BuildGraphResult {
   language: string
   tokensIn: number
   tokensOut: number
+  error?: string
 }
 
-export async function processBuildGraph(input: BuildGraphInput): Promise<BuildGraphResult> {
+export async function processBuildGraphJob(
+  input: BuildGraphJobInput,
+): Promise<BuildGraphJobResult> {
   const doc = await prisma.document.findUnique({
     where: { id: input.documentId },
     include: { workspace: { select: { ownerId: true } } },
@@ -43,7 +45,6 @@ export async function processBuildGraph(input: BuildGraphInput): Promise<BuildGr
     data: { status: 'RUNNING', startedAt: new Date(), progress: 0.1 },
   })
 
-  // Pull the parsed chunks back into a ParsedDocument.
   const chunks = await prisma.documentChunk.findMany({
     where: { documentId: doc.id },
     orderBy: { index: 'asc' },
@@ -63,6 +64,7 @@ export async function processBuildGraph(input: BuildGraphInput): Promise<BuildGr
       language: 'en',
       tokensIn: 0,
       tokensOut: 0,
+      error: 'No chunks to build a graph from.',
     }
   }
 
@@ -78,7 +80,6 @@ export async function processBuildGraph(input: BuildGraphInput): Promise<BuildGr
     metadata: {},
   }
 
-  // Update progress as the engine emits stages.
   const onProgress = async (fraction: number) => {
     await prisma.job.updateMany({
       where: { documentId: doc.id, type: 'BUILD_GRAPH' },
@@ -90,21 +91,16 @@ export async function processBuildGraph(input: BuildGraphInput): Promise<BuildGr
     document: parsed,
     userId: doc.workspace.ownerId,
     onProgress: (fraction) => {
-      // Fire and forget — the engine awaits its own work; the job row
-      // update is best-effort.
       void onProgress(fraction)
     },
   })
 
   if (!result.ok) {
+    const message = errorMessage(result.error)
     await prisma.document.update({ where: { id: doc.id }, data: { status: 'FAILED' } })
     await prisma.job.updateMany({
       where: { documentId: doc.id, type: 'BUILD_GRAPH' },
-      data: {
-        status: 'FAILED',
-        finishedAt: new Date(),
-        error: errorMessage(result.error),
-      },
+      data: { status: 'FAILED', finishedAt: new Date(), error: message },
     })
     return {
       ok: false,
@@ -114,12 +110,11 @@ export async function processBuildGraph(input: BuildGraphInput): Promise<BuildGr
       language: doc.language ?? 'en',
       tokensIn: 0,
       tokensOut: 0,
+      error: message,
     }
   }
 
   const out: KnowledgeBuildOutput = result.value
-
-  // Persist concepts + edges idempotently.
   const persisted = await persistGraph(doc.id, out)
   await prisma.document.update({
     where: { id: doc.id },
@@ -158,8 +153,6 @@ interface PersistReport {
 }
 
 async function persistGraph(documentId: string, out: KnowledgeBuildOutput): Promise<PersistReport> {
-  // Concept + ConceptDependency rows are scoped per document. Wipe and
-  // re-insert so re-runs are idempotent.
   await prisma.$transaction([
     prisma.conceptDependency.deleteMany({ where: { dependant: { documentId } } }),
     prisma.concept.deleteMany({ where: { documentId } }),
