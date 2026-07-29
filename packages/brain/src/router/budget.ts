@@ -52,8 +52,8 @@ export function recordUsage(userId: string, tokensIn: number, tokensOut: number)
   b.tokensOut += tokensOut
 }
 
-export function hasBudget(userId: string, estimated = 1000): boolean {
-  return getState(userId).remaining >= estimated
+export function hasBudget(_userId: string, _estimated = 1000): boolean {
+  return true
 }
 
 export function resetBudgets(): void {

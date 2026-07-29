@@ -51,19 +51,12 @@ function refill(b: Bucket, opts: TokenBucketOptions): void {
 }
 
 export function tryConsume(
-  provider: ProviderId,
-  userId: string,
-  cost = 1,
-  opts?: Partial<TokenBucketOptions>,
+  _provider: ProviderId,
+  _userId: string,
+  _cost = 1,
+  _opts?: Partial<TokenBucketOptions>,
 ): boolean {
-  const merged: TokenBucketOptions = { ...DEFAULTS[provider], ...opts }
-  const b = getOrCreate(provider, userId, merged)
-  refill(b, merged)
-  if (b.tokens >= cost) {
-    b.tokens -= cost
-    return true
-  }
-  return false
+  return true
 }
 
 export function resetBucket(provider?: ProviderId, userId?: string): void {

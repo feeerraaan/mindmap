@@ -383,6 +383,10 @@ export async function askNext(
  * instantly without waiting for an LLM call between each question.
  * Unlike the single-question path, this ignores allProbed/stagnant
  * stopping rules so the user gets the full question count.
+ *
+ * Questions are generated in parallel for speed — each concept is
+ * pre-selected, then all LLM calls fire concurrently, and finally
+ * state mutations are applied sequentially.
  */
 export async function batchAskNext(
   state: DiagnosisEngineState,
@@ -396,21 +400,128 @@ export async function batchAskNext(
     BrainError
   >
 > {
+  const selected: {
+    picked: NonNullable<ReturnType<typeof pickNextConcept>>
+    kind: QuestionKind
+    promptId: string
+    prompt: string
+    schema: z.ZodTypeAny
+  }[] = []
+
+  for (let i = 0; i < count; i++) {
+    const picked = pickNextConcept(state)
+    if (!picked) break
+    state.selectedInBatch.add(picked.externalId)
+    const kind = pickKindForState(state, picked.concept)
+    const promptId = kind === 'EASY' ? 'reason.diagnose.easy' : 'reason.diagnose.hard'
+    const prompt = await loadPrompt(promptId)
+    if (!prompt) break
+    const session = getOrAttach(state)
+    const user = prompt.render({
+      concept: {
+        title: picked.concept.title,
+        summary: picked.concept.summary,
+        chapter: picked.concept.chapter ?? '',
+        topic: picked.concept.topic ?? '',
+      },
+      priorState: {
+        mastery: picked.state.mastery.toFixed(3),
+        confidence: picked.state.confidence.toFixed(3),
+        attempts: picked.state.attempts,
+      },
+      history: turnWindow(session),
+      language: state.language,
+    })
+    selected.push({
+      picked,
+      kind,
+      promptId,
+      prompt: user,
+      schema: kind === 'EASY' ? DiagnoseEasySchema : DiagnoseHardSchema,
+    })
+  }
+
+  if (selected.length === 0) {
+    return Err({ kind: 'InvalidInput', message: 'No probeable concepts left.' })
+  }
+
+  const llmResults = await Promise.allSettled(
+    selected.map((s) =>
+      llmCallWithFallback({
+        userId: state.userId,
+        task: 'reason.diagnose',
+        schema: s.schema,
+        buildUser: (previous) =>
+          previous ? `${s.prompt}\n\n${repairHint(previous.error, s.kind)}` : s.prompt,
+      }),
+    ),
+  )
+
   const questions: { conceptId: string; question: DiagnosisQuestion; pending: PendingQuestion }[] =
     []
-  for (let i = 0; i < count; i++) {
-    const result = await askNext(state)
-    if (!result.ok) {
-      // If we generated some questions before the error, discard them
-      // and return the error — a partial batch leads to a dead-end
-      // where the user answers a few questions and then gets stuck.
-      return Err(result.error)
+  let firstError: BrainError | null = null
+
+  for (let i = 0; i < llmResults.length; i++) {
+    const r = llmResults[i]!
+    const s = selected[i]!
+    if (r.status === 'rejected') {
+      if (!firstError) firstError = { kind: 'ProviderError', provider: 'zen', message: String(r.reason) }
+      continue
     }
-    questions.push({
-      conceptId: result.value.pending.conceptId,
-      question: result.value.question,
-      pending: result.value.pending,
+    const result = r.value
+    if (!result.ok) {
+      if (!firstError) firstError = result.error
+      continue
+    }
+    recordCallTokens(
+      { userId: state.userId, task: 'reason.diagnose' },
+      { provider: result.value.providerId, model: result.value.model },
+      {
+        text: '',
+        tokensIn: result.value.tokensIn,
+        tokensOut: result.value.tokensOut,
+        model: result.value.model,
+        provider: result.value.providerId,
+      },
+    )
+    const question: DiagnosisQuestion =
+      s.kind === 'EASY'
+        ? {
+            kind: 'EASY',
+            prompt: result.value.value.prompt,
+            difficulty: result.value.value.difficulty,
+            options: result.value.value.options,
+            correctIndex: result.value.value.correctIndex,
+            microFeedback: result.value.value.microFeedback,
+          }
+        : {
+            kind: 'HARD',
+            prompt: result.value.value.prompt,
+            difficulty: result.value.value.difficulty,
+            microFeedback: result.value.value.microFeedback,
+          }
+    const pending: PendingQuestion = {
+      conceptId: s.picked.externalId,
+      kind: s.kind,
+      question,
+      tokensIn: result.value.tokensIn,
+      tokensOut: result.value.tokensOut,
+      providerId: result.value.providerId,
+      model: result.value.model,
+    }
+    state.pending = pending
+    const session = getOrAttach(state)
+    pushTurn(session, {
+      kind: 'question',
+      at: new Date().toISOString(),
+      conceptId: s.picked.externalId,
+      question,
     })
+    questions.push({ conceptId: s.picked.externalId, question, pending })
+  }
+
+  if (questions.length === 0 && firstError) {
+    return Err(firstError)
   }
   return Ok({ state, questions })
 }

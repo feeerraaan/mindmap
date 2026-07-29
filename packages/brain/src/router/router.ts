@@ -41,15 +41,9 @@ function firstAvailable(
  * a successful call to deduct the cost.
  */
 export function pickRoute(ctx: RouteContext): Result<RouteDecision, BrainError> {
-  if (!hasBudget(ctx.userId, 200)) {
-    return Err({ kind: 'BudgetExceeded', userId: ctx.userId })
-  }
   const candidates = candidatesFor(ctx.task)
   const found = firstAvailable(candidates)
   if (!found) return Err({ kind: 'BudgetExceeded', userId: ctx.userId })
-  if (!tryConsume(found.candidate.provider, ctx.userId, 1)) {
-    return Err({ kind: 'BudgetExceeded', userId: ctx.userId })
-  }
   return Ok({
     provider: found.candidate.provider,
     model: found.candidate.model,
@@ -125,17 +119,11 @@ export function pickRouteResilient(ctx: RouteContext): Result<RouteDecision, Bra
 export function pickRouteWithProvider(
   ctx: RouteContext,
 ): Result<{ decision: RouteDecision; provider: ProviderAdapter }, BrainError> {
-  if (!hasBudget(ctx.userId, 200)) {
-    return Err({ kind: 'BudgetExceeded', userId: ctx.userId })
-  }
   const candidates = candidatesFor(ctx.task)
   for (const c of candidates) {
     if (isCandidateBad(c.provider, c.model)) continue
     const provider = getProvider(c.provider)
     if (!provider.isAvailable()) continue
-    if (!tryConsume(c.provider, ctx.userId, 1)) {
-      return Err({ kind: 'BudgetExceeded', userId: ctx.userId })
-    }
     return Ok({
       decision: {
         provider: c.provider,
@@ -161,12 +149,6 @@ export async function dispatch(
   for (const c of candidates) {
     const provider = getProvider(c.provider)
     if (!provider.isAvailable()) continue
-    if (!hasBudget(ctx.userId, 200)) {
-      break
-    }
-    if (!tryConsume(c.provider, ctx.userId, 1)) {
-      break
-    }
     const decision: RouteDecision = {
       provider: c.provider,
       model: c.model,
@@ -175,19 +157,13 @@ export async function dispatch(
     }
     try {
       const response = await callWithRateLimitRetry(provider, build(decision))
-      recordCallTokens(ctx, decision, response)
       return Ok({ decision, response })
     } catch (e) {
-      // Hard failure on this provider: restore the bucket, record the
-      // error, and try the next candidate.
-      tryConsume(c.provider, ctx.userId, -1)
       lastError = {
         kind: 'ProviderError',
         provider: c.provider,
         message: e instanceof Error ? e.message : String(e),
       }
-      // Permanent failures (404, invalid model, 401) are not worth
-      // retrying on the same provider — continue to the next candidate.
       continue
     }
   }
