@@ -100,6 +100,8 @@ class LocalFsStorage implements StorageProvider {
 class VercelBlobStorage implements StorageProvider {
   readonly id = 'vercel-blob' as const
 
+  constructor(private readonly token: string) {}
+
   async put(input: {
     bytes: Uint8Array
     mimeType: string
@@ -108,10 +110,10 @@ class VercelBlobStorage implements StorageProvider {
   }): Promise<{ key: string; sizeBytes: number }> {
     const pathname = input.key ?? this.newKey(input.filename)
     const result = await vercelPut(pathname, Buffer.from(input.bytes), {
-      // @vercel/blob only supports 'public' — the private-blob beta was
-      // discontinued and the SDK throws if access is anything else. The URL
-      // stays unguessable (random id in the pathname), and reads go through
-      // head() → downloadUrl anyway.
+      // The SDK only reads BLOB_READ_WRITE_TOKEN from the env, so we pass the
+      // resolved token explicitly to support either the prefixed
+      // (MINDMAPBLOB_*) or the legacy env var name.
+      token: this.token,
       access: 'public',
       contentType: input.mimeType,
       addRandomSuffix: false,
@@ -152,7 +154,7 @@ class VercelBlobStorage implements StorageProvider {
 
   async delete(key: string): Promise<void> {
     try {
-      await vercelDel(key)
+      await vercelDel(key, { token: this.token })
     } catch (err) {
       if (err instanceof Error && err.name === 'BlobNotFoundError') return
       throw err
@@ -166,7 +168,7 @@ class VercelBlobStorage implements StorageProvider {
   }
 
   private async signedDownloadUrl(key: string): Promise<string> {
-    const meta = await vercelHead(key)
+    const meta = await vercelHead(key, { token: this.token })
     return meta.downloadUrl
   }
 }
@@ -271,7 +273,7 @@ export function getStorage(): StorageProvider {
   const token =
     process.env.MINDMAPBLOB_READ_WRITE_TOKEN ?? process.env.BLOB_READ_WRITE_TOKEN
   if (token && token.length > 0) {
-    cached = new VercelBlobStorage()
+    cached = new VercelBlobStorage(token)
     return cached
   }
   if (process.env.VERCEL === '1') {
