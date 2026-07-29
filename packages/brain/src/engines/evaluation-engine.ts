@@ -31,6 +31,7 @@ import {
   DiagnoseEasySchema,
   DiagnoseHardSchema,
   EvaluationSchema,
+  LearnSchema,
   type AnswerInput,
   type Clarification,
   type DiagnosisQuestion,
@@ -49,7 +50,7 @@ import type { ActiveSession, SessionTurn } from './memory'
 import { getSession, registerSession, turnWindow } from './memory'
 import type { BrainError } from '../errors'
 
-export const MAX_QUESTIONS = 30
+export const MAX_QUESTIONS = 35
 export const STOP_GLOBAL_CONFIDENCE = 0.7
 export const STOP_DELTA_THRESHOLD = 0.02
 export const STOP_STAGNANT_RUNS = 3
@@ -60,6 +61,8 @@ export const CLARIFY_PER_QUESTION_MAX = 1
 export const CLARIFY_PER_SESSION_MAX = 3
 
 export type QuestionKind = 'EASY' | 'HARD'
+
+export type DiagnosisPhase = 'DIAGNOSE' | 'LEARN' | 'PRACTICE' | 'VERIFY'
 
 export interface ConceptStateLocal {
   conceptId: string
@@ -113,6 +116,14 @@ export interface DiagnosisEngineState {
   awaitingClarification: boolean
   /** clarification follow-up produced for the current question, if any. */
   pendingClarification: Clarification | null
+  /** Current phase of the diagnosis session. */
+  phase: DiagnosisPhase
+  /** Concepts that failed in DIAGNOSE (need LEARN phase). */
+  weakConcepts: Set<string>
+  /** Concepts that were taught in LEARN (need PRACTICE). */
+  taughtConcepts: Set<string>
+  /** Concepts that passed PRACTICE (need VERIFY). */
+  practicedConcepts: Set<string>
 }
 
 export interface BuildStateInput {
@@ -206,6 +217,10 @@ export function buildInitialState(input: BuildStateInput): DiagnosisEngineState 
     selectedInBatch: new Set(),
     awaitingClarification: false,
     pendingClarification: null,
+    phase: 'DIAGNOSE',
+    weakConcepts: new Set(),
+    taughtConcepts: new Set(),
+    practicedConcepts: new Set(),
   }
 }
 
@@ -221,6 +236,15 @@ export function pickNextConcept(state: DiagnosisEngineState): {
   state: ConceptStateLocal
   concept: DiagnosisEngineState['concepts'][number]
 } | null {
+  // Pre-compute dependency impact: how many concepts depend on each concept.
+  const dependantCount = new Map<string, number>()
+  let maxDependants = 1
+  for (const e of state.edges) {
+    const count = (dependantCount.get(e.to) ?? 0) + 1
+    dependantCount.set(e.to, count)
+    if (count > maxDependants) maxDependants = count
+  }
+
   let best: {
     externalId: string
     state: ConceptStateLocal
@@ -232,12 +256,34 @@ export function pickNextConcept(state: DiagnosisEngineState): {
     if (state.selectedInBatch.has(concept.externalId)) continue
     const cs = state.states.get(concept.externalId)
     if (!cs) continue
+
+    // Coverage: boost concepts that have never been probed.
+    const coverage = cs.attempts === 0 ? 1.0 : 0.0
+
+    // Uncertainty: lower confidence = higher priority.
+    const uncertainty = 1 - cs.confidence
+
+    // Dependency impact: concepts that many others depend on get a boost.
+    const depCount = dependantCount.get(concept.externalId) ?? 0
+    const dependencyImpact = depCount / maxDependants
+
+    // Information gain: IRT Fisher information at current ability level.
     const theta = masteryToTheta(cs.mastery)
-    // Target difficulty is roughly the current theta for max information;
-    // we let the LLM pick exactly, but our priority uses the theoretical
-    // best information available.
     const info = fisherInformation(theta, theta)
-    const score = concept.importance * (1 - cs.confidence) * info
+
+    // Recency bonus: concepts not seen recently get a nudge.
+    const lastSeenMs = cs.lastSeen?.getTime() ?? 0
+    const daysSinceLastSeen = lastSeenMs > 0 ? (Date.now() - lastSeenMs) / 86_400_000 : 999
+    const recencyBonus = daysSinceLastSeen > 14 ? 0.3 : daysSinceLastSeen > 7 ? 0.15 : 0
+
+    // Combined priority score.
+    const score =
+      0.35 * coverage +
+      0.25 * concept.importance * uncertainty * info +
+      0.20 * dependencyImpact +
+      0.10 * concept.importance * (1 - cs.mastery) +
+      0.10 * recencyBonus
+
     if (score <= 0) continue
     if (!best || score > best.score) {
       best = { externalId: concept.externalId, state: cs, concept, score }
@@ -376,6 +422,91 @@ export async function askNext(
     question,
   })
   return Ok({ state, question, pending })
+}
+
+/**
+ * Generate a learn explanation for a weak concept.
+ * Returns a teaching explanation, not a question.
+ */
+export async function askLearn(
+  state: DiagnosisEngineState,
+  externalId: string,
+): Promise<
+  Result<
+    {
+      state: DiagnosisEngineState
+      explanation: string
+      conceptTitle: string
+      tokensIn: number
+      tokensOut: number
+      providerId: string
+      model: string
+    },
+    BrainError
+  >
+> {
+  const concept = state.concepts.find((c) => c.externalId === externalId)
+  if (!concept) return Err({ kind: 'InvalidInput', message: 'Concept not found.' })
+
+  const prompt = await loadPrompt('reason.learn')
+  if (!prompt) {
+    // Fallback: use a simple explanation prompt
+    const user = `Explaina este concepto de forma clara y concisa en ${state.language}. Concepto: ${concept.title}. Resumen: ${concept.summary}. Proporciona una explicación de 3-4 oraciones que un estudiante pueda entender fácilmente.`
+    const result = await llmCallWithFallback({
+      userId: state.userId,
+      task: 'reason.diagnose',
+      schema: LearnSchema,
+      buildUser: () => user,
+    })
+    if (!result.ok) return result
+    state.taughtConcepts.add(externalId)
+    return Ok({
+      state,
+      explanation: result.value.value.explanation,
+      conceptTitle: concept.title,
+      tokensIn: result.value.tokensIn,
+      tokensOut: result.value.tokensOut,
+      providerId: result.value.providerId,
+      model: result.value.model,
+    })
+  }
+
+  const session = getOrAttach(state)
+  const user = prompt.render({
+    concept: {
+      title: concept.title,
+      summary: concept.summary,
+      chapter: concept.chapter ?? '',
+      topic: concept.topic ?? '',
+    },
+    language: state.language,
+  })
+
+  const result = await llmCallWithFallback({
+    userId: state.userId,
+    task: 'reason.diagnose',
+    schema: LearnSchema,
+    buildUser: () => user,
+  })
+  if (!result.ok) return result
+
+  state.taughtConcepts.add(externalId)
+  pushTurn(session, {
+    kind: 'learn',
+    at: new Date().toISOString(),
+    conceptId: externalId,
+    explanation: result.value.value.explanation,
+  })
+
+  return Ok({
+    state,
+    explanation: result.value.value.explanation,
+    conceptTitle: concept.title,
+    tokensIn: result.value.tokensIn,
+    tokensOut: result.value.tokensOut,
+    providerId: result.value.providerId,
+    model: result.value.model,
+  })
 }
 
 /**
@@ -547,6 +678,7 @@ export type StopReason =
   | 'global-confidence'
   | 'stagnant'
   | 'all-probed'
+  | 'coverage'
   | 'clarification-budget'
   | 'user-finalize'
 
@@ -719,24 +851,66 @@ export async function scoreAnswer(
 
 /** Whether the session should terminate now. */
 export function shouldStop(state: DiagnosisEngineState): boolean {
-  if (state.questionsAsked >= state.maxQuestions) return true
+  // Never stop during LEARN or PRACTICE phases — those are teaching phases.
+  if (state.phase === 'LEARN' || state.phase === 'PRACTICE') return false
+
+  // In VERIFY phase, stop when all verified concepts are solid.
+  if (state.phase === 'VERIFY') {
+    if (state.questionsAsked >= state.maxQuestions) return true
+    if (state.globalConfidence >= STOP_GLOBAL_CONFIDENCE) return true
+    return false
+  }
+
+  // DIAGNOSE phase: smart stop conditions.
+  const asked = state.questionsAsked
+
+  // Hard minimum: never stop before 8 questions.
+  if (asked < 8) return false
+
+  // Hard maximum: always stop at 35.
+  if (asked >= 35) return true
+
+  // Global confidence threshold: most concepts are well-understood.
   if (state.globalConfidence >= STOP_GLOBAL_CONFIDENCE) return true
+
+  // Stagnation: mastery is barely moving despite continued questions.
   if (state.recentDeltas.length >= STOP_STAGNANT_RUNS) {
     const allSmall = state.recentDeltas.every((d) => d < STOP_DELTA_THRESHOLD)
-    if (allSmall) return true
+    if (allSmall && asked >= 12) return true
   }
+
+  // Coverage: all important concepts have been probed with sufficient evidence.
   if (allProbed(state)) return true
+
+  // Adaptive: after target (20), check if remaining concepts have low value.
+  if (asked >= 20) {
+    let uncoveredImportance = 0
+    let totalImportance = 0
+    for (const c of state.concepts) {
+      totalImportance += c.importance
+      const cs = state.states.get(c.externalId)
+      if (!cs || cs.attempts === 0 || cs.confidence < 0.6) {
+        uncoveredImportance += c.importance
+      }
+    }
+    // If less than 15% of total importance is uncovered, we're done.
+    if (totalImportance > 0 && uncoveredImportance / totalImportance < 0.15) return true
+  }
+
   return false
 }
 
 function detectStopReason(state: DiagnosisEngineState): StopReason {
-  if (state.questionsAsked >= state.maxQuestions) return 'max-questions'
+  const asked = state.questionsAsked
+  if (asked < 8) return 'user-finalize'
+  if (asked >= 35) return 'max-questions'
   if (state.globalConfidence >= STOP_GLOBAL_CONFIDENCE) return 'global-confidence'
   if (state.recentDeltas.length >= STOP_STAGNANT_RUNS) {
     const allSmall = state.recentDeltas.every((d) => d < STOP_DELTA_THRESHOLD)
-    if (allSmall) return 'stagnant'
+    if (allSmall && asked >= 12) return 'stagnant'
   }
   if (allProbed(state)) return 'all-probed'
+  if (asked >= 20) return 'coverage'
   return 'user-finalize'
 }
 
@@ -748,6 +922,91 @@ function allProbed(state: DiagnosisEngineState): boolean {
     if (cs.confidence < 0.85) return false
   }
   return true
+}
+
+/**
+ * Identify weak concepts after DIAGNOSE phase.
+ * Returns externalIds of concepts that need teaching.
+ */
+export function identifyWeakConcepts(state: DiagnosisEngineState): string[] {
+  const weak: string[] = []
+  for (const c of state.concepts) {
+    const cs = state.states.get(c.externalId)
+    if (!cs) continue
+    // Weak if: never attempted, low mastery, or low confidence.
+    if (cs.attempts === 0 || cs.mastery < 0.4 || cs.confidence < 0.5) {
+      weak.push(c.externalId)
+    }
+  }
+  // Sort by importance × weakness (most important weak concepts first).
+  weak.sort((a, b) => {
+    const ca = state.concepts.find((c) => c.externalId === a)!
+    const cb = state.concepts.find((c) => c.externalId === b)!
+    const sa = state.states.get(a)!
+    const sb = state.states.get(b)!
+    const scoreA = ca.importance * (1 - sa.mastery) * (1 - sa.confidence)
+    const scoreB = cb.importance * (1 - sb.mastery) * (1 - sb.confidence)
+    return scoreB - scoreA
+  })
+  return weak
+}
+
+/**
+ * Transition from DIAGNOSE to LEARN phase.
+ * Populates weakConcepts and sets phase to LEARN.
+ */
+export function transitionToLearn(state: DiagnosisEngineState): void {
+  const weak = identifyWeakConcepts(state)
+  state.weakConcepts = new Set(weak)
+  state.phase = 'LEARN'
+}
+
+/**
+ * Transition from LEARN to PRACTICE phase.
+ */
+export function transitionToPractice(state: DiagnosisEngineState): void {
+  state.phase = 'PRACTICE'
+}
+
+/**
+ * Transition from PRACTICE to VERIFY phase.
+ * Marks all practiced concepts as needing verification.
+ */
+export function transitionToVerify(state: DiagnosisEngineState): void {
+  state.phase = 'VERIFY'
+}
+
+/**
+ * Get the next weak concept to teach in LEARN phase.
+ * Returns null if all weak concepts have been taught.
+ */
+export function getNextWeakConcept(state: DiagnosisEngineState): {
+  externalId: string
+  concept: DiagnosisEngineState['concepts'][number]
+} | null {
+  for (const externalId of state.weakConcepts) {
+    if (state.taughtConcepts.has(externalId)) continue
+    const concept = state.concepts.find((c) => c.externalId === externalId)
+    if (!concept) continue
+    return { externalId, concept }
+  }
+  return null
+}
+
+/**
+ * Get the next concept to practice in PRACTICE phase.
+ */
+export function getNextPracticeConcept(state: DiagnosisEngineState): {
+  externalId: string
+  concept: DiagnosisEngineState['concepts'][number]
+} | null {
+  for (const externalId of state.weakConcepts) {
+    if (state.practicedConcepts.has(externalId)) continue
+    const concept = state.concepts.find((c) => c.externalId === externalId)
+    if (!concept) continue
+    return { externalId, concept }
+  }
+  return null
 }
 
 /**

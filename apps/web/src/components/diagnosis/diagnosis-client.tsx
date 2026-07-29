@@ -283,6 +283,7 @@ export function DiagnosisClient({
           globalConfidence: number
           questionsAsked: number
           clarification: { text: string; microFeedback: string } | null
+          nextQuestion: { turnId: string; question: DiagnosisQuestion; questionRowId: string } | null
         }
         setMicroFeedback(j.microFeedback)
         setGlobalConfidence(j.globalConfidence)
@@ -296,10 +297,16 @@ export function DiagnosisClient({
           setPhase('finished')
           return
         }
-        // Immediately reconnect SSE to get the next question.
-        setPending(null)
-        failCountRef.current = 0
-        openSSE()
+        // Use the next question from the response (just-in-time).
+        if (j.nextQuestion) {
+          setPending({ turnId: j.nextQuestion.turnId, question: j.nextQuestion.question, microFeedback: '' })
+          setPhase('answering')
+        } else {
+          // Fallback: reconnect SSE if no next question returned.
+          setPending(null)
+          failCountRef.current = 0
+          openSSE()
+        }
       } catch (e) {
         setError(e instanceof Error ? e.message : 'Network error.')
         setPhase('error')

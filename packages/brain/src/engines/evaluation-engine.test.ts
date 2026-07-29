@@ -370,6 +370,7 @@ describe('Evaluation engine', () => {
 
   it('shouldStop returns true when globalConfidence ≥ threshold', () => {
     const s = makeState()
+    s.questionsAsked = 10
     s.globalConfidence = STOP_GLOBAL_CONFIDENCE
     assert.equal(shouldStop(s), true)
   })
@@ -382,6 +383,7 @@ describe('Evaluation engine', () => {
 
   it('shouldStop returns true after STAGNANT_RUNS small deltas', () => {
     const s = makeState()
+    s.questionsAsked = 15
     s.recentDeltas = Array.from({ length: STOP_STAGNANT_RUNS }, () => STOP_DELTA_THRESHOLD / 2)
     assert.equal(shouldStop(s), true)
   })

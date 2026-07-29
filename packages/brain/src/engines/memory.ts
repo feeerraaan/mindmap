@@ -24,7 +24,7 @@ import type { AnswerInput, DiagnosisQuestion, Evaluation } from '../schemas/diag
 /** A single turn in the active session — written by the engine, not by
  *  callers directly. */
 export interface SessionTurn {
-  kind: 'question' | 'answer' | 'feedback' | 'clarification'
+  kind: 'question' | 'answer' | 'feedback' | 'clarification' | 'learn'
   /** ISO timestamp. */
   at: string
   /** The concept externalId this turn is about, if any. */
@@ -37,8 +37,10 @@ export interface SessionTurn {
   evaluation?: Evaluation
   /** Short micro-feedback string the user already saw. */
   microFeedback?: string
-  /** Free text — for clarifications, status messages. */
+  /** Free text — for clarifications, status messages, learn explanations. */
   text?: string
+  /** Learn explanation text. */
+  explanation?: string
 }
 
 export interface ActiveSession {

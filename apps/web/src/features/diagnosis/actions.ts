@@ -181,65 +181,52 @@ export async function startDiagnosis(
     })
   }
 
-  // Pre-generate all questions at once so the client serves them
-  // instantly without an LLM round-trip between each question.
-  const batchResult = await Brain.evaluation.batchAskNext(state, Brain.evaluation.MAX_QUESTIONS)
-  if (!batchResult.ok) return batchResult
-  const batch = batchResult.value.questions
-  if (batch.length === 0) {
+  // Generate the first question just-in-time (no batch pre-generation).
+  const askResult = await Brain.evaluation.askNext(state)
+  if (!askResult.ok) {
     return Err({ kind: 'InvalidInput', message: 'No questions could be generated. The AI provider may be temporarily unavailable.' })
   }
 
-  // Persist all pre-generated questions to the DB.
-  const first = batch[0]!
-  const turns = await prisma.$transaction(
-    batch.map((b) =>
-      prisma.conversationTurn.create({
-        data: {
-          sessionId: session.id,
-          role: 'ASSISTANT',
-          content: b.question.prompt,
-          provider: b.pending.providerId,
-          model: b.pending.model,
-          tokensIn: b.pending.tokensIn,
-          tokensOut: b.pending.tokensOut,
-        },
-      }),
-    ),
-  )
-  await prisma.$transaction(
-    turns.map((turn, i) => {
-      const b = batch[i]!
-      return prisma.question.create({
-        data: {
-          turnId: turn.id,
-          conceptId: b.pending.conceptId,
-          difficulty: b.question.difficulty,
-          prompt: b.question.prompt,
-          options:
-            b.question.kind === 'EASY'
-              ? (b.question.options as unknown as Prisma.InputJsonValue)
-              : Prisma.JsonNull,
-          expectedAnswer: b.question.kind === 'EASY' ? String(b.question.correctIndex) : null,
-        },
-      })
-    }),
-  )
+  // Persist the single question to the DB.
+  const turn = await prisma.conversationTurn.create({
+    data: {
+      sessionId: session.id,
+      role: 'ASSISTANT',
+      content: askResult.value.question.prompt,
+      provider: askResult.value.pending.providerId,
+      model: askResult.value.pending.model,
+      tokensIn: askResult.value.pending.tokensIn,
+      tokensOut: askResult.value.pending.tokensOut,
+    },
+  })
+  await prisma.question.create({
+    data: {
+      turnId: turn.id,
+      conceptId: askResult.value.pending.conceptId,
+      difficulty: askResult.value.question.difficulty,
+      prompt: askResult.value.question.prompt,
+      options:
+        askResult.value.question.kind === 'EASY'
+          ? (askResult.value.question.options as unknown as Prisma.InputJsonValue)
+          : Prisma.JsonNull,
+      expectedAnswer: askResult.value.question.kind === 'EASY' ? String(askResult.value.question.correctIndex) : null,
+    },
+  })
 
   // Update session counters.
   await prisma.diagnosisSession.update({
     where: { id: session.id },
     data: {
       questionsAsked: 0,
-      globalConfidence: batchResult.value.state.globalConfidence,
+      globalConfidence: askResult.value.state.globalConfidence,
     },
   })
 
   return Ok({
     sessionId: session.id,
-    firstQuestion: { turnId: turns[0]!.id, question: first.question, questionRowId: '' },
+    firstQuestion: { turnId: turn.id, question: askResult.value.question, questionRowId: '' },
     finished: false,
-    globalConfidence: batchResult.value.state.globalConfidence,
+    globalConfidence: askResult.value.state.globalConfidence,
   })
 }
 
@@ -256,6 +243,11 @@ export interface SubmitAnswerOutput {
   globalConfidence: number
   questionsAsked: number
   clarification: { text: string; microFeedback: string } | null
+  nextQuestion: {
+    turnId: string
+    question: DiagnosisQuestion
+    questionRowId: string
+  } | null
 }
 
 export async function submitAnswer(
@@ -439,6 +431,39 @@ export async function submitAnswer(
     })
   }
 
+  // Generate the next question just-in-time if the session is not finished.
+  let nextQuestion: SubmitAnswerOutput['nextQuestion'] = null
+  if (!out.shouldStop) {
+    const nextResult = await Brain.evaluation.askNext(out.state)
+    if (nextResult.ok) {
+      const nextTurn = await prisma.conversationTurn.create({
+        data: {
+          sessionId: session.id,
+          role: 'ASSISTANT',
+          content: nextResult.value.question.prompt,
+          provider: nextResult.value.pending.providerId,
+          model: nextResult.value.pending.model,
+          tokensIn: nextResult.value.pending.tokensIn,
+          tokensOut: nextResult.value.pending.tokensOut,
+        },
+      })
+      const nextQ = await prisma.question.create({
+        data: {
+          turnId: nextTurn.id,
+          conceptId: nextResult.value.pending.conceptId,
+          difficulty: nextResult.value.question.difficulty,
+          prompt: nextResult.value.question.prompt,
+          options:
+            nextResult.value.question.kind === 'EASY'
+              ? (nextResult.value.question.options as unknown as Prisma.InputJsonValue)
+              : Prisma.JsonNull,
+          expectedAnswer: nextResult.value.question.kind === 'EASY' ? String(nextResult.value.question.correctIndex) : null,
+        },
+      })
+      nextQuestion = { turnId: nextTurn.id, question: nextResult.value.question, questionRowId: nextQ.id }
+    }
+  }
+
   return Ok({
     finished: out.shouldStop,
     microFeedback: out.microFeedback,
@@ -447,6 +472,7 @@ export async function submitAnswer(
     clarification: out.clarification
       ? { text: out.clarification.clarification, microFeedback: out.clarification.microFeedback }
       : null,
+    nextQuestion,
   })
 }
 
@@ -599,9 +625,9 @@ export async function getNextQuestion(input: { sessionId: string; userId: string
     return Ok({ finished: true, globalConfidence: session.globalConfidence })
   }
 
-  // Find the next pre-generated question that hasn't been answered yet.
-  // Questions are served from the DB queue — no LLM call needed.
-  const unansweredTurn = await prisma.conversationTurn.findFirst({
+  // Check if there's already an unanswered question in the DB (from a previous
+  // partial batch or a concurrent request). If so, serve it.
+  const existingTurn = await prisma.conversationTurn.findFirst({
     where: {
       sessionId: session.id,
       role: 'ASSISTANT',
@@ -611,36 +637,108 @@ export async function getNextQuestion(input: { sessionId: string; userId: string
     include: { question: true },
   })
 
-  if (!unansweredTurn || !unansweredTurn.question) {
-    // No more pre-generated questions — session is done.
+  if (existingTurn && existingTurn.question) {
+    const q = existingTurn.question
+    const question: DiagnosisQuestion = q.options
+      ? {
+          kind: 'EASY',
+          prompt: q.prompt,
+          options: q.options as string[],
+          correctIndex: Number(q.expectedAnswer ?? 0),
+          difficulty: q.difficulty,
+          microFeedback: '',
+        }
+      : { kind: 'HARD', prompt: q.prompt, difficulty: q.difficulty, microFeedback: '' }
+
+    return Ok({
+      turnId: existingTurn.id,
+      question,
+      questionRowId: q.id,
+      finished: false,
+      globalConfidence: session.globalConfidence,
+    })
+  }
+
+  // No existing question — generate one just-in-time.
+  const [concepts, prior, doc] = await Promise.all([
+    loadConceptsForDocument(session.documentId),
+    loadConceptStatesForUser(input.userId, session.documentId),
+    prisma.document.findUnique({ where: { id: session.documentId } }),
+  ])
+  if (!doc) return Err({ kind: 'InvalidInput', message: 'Document not found.' })
+  const priorMap = new Map(prior.map((p) => [p.conceptId, p]))
+
+  const state = Brain.evaluation.buildState({
+    sessionId: session.id,
+    userId: input.userId,
+    documentId: session.documentId,
+    language: doc.language ?? 'en',
+    concepts,
+    restored: {
+      states: concepts.map((c) => {
+        const p = priorMap.get(c.id)
+        return {
+          conceptId: c.id,
+          mastery: p?.mastery ?? 0.1,
+          confidence: p?.confidence ?? 0,
+          attempts: p?.attempts ?? 0,
+          correct: p?.correct ?? 0,
+          lastDelta: p?.lastDelta ?? null,
+          lastSeen: p?.lastSeen ?? null,
+        }
+      }),
+      questionsAsked: session.questionsAsked,
+      clarificationCount: 0,
+      recentDeltas: [],
+      globalConfidence: session.globalConfidence,
+    },
+  })
+
+  if (Brain.evaluation.shouldStop(state)) {
     await finaliseSession({
       sessionId: session.id,
       documentId: session.documentId,
       userId: input.userId,
-      states: new Map(),
-      globalConfidence: session.globalConfidence,
+      states: state.states,
+      globalConfidence: state.globalConfidence,
     })
-    return Ok({ finished: true, globalConfidence: session.globalConfidence })
+    return Ok({ finished: true, globalConfidence: state.globalConfidence })
   }
 
-  const q = unansweredTurn.question
-  const question: DiagnosisQuestion = q.options
-    ? {
-        kind: 'EASY',
-        prompt: q.prompt,
-        options: q.options as string[],
-        correctIndex: Number(q.expectedAnswer ?? 0),
-        difficulty: q.difficulty,
-        microFeedback: '',
-      }
-    : { kind: 'HARD', prompt: q.prompt, difficulty: q.difficulty, microFeedback: '' }
+  const askResult = await Brain.evaluation.askNext(state)
+  if (!askResult.ok) return askResult
+
+  const turn = await prisma.conversationTurn.create({
+    data: {
+      sessionId: session.id,
+      role: 'ASSISTANT',
+      content: askResult.value.question.prompt,
+      provider: askResult.value.pending.providerId,
+      model: askResult.value.pending.model,
+      tokensIn: askResult.value.pending.tokensIn,
+      tokensOut: askResult.value.pending.tokensOut,
+    },
+  })
+  const qRow = await prisma.question.create({
+    data: {
+      turnId: turn.id,
+      conceptId: askResult.value.pending.conceptId,
+      difficulty: askResult.value.question.difficulty,
+      prompt: askResult.value.question.prompt,
+      options:
+        askResult.value.question.kind === 'EASY'
+          ? (askResult.value.question.options as unknown as Prisma.InputJsonValue)
+          : Prisma.JsonNull,
+      expectedAnswer: askResult.value.question.kind === 'EASY' ? String(askResult.value.question.correctIndex) : null,
+    },
+  })
 
   return Ok({
-    turnId: unansweredTurn.id,
-    question,
-    questionRowId: q.id,
+    turnId: turn.id,
+    question: askResult.value.question,
+    questionRowId: qRow.id,
     finished: false,
-    globalConfidence: session.globalConfidence,
+    globalConfidence: askResult.value.state.globalConfidence,
   })
 }
 

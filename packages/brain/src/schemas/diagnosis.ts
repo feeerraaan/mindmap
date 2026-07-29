@@ -49,6 +49,12 @@ export const ClarificationSchema = z.object({
 })
 export type Clarification = z.infer<typeof ClarificationSchema>
 
+/** Learn phase output. A concise explanation of a concept. */
+export const LearnSchema = z.object({
+  explanation: z.string().min(20).max(1000),
+})
+export type LearnOutput = z.infer<typeof LearnSchema>
+
 /** The user's answer envelope. Lets us distinguish MCQ vs open vs idn/skip. */
 export const AnswerKindSchema = z.enum(['MCQ', 'OPEN', 'IDONTKNOW', 'SKIP'])
 export type AnswerKind = z.infer<typeof AnswerKindSchema>

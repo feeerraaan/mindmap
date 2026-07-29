@@ -72,17 +72,25 @@ import {
   buildInitialState,
   askNext,
   batchAskNext,
+  askLearn,
   scoreAnswer,
   shouldStop,
   pickNextConcept,
   pickKindForState,
   resolveClarification as _applyClarification,
+  identifyWeakConcepts,
+  transitionToLearn,
+  transitionToPractice,
+  transitionToVerify,
+  getNextWeakConcept,
+  getNextPracticeConcept,
   type BuildStateInput,
   type DiagnosisEngineState,
   type PendingQuestion,
   type StopReason,
   type SubmitOutput,
   type QuestionKind,
+  type DiagnosisPhase,
   type ConceptStateLocal,
   MAX_QUESTIONS,
   STOP_GLOBAL_CONFIDENCE,
@@ -221,6 +229,38 @@ export const Brain = {
     ): Promise<Result<{ state: DiagnosisEngineState; evaluation: Evaluation }, BrainError>> {
       return _applyClarification(state, followUp)
     },
+    /** Generate a learn explanation for a weak concept. */
+    async askLearn(
+      state: DiagnosisEngineState,
+      externalId: string,
+    ): Promise<
+      Result<
+        {
+          state: DiagnosisEngineState
+          explanation: string
+          conceptTitle: string
+          tokensIn: number
+          tokensOut: number
+          providerId: string
+          model: string
+        },
+        BrainError
+      >
+    > {
+      return askLearn(state, externalId)
+    },
+    /** Identify weak concepts that need teaching. */
+    identifyWeakConcepts,
+    /** Transition from DIAGNOSE to LEARN phase. */
+    transitionToLearn,
+    /** Transition from LEARN to PRACTICE phase. */
+    transitionToPractice,
+    /** Transition from PRACTICE to VERIFY phase. */
+    transitionToVerify,
+    /** Get the next weak concept to teach. */
+    getNextWeakConcept,
+    /** Get the next concept to practice. */
+    getNextPracticeConcept,
     /** Pick the next concept (no LLM call). For tests / introspection. */
     pickNext(
       state: DiagnosisEngineState,
@@ -403,10 +443,17 @@ export type { LoadedPrompt, PromptFrontmatter }
 export {
   buildInitialState,
   askNext,
+  askLearn,
   scoreAnswer,
   shouldStop,
   pickNextConcept,
   pickKindForState,
+  identifyWeakConcepts,
+  transitionToLearn,
+  transitionToPractice,
+  transitionToVerify,
+  getNextWeakConcept,
+  getNextPracticeConcept,
   streamClarification,
   _applyClarification as resolveClarification,
   fisherInformation,
@@ -443,6 +490,7 @@ export {
 export type {
   BuildStateInput,
   DiagnosisEngineState,
+  DiagnosisPhase,
   PendingQuestion,
   SubmitOutput,
   StopReason,
