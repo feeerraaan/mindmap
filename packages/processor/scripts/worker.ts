@@ -12,12 +12,17 @@
  * UPDATE so scaling to multiple workers is a matter of starting more
  * processes.
  */
+import './load-env.mjs'
 import { prisma } from '@mindmap/database'
 import { processParseJob, processBuildGraphJob } from '../src'
 import { head as vercelHead } from '@vercel/blob'
 
 const IDLE_POLL_MS = 2_000
 const SHUTDOWN_GRACE_MS = 15_000
+// A RUNNING job is considered abandoned once startedAt is older than this.
+// 10 min is safely above the longest legit run (PDF parse + LLM graph build)
+// so live jobs are never disturbed.
+const STALE_JOB_MS = 10 * 60 * 1000
 
 let running: Promise<void> | null = null
 let stopRequested = false
@@ -113,10 +118,36 @@ function sleep(ms: number) {
   return new Promise<void>((resolve) => setTimeout(resolve, ms))
 }
 
+async function reapStaleJobs() {
+  const cutoff = new Date(Date.now() - STALE_JOB_MS)
+  const stale = await prisma.job.findMany({
+    where: { status: 'RUNNING', startedAt: { lt: cutoff } },
+    select: { id: true, type: true, documentId: true, startedAt: true },
+  })
+  for (const job of stale) {
+    // Re-queue the job. Also reset the document if the processor left it
+    // mid-flight (PARSING / GRAPHING) so the next run starts clean.
+    await prisma.$transaction([
+      prisma.job.update({
+        where: { id: job.id },
+        data: { status: 'QUEUED', startedAt: null, finishedAt: null, error: null, progress: 0 },
+      }),
+      prisma.document.updateMany({
+        where: { id: job.documentId, status: { in: ['PARSING', 'GRAPHING'] } },
+        data: { status: 'QUEUED' },
+      }),
+    ])
+    console.warn(
+      `[worker] reaped stale ${job.type} job ${job.id} doc=${job.documentId} (started ${job.startedAt?.toISOString()})`,
+    )
+  }
+}
+
 async function loop() {
   console.log(`[worker] started, blob source = vercel-blob`)
   while (!stopRequested) {
     try {
+      await reapStaleJobs()
       const did = await processOne()
       if (!did) await sleep(IDLE_POLL_MS)
     } catch (err) {
