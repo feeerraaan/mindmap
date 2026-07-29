@@ -233,7 +233,8 @@
     "connectionLost": "La Mente está tomando un momento. Vuelve a intentarlo en unos segundos.",
     "questionsCompleted": "Preguntas",
     "confidence": "Confianza global",
-    "thinkingTitle": "Mapeando tu comprensión"
+    "thinkingTitle": "Mapeando tu comprensión",
+    "continue": "Continuar"
   },
   "map": {
     "title": "Tu mapa de conocimiento",

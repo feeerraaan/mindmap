@@ -184,7 +184,10 @@ export async function startDiagnosis(
   // Generate the first question just-in-time (no batch pre-generation).
   const askResult = await Brain.evaluation.askNext(state)
   if (!askResult.ok) {
-    return Err({ kind: 'InvalidInput', message: 'No questions could be generated. The AI provider may be temporarily unavailable.' })
+    return Err({
+      kind: 'InvalidInput',
+      message: 'No questions could be generated. The AI provider may be temporarily unavailable.',
+    })
   }
 
   // Persist the single question to the DB.
@@ -209,7 +212,10 @@ export async function startDiagnosis(
         askResult.value.question.kind === 'EASY'
           ? (askResult.value.question.options as unknown as Prisma.InputJsonValue)
           : Prisma.JsonNull,
-      expectedAnswer: askResult.value.question.kind === 'EASY' ? String(askResult.value.question.correctIndex) : null,
+      expectedAnswer:
+        askResult.value.question.kind === 'EASY'
+          ? String(askResult.value.question.correctIndex)
+          : null,
     },
   })
 
@@ -248,6 +254,8 @@ export interface SubmitAnswerOutput {
     question: DiagnosisQuestion
     questionRowId: string
   } | null
+  phase: string
+  learnContent: { conceptTitle: string; explanation: string } | null
 }
 
 export async function submitAnswer(
@@ -381,7 +389,7 @@ export async function submitAnswer(
           correct: cs.correct,
           lastSeen: cs.lastSeen,
           lastDelta: cs.lastDelta,
-          dueAt: nextReviewDue(cs.mastery, cs.confidence),
+          dueAt: nextReviewDue(cs.mastery, cs.confidence, cs.lastDelta, concept.difficulty),
         },
         create: {
           conceptId: concept.id,
@@ -392,7 +400,7 @@ export async function submitAnswer(
           correct: cs.correct,
           lastSeen: cs.lastSeen,
           lastDelta: cs.lastDelta,
-          dueAt: nextReviewDue(cs.mastery, cs.confidence),
+          dueAt: nextReviewDue(cs.mastery, cs.confidence, cs.lastDelta, concept.difficulty),
         },
       })
     }
@@ -417,55 +425,136 @@ export async function submitAnswer(
     }
   })
 
+  // Handle phase transitions.
+  let learnContent: SubmitAnswerOutput['learnContent'] = null
   if (out.shouldStop) {
-    // Run the finalisation work in the background so the API responds
-    // immediately. `after()` lets the response flush first.
-    after(async () => {
-      await finaliseSession({
-        sessionId: session.id,
-        documentId: session.documentId,
-        userId: input.userId,
-        states: out.state.states,
-        globalConfidence: out.state.globalConfidence,
+    const currentPhase = out.state.phase
+
+    if (currentPhase === 'DIAGNOSE') {
+      // DIAGNOSE finished → transition to LEARN for weak concepts.
+      Brain.evaluation.transitionToLearn(out.state)
+      const weak = Brain.evaluation.getNextWeakConcept(out.state)
+      if (weak) {
+        // Generate learn content for the first weak concept.
+        const learnResult = await Brain.evaluation.askLearn(out.state, weak.externalId)
+        if (learnResult.ok) {
+          out.state = learnResult.value.state
+          learnContent = {
+            conceptTitle: learnResult.value.conceptTitle,
+            explanation: learnResult.value.explanation,
+          }
+          // Persist the learn turn.
+          await prisma.conversationTurn.create({
+            data: {
+              sessionId: session.id,
+              role: 'SYSTEM',
+              content: learnResult.value.explanation,
+              provider: learnResult.value.providerId,
+              model: learnResult.value.model,
+              tokensIn: learnResult.value.tokensIn,
+              tokensOut: learnResult.value.tokensOut,
+            },
+          })
+        }
+      } else {
+        // No weak concepts → skip to PRACTICE.
+        Brain.evaluation.transitionToPractice(out.state)
+      }
+    } else if (currentPhase === 'LEARN') {
+      // LEARN finished → transition to PRACTICE.
+      Brain.evaluation.transitionToPractice(out.state)
+    } else if (currentPhase === 'PRACTICE') {
+      // PRACTICE finished → transition to VERIFY.
+      Brain.evaluation.transitionToVerify(out.state)
+    } else if (currentPhase === 'VERIFY') {
+      // VERIFY finished → truly done.
+      after(async () => {
+        await finaliseSession({
+          sessionId: session.id,
+          documentId: session.documentId,
+          userId: input.userId,
+          states: out.state.states,
+          globalConfidence: out.state.globalConfidence,
+        })
       })
-    })
+    }
   }
 
-  // Generate the next question just-in-time if the session is not finished.
+  // Generate the next question or learn content based on current phase.
   let nextQuestion: SubmitAnswerOutput['nextQuestion'] = null
-  if (!out.shouldStop) {
-    const nextResult = await Brain.evaluation.askNext(out.state)
-    if (nextResult.ok) {
-      const nextTurn = await prisma.conversationTurn.create({
-        data: {
-          sessionId: session.id,
-          role: 'ASSISTANT',
-          content: nextResult.value.question.prompt,
-          provider: nextResult.value.pending.providerId,
-          model: nextResult.value.pending.model,
-          tokensIn: nextResult.value.pending.tokensIn,
-          tokensOut: nextResult.value.pending.tokensOut,
-        },
-      })
-      const nextQ = await prisma.question.create({
-        data: {
+  const currentPhase = out.state.phase
+
+  if (currentPhase === 'LEARN' && !learnContent) {
+    // In LEARN phase: get next weak concept to teach.
+    const weak = Brain.evaluation.getNextWeakConcept(out.state)
+    if (weak) {
+      const learnResult = await Brain.evaluation.askLearn(out.state, weak.externalId)
+      if (learnResult.ok) {
+        out.state = learnResult.value.state
+        learnContent = {
+          conceptTitle: learnResult.value.conceptTitle,
+          explanation: learnResult.value.explanation,
+        }
+        await prisma.conversationTurn.create({
+          data: {
+            sessionId: session.id,
+            role: 'SYSTEM',
+            content: learnResult.value.explanation,
+            provider: learnResult.value.providerId,
+            model: learnResult.value.model,
+            tokensIn: learnResult.value.tokensIn,
+            tokensOut: learnResult.value.tokensOut,
+          },
+        })
+      }
+    }
+  } else if (
+    currentPhase === 'PRACTICE' ||
+    currentPhase === 'VERIFY' ||
+    currentPhase === 'DIAGNOSE'
+  ) {
+    // In DIAGNOSE/PRACTICE/VERIFY: generate the next question.
+    if (!out.shouldStop || currentPhase !== 'DIAGNOSE') {
+      const nextResult = await Brain.evaluation.askNext(out.state)
+      if (nextResult.ok) {
+        const nextTurn = await prisma.conversationTurn.create({
+          data: {
+            sessionId: session.id,
+            role: 'ASSISTANT',
+            content: nextResult.value.question.prompt,
+            provider: nextResult.value.pending.providerId,
+            model: nextResult.value.pending.model,
+            tokensIn: nextResult.value.pending.tokensIn,
+            tokensOut: nextResult.value.pending.tokensOut,
+          },
+        })
+        const nextQ = await prisma.question.create({
+          data: {
+            turnId: nextTurn.id,
+            conceptId: nextResult.value.pending.conceptId,
+            difficulty: nextResult.value.question.difficulty,
+            prompt: nextResult.value.question.prompt,
+            options:
+              nextResult.value.question.kind === 'EASY'
+                ? (nextResult.value.question.options as unknown as Prisma.InputJsonValue)
+                : Prisma.JsonNull,
+            expectedAnswer:
+              nextResult.value.question.kind === 'EASY'
+                ? String(nextResult.value.question.correctIndex)
+                : null,
+          },
+        })
+        nextQuestion = {
           turnId: nextTurn.id,
-          conceptId: nextResult.value.pending.conceptId,
-          difficulty: nextResult.value.question.difficulty,
-          prompt: nextResult.value.question.prompt,
-          options:
-            nextResult.value.question.kind === 'EASY'
-              ? (nextResult.value.question.options as unknown as Prisma.InputJsonValue)
-              : Prisma.JsonNull,
-          expectedAnswer: nextResult.value.question.kind === 'EASY' ? String(nextResult.value.question.correctIndex) : null,
-        },
-      })
-      nextQuestion = { turnId: nextTurn.id, question: nextResult.value.question, questionRowId: nextQ.id }
+          question: nextResult.value.question,
+          questionRowId: nextQ.id,
+        }
+      }
     }
   }
 
   return Ok({
-    finished: out.shouldStop,
+    finished: currentPhase === 'VERIFY' && out.shouldStop,
     microFeedback: out.microFeedback,
     globalConfidence: out.state.globalConfidence,
     questionsAsked: out.state.questionsAsked,
@@ -473,6 +562,8 @@ export async function submitAnswer(
       ? { text: out.clarification.clarification, microFeedback: out.clarification.microFeedback }
       : null,
     nextQuestion,
+    phase: currentPhase,
+    learnContent,
   })
 }
 
@@ -574,6 +665,7 @@ export async function applyClarification(input: {
           confidence: cs.confidence,
           lastSeen: cs.lastSeen,
           lastDelta: cs.lastDelta,
+          dueAt: nextReviewDue(cs.mastery, cs.confidence, cs.lastDelta, concept.difficulty),
         },
         create: {
           conceptId: concept.id,
@@ -584,7 +676,7 @@ export async function applyClarification(input: {
           correct: cs.correct,
           lastSeen: cs.lastSeen,
           lastDelta: cs.lastDelta,
-          dueAt: nextReviewDue(cs.mastery, cs.confidence),
+          dueAt: nextReviewDue(cs.mastery, cs.confidence, cs.lastDelta, concept.difficulty),
         },
       })
     }
@@ -729,7 +821,10 @@ export async function getNextQuestion(input: { sessionId: string; userId: string
         askResult.value.question.kind === 'EASY'
           ? (askResult.value.question.options as unknown as Prisma.InputJsonValue)
           : Prisma.JsonNull,
-      expectedAnswer: askResult.value.question.kind === 'EASY' ? String(askResult.value.question.correctIndex) : null,
+      expectedAnswer:
+        askResult.value.question.kind === 'EASY'
+          ? String(askResult.value.question.correctIndex)
+          : null,
     },
   })
 
@@ -868,11 +963,21 @@ function readTimeSpent(a: AnswerInput): number | null {
   return a.kind === 'MCQ' || a.kind === 'OPEN' ? (a.timeSpentMs ?? null) : null
 }
 
-function nextReviewDue(mastery: number, confidence: number): Date {
-  // Cheap placeholder: schedule a review in 1..14 days, scaled by
-  // confidence and inverse-mastery. The Timeline engine (phase 6) will
-  // recompute this with full math.
-  const days = Math.max(1, Math.round(7 * (1 - mastery) * (0.5 + confidence)))
+function nextReviewDue(
+  mastery: number,
+  confidence: number,
+  lastDelta: number | null = null,
+  difficulty: number = 0.5,
+  streak: number = 0,
+): Date {
+  // Use the real spaced repetition formula from the timeline engine.
+  const days = Brain.timeline.intervalDays({
+    mastery,
+    confidence,
+    lastDelta,
+    difficulty,
+    streak,
+  })
   const d = new Date()
   d.setDate(d.getDate() + days)
   return d

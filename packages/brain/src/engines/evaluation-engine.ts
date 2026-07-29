@@ -280,9 +280,9 @@ export function pickNextConcept(state: DiagnosisEngineState): {
     const score =
       0.35 * coverage +
       0.25 * concept.importance * uncertainty * info +
-      0.20 * dependencyImpact +
-      0.10 * concept.importance * (1 - cs.mastery) +
-      0.10 * recencyBonus
+      0.2 * dependencyImpact +
+      0.1 * concept.importance * (1 - cs.mastery) +
+      0.1 * recencyBonus
 
     if (score <= 0) continue
     if (!best || score > best.score) {
@@ -344,7 +344,9 @@ export async function askNext(
   // Track selection so batch generation doesn't repeat the same concept.
   state.selectedInBatch.add(picked.externalId)
   const kind = pickKindForState(state, picked.concept)
-  console.error(`[askNext] concept="${picked.concept.title}" kind=${kind} mastery=${picked.state.mastery.toFixed(3)} confidence=${picked.state.confidence.toFixed(3)}`)
+  console.error(
+    `[askNext] concept="${picked.concept.title}" kind=${kind} mastery=${picked.state.mastery.toFixed(3)} confidence=${picked.state.confidence.toFixed(3)}`,
+  )
   const promptId = kind === 'EASY' ? 'reason.diagnose.easy' : 'reason.diagnose.hard'
   const prompt = await loadPrompt(promptId)
   if (!prompt) {
@@ -596,7 +598,8 @@ export async function batchAskNext(
     const r = llmResults[i]!
     const s = selected[i]!
     if (r.status === 'rejected') {
-      if (!firstError) firstError = { kind: 'ProviderError', provider: 'zen', message: String(r.reason) }
+      if (!firstError)
+        firstError = { kind: 'ProviderError', provider: 'zen', message: String(r.reason) }
       continue
     }
     const result = r.value
@@ -703,7 +706,9 @@ export async function scoreAnswer(
     return Err({ kind: 'InvalidInput', message: 'No pending question to answer.' })
   }
   const pending = state.pending
-  const conceptExternal = state.concepts.find((c) => c.id === pending.conceptId || c.externalId === pending.conceptId)?.externalId
+  const conceptExternal = state.concepts.find(
+    (c) => c.id === pending.conceptId || c.externalId === pending.conceptId,
+  )?.externalId
   if (!conceptExternal) {
     return Err({ kind: 'InvalidInput', message: 'Pending question references a missing concept.' })
   }
@@ -1249,7 +1254,9 @@ export async function generateClarification(
   if (!prompt) {
     return Err({ kind: 'InvalidInput', message: 'Prompt reason.clarify missing.' })
   }
-  const concept = state.concepts.find((c) => c.id === pending.conceptId || c.externalId === pending.conceptId)
+  const concept = state.concepts.find(
+    (c) => c.id === pending.conceptId || c.externalId === pending.conceptId,
+  )
   if (!concept) return Err({ kind: 'InvalidInput', message: 'Concept missing.' })
   const user = prompt.render({
     concept: { title: concept.title, summary: concept.summary },
@@ -1356,7 +1363,9 @@ async function llmCallWithFallback<S extends z.ZodTypeAny>(opts: {
         model: result.value.model,
       })
     }
-    console.error(`[llmCallWithFallback] attempt=${attempt} provider=${picked.value.decision.provider} model=${picked.value.decision.model} error=${JSON.stringify(result.error)}`)
+    console.error(
+      `[llmCallWithFallback] attempt=${attempt} provider=${picked.value.decision.provider} model=${picked.value.decision.model} error=${JSON.stringify(result.error)}`,
+    )
     if (result.error.kind === 'SchemaFailure') {
       markProviderBad(picked.value.decision.provider, picked.value.decision.model)
       lastErr = result.error

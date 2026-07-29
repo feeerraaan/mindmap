@@ -16,6 +16,7 @@ import { prisma } from '@mindmap/database'
 import { Brain } from '@mindmap/brain'
 import { getCurrentUser } from '@mindmap/auth'
 import type { ReviewStatus } from '@mindmap/types'
+import { Prisma } from '@prisma/client'
 
 export interface ReviewDay {
   key: string
@@ -303,6 +304,12 @@ export interface ActiveReviewView {
   status: ReviewStatus
   startedAt: Date
   items: ReviewItemView[]
+  firstQuestion: {
+    turnId: string
+    question: import('@mindmap/brain').DiagnosisQuestion
+    questionRowId: string
+    conceptId: string
+  } | null
 }
 
 /**
@@ -332,22 +339,121 @@ export async function startReviewSession(
     },
   })
   const conceptIds = session.items.map((it) => it.conceptId)
-  const [concepts, states] = await Promise.all([
+  const [concepts, states, doc] = await Promise.all([
     conceptIds.length
       ? prisma.concept.findMany({
           where: { id: { in: conceptIds } },
-          select: { id: true, title: true, chapter: true, topic: true, importance: true },
+          select: {
+            id: true,
+            externalId: true,
+            title: true,
+            chapter: true,
+            topic: true,
+            importance: true,
+            difficulty: true,
+            summary: true,
+          },
         })
       : Promise.resolve([]),
     conceptIds.length
       ? prisma.conceptState.findMany({
           where: { userId, conceptId: { in: conceptIds } },
-          select: { conceptId: true, mastery: true, confidence: true },
+          select: {
+            conceptId: true,
+            mastery: true,
+            confidence: true,
+            attempts: true,
+            correct: true,
+            lastDelta: true,
+            lastSeen: true,
+          },
         })
       : Promise.resolve([]),
+    prisma.document.findUnique({
+      where: { id: session.plan.documentId },
+      select: { language: true },
+    }),
   ])
   const conceptMap = new Map(concepts.map((c) => [c.id, c]))
   const stateMap = new Map(states.map((cs) => [cs.conceptId, cs]))
+
+  // Generate a real question for the first item using the brain engine.
+  let firstQuestion: ActiveReviewView['firstQuestion'] = null
+  if (concepts.length > 0 && session.items.length > 0) {
+    const firstItem = session.items[0]!
+    const firstConcept = conceptMap.get(firstItem.conceptId)
+    if (firstConcept) {
+      // Build engine state for question generation.
+      const engineState = Brain.evaluation.buildState({
+        sessionId: session.id,
+        userId,
+        documentId: session.plan.documentId,
+        language: doc?.language ?? 'en',
+        concepts: concepts.map((c) => ({
+          ...c,
+          createdAt: new Date(),
+          documentId: session.plan.documentId,
+          dependencies: [],
+        })),
+        restored: {
+          states: concepts.map((c) => {
+            const st = stateMap.get(c.id)
+            return {
+              conceptId: c.id,
+              mastery: st?.mastery ?? 0.1,
+              confidence: st?.confidence ?? 0,
+              attempts: st?.attempts ?? 0,
+              correct: st?.correct ?? 0,
+              lastDelta: st?.lastDelta ?? null,
+              lastSeen: st?.lastSeen ?? null,
+            }
+          }),
+          questionsAsked: 0,
+          clarificationCount: 0,
+          recentDeltas: [],
+          globalConfidence: 0,
+        },
+      })
+
+      const askResult = await Brain.evaluation.askNext(engineState)
+      if (askResult.ok) {
+        const turn = await prisma.conversationTurn.create({
+          data: {
+            sessionId: session.id,
+            role: 'ASSISTANT',
+            content: askResult.value.question.prompt,
+            provider: askResult.value.pending.providerId,
+            model: askResult.value.pending.model,
+            tokensIn: askResult.value.pending.tokensIn,
+            tokensOut: askResult.value.pending.tokensOut,
+          },
+        })
+        const qRow = await prisma.question.create({
+          data: {
+            turnId: turn.id,
+            conceptId: askResult.value.pending.conceptId,
+            difficulty: askResult.value.question.difficulty,
+            prompt: askResult.value.question.prompt,
+            options:
+              askResult.value.question.kind === 'EASY'
+                ? (askResult.value.question.options as unknown as Prisma.InputJsonValue)
+                : Prisma.JsonNull,
+            expectedAnswer:
+              askResult.value.question.kind === 'EASY'
+                ? String(askResult.value.question.correctIndex)
+                : null,
+          },
+        })
+        firstQuestion = {
+          turnId: turn.id,
+          question: askResult.value.question,
+          questionRowId: qRow.id,
+          conceptId: askResult.value.pending.conceptId,
+        }
+      }
+    }
+  }
+
   return {
     sessionId,
     documentId: session.plan.documentId,
@@ -374,6 +480,7 @@ export async function startReviewSession(
       })
       .filter((x): x is ReviewItemView => x !== null)
       .sort((a, b) => b.priority - a.priority),
+    firstQuestion,
   }
 }
 
@@ -433,7 +540,7 @@ export async function submitReviewAnswers(
         confidence,
         lastDelta,
         lastSeen: now,
-        dueAt: dueAfter(mastery, confidence),
+        dueAt: dueAfter(mastery, confidence, lastDelta),
         attempts: cs.attempts + 1,
         ...(a.result === 'knew' ? { correct: cs.correct + 1 } : {}),
       },
@@ -559,7 +666,19 @@ function dayKey(d: Date): string {
   return `${y}-${m}-${day}`
 }
 
-function dueAfter(mastery: number, confidence: number): Date {
-  const days = Math.max(1, Math.round(2 * (1 + mastery) * (0.5 + confidence)))
+function dueAfter(
+  mastery: number,
+  confidence: number,
+  lastDelta: number | null = null,
+  difficulty: number = 0.5,
+  streak: number = 0,
+): Date {
+  const days = Brain.timeline.intervalDays({
+    mastery,
+    confidence,
+    lastDelta,
+    difficulty,
+    streak,
+  })
   return new Date(Date.now() + days * 24 * 60 * 60 * 1000)
 }

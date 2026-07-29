@@ -10,7 +10,7 @@ import type { ChatRequest, ChatResponse, ProviderAdapter } from '../providers/pr
 import { ProviderRateLimited } from '../providers/provider'
 import { getProvider, listProviders } from '../providers/registry'
 import { candidatesFor, type Candidate } from './policy'
-import { hasBudget, recordUsage } from './budget'
+import { recordUsage } from './budget'
 import { tryConsume } from './token-bucket'
 
 export interface RouteContext {

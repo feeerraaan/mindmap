@@ -270,8 +270,7 @@ export function getStorage(): StorageProvider {
   // MINDMAPBLOB_ prefix). The unprefixed BLOB_READ_WRITE_TOKEN is the
   // legacy name; if both exist the prefixed one wins so a leftover
   // token from a previous store can't shadow the current connection.
-  const token =
-    process.env.MINDMAPBLOB_READ_WRITE_TOKEN ?? process.env.BLOB_READ_WRITE_TOKEN
+  const token = process.env.MINDMAPBLOB_READ_WRITE_TOKEN ?? process.env.BLOB_READ_WRITE_TOKEN
   if (token && token.length > 0) {
     cached = new VercelBlobStorage(token)
     return cached

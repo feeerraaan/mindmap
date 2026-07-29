@@ -32,8 +32,7 @@ async function readBytesFromBlob(blobKey: string): Promise<Uint8Array> {
   // the SDK to resolve it to the authoritative public URL (the subdomain
   // pattern is not safe to construct by hand — it's the store id without
   // the "store_" prefix and lowercased), then download the file.
-  const token =
-    process.env.MINDMAPBLOB_READ_WRITE_TOKEN ?? process.env.BLOB_READ_WRITE_TOKEN
+  const token = process.env.MINDMAPBLOB_READ_WRITE_TOKEN ?? process.env.BLOB_READ_WRITE_TOKEN
   if (!token) {
     throw new Error('No BLOB token configured for the worker')
   }
@@ -84,10 +83,10 @@ async function processOne() {
   console.log(`${log} claimed`)
   try {
     if (job.type === 'PARSE') {
-        const result = await processParseJob({
-          documentId: job.documentId,
-          readBytes: readBytesFromBlob,
-        })
+      const result = await processParseJob({
+        documentId: job.documentId,
+        readBytes: readBytesFromBlob,
+      })
       if (result.ok) {
         console.log(`${log} parsed ${result.chunkCount} chunks`)
         await enqueueBuildGraph(job.documentId)

@@ -47,6 +47,7 @@ export default async function DiagnosePage({
     connectionLost: tDiagnosis('connectionLost'),
     questionsCompleted: tDiagnosis('questionsCompleted'),
     confidence: tDiagnosis('confidence'),
+    continueLabel: tDiagnosis('continue'),
   }
 
   return (

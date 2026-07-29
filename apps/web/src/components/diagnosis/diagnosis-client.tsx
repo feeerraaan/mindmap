@@ -31,6 +31,7 @@ interface DiagnosisClientProps {
     connectionLost: string
     questionsCompleted: string
     confidence: string
+    continueLabel: string
   }
   document: { id: string; filename: string; status: string }
 }
@@ -54,7 +55,7 @@ interface ServerSnapshot {
   maxQuestions: number
 }
 
-type Phase = 'idle' | 'thinking' | 'answering' | 'clarifying' | 'finished' | 'error'
+type Phase = 'idle' | 'thinking' | 'answering' | 'clarifying' | 'learning' | 'finished' | 'error'
 
 export function DiagnosisClient({
   documentId,
@@ -73,6 +74,10 @@ export function DiagnosisClient({
   const [clarification, setClarification] = useState<{
     text: string
     microFeedback: string
+  } | null>(null)
+  const [learnContent, setLearnContent] = useState<{
+    conceptTitle: string
+    explanation: string
   } | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [sseStatus, setSseStatus] = useState<'connecting' | 'connected' | 'polling'>('connecting')
@@ -237,6 +242,10 @@ export function DiagnosisClient({
       if (typeof p.globalConfidence === 'number') setGlobalConfidence(p.globalConfidence)
       if (p.phase === 'thinking') setPhase('thinking')
       if (p.finished) setPhase('finished')
+    } else if (event === 'learn' && parsed && typeof parsed === 'object') {
+      const p = parsed as { conceptTitle: string; explanation: string }
+      setLearnContent(p)
+      setPhase('learning')
     } else if (event === 'question' && parsed && typeof parsed === 'object') {
       const p = parsed as { turnId: string; question: DiagnosisQuestion; globalConfidence: number }
       setPending({ turnId: p.turnId, question: p.question, microFeedback: '' })
@@ -283,7 +292,13 @@ export function DiagnosisClient({
           globalConfidence: number
           questionsAsked: number
           clarification: { text: string; microFeedback: string } | null
-          nextQuestion: { turnId: string; question: DiagnosisQuestion; questionRowId: string } | null
+          nextQuestion: {
+            turnId: string
+            question: DiagnosisQuestion
+            questionRowId: string
+          } | null
+          phase: string
+          learnContent: { conceptTitle: string; explanation: string } | null
         }
         setMicroFeedback(j.microFeedback)
         setGlobalConfidence(j.globalConfidence)
@@ -297,9 +312,19 @@ export function DiagnosisClient({
           setPhase('finished')
           return
         }
+        // Handle learn phase: show explanation, then move to next question
+        if (j.phase === 'LEARN' && j.learnContent) {
+          setLearnContent(j.learnContent)
+          setPhase('learning')
+          return
+        }
         // Use the next question from the response (just-in-time).
         if (j.nextQuestion) {
-          setPending({ turnId: j.nextQuestion.turnId, question: j.nextQuestion.question, microFeedback: '' })
+          setPending({
+            turnId: j.nextQuestion.turnId,
+            question: j.nextQuestion.question,
+            microFeedback: '',
+          })
           setPhase('answering')
         } else {
           // Fallback: reconnect SSE if no next question returned.
@@ -364,11 +389,20 @@ export function DiagnosisClient({
     setError(null)
     setPending(null)
     setClarification(null)
+    setLearnContent(null)
     setMicroFeedback('')
     sessionIdRef.current = null
     failCountRef.current = 0
     void bootstrap()
   }, [bootstrap])
+
+  const continueFromLearning = useCallback(() => {
+    setLearnContent(null)
+    setPhase('thinking')
+    // The next question should already be available via SSE or we reconnect
+    failCountRef.current = 0
+    openSSE()
+  }, [openSSE])
 
   return (
     <div className="mx-auto flex max-w-2xl flex-col gap-8 px-4 py-8 md:px-8 md:py-12">
@@ -440,6 +474,28 @@ export function DiagnosisClient({
                 submit: labels.clarificationSubmit,
               }}
             />
+          ) : phase === 'learning' && learnContent ? (
+            <motion.div
+              key="learn"
+              initial={{ opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -6 }}
+              transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
+              className="space-y-4"
+            >
+              <div className="rounded-lg border border-[var(--color-border)] bg-[var(--color-surface-alt)] p-5">
+                <h3 className="mb-2 text-sm font-semibold text-[var(--color-fg)]">
+                  {learnContent.conceptTitle}
+                </h3>
+                <p className="text-sm leading-relaxed text-[var(--color-fg-muted)]">
+                  {learnContent.explanation}
+                </p>
+              </div>
+              <Button onClick={continueFromLearning} size="md" className="w-full">
+                {labels.continueLabel}
+                <ArrowRight size={14} />
+              </Button>
+            </motion.div>
           ) : phase === 'answering' && pending ? (
             <motion.div
               key={`q-${pending.turnId}`}

@@ -366,6 +366,7 @@ export const Brain = {
     nextDue(_userId: string): Result<unknown, BrainError> {
       return Ok([])
     },
+    intervalDays,
   },
   memory: {
     remember(userId: string, key: string, value: string): void {

@@ -204,7 +204,8 @@
     "connectionLost": "The Mind is taking a moment. Try again in a few seconds.",
     "questionsCompleted": "Questions",
     "confidence": "Overall confidence",
-    "thinkingTitle": "Mapping your understanding"
+    "thinkingTitle": "Mapping your understanding",
+    "continue": "Continue"
   },
   "map": {
     "title": "Your knowledge map",

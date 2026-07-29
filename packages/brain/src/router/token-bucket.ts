@@ -15,6 +15,7 @@ export interface TokenBucketOptions {
   refillPerMinute: number
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars -- disabled for hackathon (bucket always returns true)
 const DEFAULTS: Record<ProviderId, TokenBucketOptions> = {
   zen: { capacity: 60, refillPerMinute: 60 },
   go: { capacity: 20, refillPerMinute: 20 },
@@ -31,6 +32,7 @@ function key(provider: ProviderId, userId: string): string {
   return `${provider}:${userId}`
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars -- disabled for hackathon
 function getOrCreate(provider: ProviderId, userId: string, opts: TokenBucketOptions): Bucket {
   const k = key(provider, userId)
   let b = buckets.get(k)
@@ -41,6 +43,7 @@ function getOrCreate(provider: ProviderId, userId: string, opts: TokenBucketOpti
   return b
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars -- disabled for hackathon
 function refill(b: Bucket, opts: TokenBucketOptions): void {
   const now = Date.now()
   const elapsedMin = (now - b.lastRefill) / 60_000
