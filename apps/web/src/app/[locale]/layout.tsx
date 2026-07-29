@@ -21,21 +21,27 @@ export const metadata: Metadata = {
   applicationName: 'MindMap',
   authors: [{ name: 'MindMap' }],
   keywords: ['learning', 'knowledge graph', 'adaptive learning', 'study', 'diagnosis'],
+  robots: { index: true, follow: true },
+  icons: {
+    icon: [
+      { url: '/icons/favicon.ico', sizes: '48x48' },
+      { url: '/icons/icon-32.png', type: 'image/png', sizes: '32x32' },
+      { url: '/icons/icon-16.png', type: 'image/png', sizes: '16x16' },
+    ],
+    apple: '/icons/icon-180.png',
+  },
   openGraph: {
     type: 'website',
     siteName: 'MindMap',
     title: 'Mindmap',
     description: 'Discover what you truly know. Calm, honest, diagnostic.',
+    images: [{ url: '/api/og', width: 1200, height: 630 }],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Mindmap',
     description: 'Discover what you truly know. Calm, honest, diagnostic.',
-  },
-  robots: { index: true, follow: true },
-  icons: {
-    icon: '/icons/icon.svg',
-    apple: '/icons/icon-192.png',
+    images: [{ url: '/api/og', width: 1200, height: 630 }],
   },
 }
 
@@ -83,12 +89,11 @@ export default async function LocaleLayout({
                     href={user ? `/${locale}/mind` : `/${locale}`}
                     className="flex items-center gap-2 text-xs tracking-[-0.01em] text-white"
                   >
-                    <span
-                      aria-hidden
-                      className="inline-flex size-5 items-center justify-center rounded-[5px] bg-white text-[11px] font-semibold text-black"
-                    >
-                      M
-                    </span>
+                    <img
+                      src="/icons/icon-48.png"
+                      alt=""
+                      className="size-5 rounded-[5px]"
+                    />
                     {t('appName')}
                   </a>
                   <Navbar locale={locale} />
