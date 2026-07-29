@@ -322,7 +322,7 @@ export async function askNext(
   const schema = kind === 'EASY' ? DiagnoseEasySchema : DiagnoseHardSchema
   const result = await llmCallWithFallback({
     userId: state.userId,
-      task: 'reason.diagnose',
+    task: 'reason.diagnose',
     schema,
     buildUser: (previous) => (previous ? `${user}\n\n${repairHint(previous.error, kind)}` : user),
   })
@@ -393,14 +393,21 @@ export async function batchAskNext(
 > {
   const questions: { conceptId: string; question: DiagnosisQuestion; pending: PendingQuestion }[] =
     []
+  let lastError: BrainError | null = null
   for (let i = 0; i < count; i++) {
     const result = await askNext(state)
-    if (!result.ok) break
+    if (!result.ok) {
+      lastError = result.error
+      break
+    }
     questions.push({
       conceptId: result.value.pending.conceptId,
       question: result.value.question,
       pending: result.value.pending,
     })
+  }
+  if (questions.length === 0 && lastError) {
+    return Err(lastError)
   }
   return Ok({ state, questions })
 }

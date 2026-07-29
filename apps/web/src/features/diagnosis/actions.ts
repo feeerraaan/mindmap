@@ -187,19 +187,7 @@ export async function startDiagnosis(
   if (!batchResult.ok) return batchResult
   const batch = batchResult.value.questions
   if (batch.length === 0) {
-    await finaliseSession({
-      sessionId: session.id,
-      documentId: input.documentId,
-      userId: input.userId,
-      states: batchResult.value.state.states,
-      globalConfidence: batchResult.value.state.globalConfidence,
-    })
-    return Ok({
-      sessionId: session.id,
-      firstQuestion: null,
-      finished: true,
-      globalConfidence: batchResult.value.state.globalConfidence,
-    })
+    return Err({ kind: 'InvalidInput', message: 'No questions could be generated. The AI provider may be temporarily unavailable.' })
   }
 
   // Persist all pre-generated questions to the DB.
