@@ -138,6 +138,10 @@ export default async function WorkspacePage({
               open: tDocs('open'),
               diagnose: tDocs('diagnose'),
               continueDiagnosis: tDocs('continueDiagnosis', { defaultMessage: 'Continue' }),
+              deleteTitle: tDocs('deleteTitle'),
+              deleteDescription: tDocs('deleteDescription'),
+              deleteConfirm: tDocs('deleteConfirm'),
+              deleteCancel: tDocs('deleteCancel'),
             }}
           />
         )}

@@ -1,11 +1,11 @@
 'use client'
 
+import { useState, useTransition } from 'react'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
-import { StatusBadge, type StatusBadgeProps, Button } from '@mindmap/ui'
+import { StatusBadge, type StatusBadgeProps, Button, ConfirmDialog } from '@mindmap/ui'
 import { FileText, ArrowRight, Network, Brain, Trash2 } from 'lucide-react'
 import { useQuery } from '@tanstack/react-query'
-import { useTransition } from 'react'
 import { CalmProgress } from '@mindmap/ui'
 import { deleteDocument } from '@/features/documents/actions'
 
@@ -29,6 +29,10 @@ interface Labels {
   open: string
   diagnose: string
   continueDiagnosis: string
+  deleteTitle: string
+  deleteDescription: string
+  deleteConfirm: string
+  deleteCancel: string
 }
 
 interface DocumentListProps {
@@ -39,9 +43,15 @@ interface DocumentListProps {
 }
 
 export function DocumentList({ locale, workspaceId, documents, labels }: DocumentListProps) {
+  const [deletedIds, setDeletedIds] = useState<Set<string>>(new Set())
+
+  const visibleDocuments = documents.filter((d) => !deletedIds.has(d.id))
+
+  if (visibleDocuments.length === 0) return null
+
   return (
     <ul className="flex flex-col gap-2">
-      {documents.map((d, i) => (
+      {visibleDocuments.map((d, i) => (
         <DocumentItem
           key={d.id}
           locale={locale}
@@ -49,6 +59,7 @@ export function DocumentList({ locale, workspaceId, documents, labels }: Documen
           doc={d}
           index={i}
           labels={labels}
+          onDeleted={() => setDeletedIds((prev) => new Set(prev).add(d.id))}
         />
       ))}
     </ul>
@@ -61,12 +72,14 @@ function DocumentItem({
   doc,
   index,
   labels,
+  onDeleted,
 }: {
   locale: 'en' | 'es'
   workspaceId: string
   doc: DocumentRow
   index: number
   labels: Labels
+  onDeleted: () => void
 }) {
   const inFlight =
     doc.status === 'QUEUED' ||
@@ -104,65 +117,79 @@ function DocumentItem({
   const canDiagnose = status === 'READY' || status === 'DIAGNOSING' || status === 'MAPPED'
   const continueDiagnosis = status === 'DIAGNOSING'
   const [isDeleting, startDelete] = useTransition()
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false)
 
   return (
-    <motion.li
-      initial={{ opacity: 0, y: 6 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.25, delay: index * 0.03, ease: 'easeInOut' }}
-      className="group flex items-center gap-3 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] p-4"
-    >
-      <FileText size={20} className="shrink-0 text-[var(--color-fg-muted)]" />
-      <div className="min-w-0 flex-1">
-        <p className="truncate text-sm font-semibold text-[var(--color-fg)]">{doc.filename}</p>
-        <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-[var(--color-fg-muted)]">
-          <StatusBadge status={status} />
-          {doc.pageCount ? <span>· {doc.pageCount} pages</span> : null}
-          <span>· {(doc.sizeBytes / 1024).toFixed(0)} KB</span>
-          {conceptCount !== null && conceptCount > 0 ? (
-            <span className="inline-flex items-center gap-1 text-[var(--color-fg)]">
-              <Network size={12} aria-hidden />
-              {doc.conceptsLabel}
-            </span>
+    <>
+      <motion.li
+        initial={{ opacity: 0, y: 6 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.25, delay: index * 0.03, ease: 'easeInOut' }}
+        className="group flex items-center gap-3 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] p-4"
+      >
+        <FileText size={20} className="shrink-0 text-[var(--color-fg-muted)]" />
+        <div className="min-w-0 flex-1">
+          <p className="truncate text-sm font-semibold text-[var(--color-fg)]">{doc.filename}</p>
+          <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-[var(--color-fg-muted)]">
+            <StatusBadge status={status} />
+            {doc.pageCount ? <span>· {doc.pageCount} pages</span> : null}
+            <span>· {(doc.sizeBytes / 1024).toFixed(0)} KB</span>
+            {conceptCount !== null && conceptCount > 0 ? (
+              <span className="inline-flex items-center gap-1 text-[var(--color-fg)]">
+                <Network size={12} aria-hidden />
+                {doc.conceptsLabel}
+              </span>
+            ) : null}
+          </div>
+          {inFlight ? (
+            <div className="mt-2 max-w-xs">
+              <CalmProgress value={progress} size="sm" />
+              <p className="mt-1 text-[11px] text-[var(--color-fg-subtle)]">
+                {statusToLabel(status, labels)}
+              </p>
+            </div>
+          ) : null}
+          {status === 'FAILED' ? (
+            <p className="mt-1 text-xs text-[var(--color-fg-muted)]">
+              {doc.conceptCount === 0 ? doc.conceptsLabel : null}
+            </p>
           ) : null}
         </div>
-        {inFlight ? (
-          <div className="mt-2 max-w-xs">
-            <CalmProgress value={progress} size="sm" />
-            <p className="mt-1 text-[11px] text-[var(--color-fg-subtle)]">
-              {statusToLabel(status, labels)}
-            </p>
-          </div>
-        ) : null}
-        {status === 'FAILED' ? (
-          <p className="mt-1 text-xs text-[var(--color-fg-muted)]">
-            {doc.conceptCount === 0 ? doc.conceptsLabel : null}
-          </p>
-        ) : null}
-      </div>
-      <div className="flex shrink-0 items-center gap-1">
-        {canDiagnose ? (
-          <Link href={`/${locale}/mind/${workspaceId}/diagnose/${doc.id}`}>
-            <Button size="sm" variant={continueDiagnosis ? 'primary' : 'secondary'}>
-              <Brain size={14} />
-              {continueDiagnosis ? labels.continueDiagnosis : labels.diagnose}
-              <ArrowRight size={14} />
-            </Button>
-          </Link>
-        ) : null}
-        <button
-          type="button"
-          disabled={isDeleting}
-          onClick={() => {
-            if (confirm('Delete this document?')) startDelete(() => deleteDocument(doc.id))
-          }}
-          className="flex size-8 items-center justify-center rounded-full text-[var(--color-fg-muted)] opacity-0 transition-all group-hover:opacity-100 hover:bg-[var(--color-bg-muted)] hover:text-[var(--color-danger)] focus:opacity-100"
-          aria-label="Delete document"
-        >
-          <Trash2 size={14} />
-        </button>
-      </div>
-    </motion.li>
+        <div className="flex shrink-0 items-center gap-1">
+          {canDiagnose ? (
+            <Link href={`/${locale}/mind/${workspaceId}/diagnose/${doc.id}`}>
+              <Button size="sm" variant={continueDiagnosis ? 'primary' : 'secondary'}>
+                <Brain size={14} />
+                {continueDiagnosis ? labels.continueDiagnosis : labels.diagnose}
+                <ArrowRight size={14} />
+              </Button>
+            </Link>
+          ) : null}
+          <button
+            type="button"
+            disabled={isDeleting}
+            onClick={() => setShowDeleteDialog(true)}
+            className="flex size-8 items-center justify-center rounded-full text-[var(--color-fg-muted)] opacity-0 transition-all group-hover:opacity-100 hover:bg-[var(--color-bg-muted)] hover:text-[var(--color-danger)] focus:opacity-100"
+            aria-label={labels.deleteConfirm}
+          >
+            <Trash2 size={14} />
+          </button>
+        </div>
+      </motion.li>
+
+      <ConfirmDialog
+        open={showDeleteDialog}
+        onOpenChange={setShowDeleteDialog}
+        title={labels.deleteTitle}
+        description={labels.deleteDescription}
+        confirmLabel={labels.deleteConfirm}
+        cancelLabel={labels.deleteCancel}
+        onConfirm={() => {
+          onDeleted()
+          startDelete(() => deleteDocument(doc.id))
+        }}
+      />
+    </>
   )
 }
 

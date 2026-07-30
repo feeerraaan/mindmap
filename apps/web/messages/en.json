@@ -187,7 +187,11 @@
     "viewDocuments": "Documents",
     "viewTimeline": "Timeline",
     "viewHistory": "History",
-    "viewMap": "Map"
+    "viewMap": "Map",
+    "deleteTitle": "Delete this document?",
+    "deleteDescription": "This will remove the document and all its concepts. This cannot be undone.",
+    "deleteConfirm": "Delete document",
+    "deleteCancel": "Cancel"
   },
   "diagnosis": {
     "thinking": "The Mind is thinking…",

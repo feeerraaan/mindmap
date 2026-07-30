@@ -216,7 +216,11 @@
     "viewDocuments": "Documentos",
     "viewTimeline": "Cronología",
     "viewHistory": "Historial",
-    "viewMap": "Mapa"
+    "viewMap": "Mapa",
+    "deleteTitle": "¿Eliminar este documento?",
+    "deleteDescription": "Esto eliminará el documento y todos sus conceptos. No se puede deshacer.",
+    "deleteConfirm": "Eliminar documento",
+    "deleteCancel": "Cancelar"
   },
   "diagnosis": {
     "thinking": "La Mente está pensando…",
