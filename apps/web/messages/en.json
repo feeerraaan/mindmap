@@ -132,6 +132,7 @@
       "placeholder": "Name your Mind",
       "examDate": "Exam date",
       "examDatePlaceholder": "Pick the exam date",
+      "examDateHint": "Deadline for mastering this material",
       "create": "Create Mind",
       "cancel": "Cancel"
     },

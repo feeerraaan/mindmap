@@ -132,6 +132,7 @@
       "placeholder": "Nombra tu Mente",
       "examDate": "Fecha del examen",
       "examDatePlaceholder": "Elige la fecha del examen",
+      "examDateHint": "Fecha límite para dominar este material",
       "create": "Crear Mente",
       "cancel": "Cancelar"
     },

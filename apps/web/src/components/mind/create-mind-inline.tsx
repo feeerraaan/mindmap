@@ -11,12 +11,14 @@ export function CreateMindInline({
   createLabel,
   examDateLabel,
   examDatePlaceholder,
+  examDateHint,
 }: {
   locale: 'en' | 'es'
   placeholder: string
   createLabel: string
   examDateLabel: string
   examDatePlaceholder: string
+  examDateHint: string
 }) {
   const [open, setOpen] = useState(false)
   const [name, setName] = useState('')
@@ -65,14 +67,17 @@ export function CreateMindInline({
         className="w-full sm:w-48"
         maxLength={60}
       />
-      <Input
-        type="date"
-        value={examDate}
-        onChange={(e) => setExamDate(e.target.value)}
-        placeholder={examDatePlaceholder}
-        aria-label={examDateLabel}
-        className="w-full sm:w-44"
-      />
+      <div className="flex w-full flex-col gap-1 sm:w-44">
+        <Input
+          type="date"
+          value={examDate}
+          onChange={(e) => setExamDate(e.target.value)}
+          placeholder={examDatePlaceholder}
+          aria-label={examDateLabel}
+          className="w-full"
+        />
+        <p className="text-[11px] leading-tight text-[var(--color-fg-subtle)]">{examDateHint}</p>
+      </div>
       <div className="flex items-center gap-2">
         <Button size="sm" onClick={submit} disabled={pending || !name.trim()}>
           {createLabel}

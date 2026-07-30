@@ -53,6 +53,7 @@ export default async function MindIndexPage({ params }: { params: Promise<{ loca
             createLabel={t('new.create')}
             examDateLabel={t('new.examDate')}
             examDatePlaceholder={t('new.examDatePlaceholder')}
+            examDateHint={t('new.examDateHint')}
           />
         }
       />
