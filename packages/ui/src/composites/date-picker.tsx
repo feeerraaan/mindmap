@@ -43,10 +43,10 @@ export function DatePicker({
         id={inputId}
         onClick={() => setOpen(!open)}
         className={cn(
-          'flex h-9 w-full items-center rounded-md border border-[var(--color-border)] bg-[var(--color-bg)] px-3 text-sm transition-colors',
+          'flex h-11 w-full items-center rounded-md border border-[var(--color-border)] bg-[var(--color-surface)] px-4 text-[17px] text-[var(--color-fg)] transition-colors ease-in-out',
           'hover:border-[var(--color-border-strong)]',
-          'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-primary-focus)]',
-          displayValue ? 'text-[var(--color-fg)]' : 'text-[var(--color-fg-subtle)]',
+          'focus:border-[var(--color-primary-focus)] focus:ring-2 focus:ring-[var(--color-primary-focus)]/30 focus:outline-none',
+          displayValue ? '' : 'text-[var(--color-fg-subtle)]',
         )}
       >
         <svg className="mr-2 size-4 shrink-0 text-[var(--color-fg-subtle)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
