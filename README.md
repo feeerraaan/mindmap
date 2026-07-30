@@ -210,7 +210,7 @@ flowchart TD
     JOB -->|poll claim| WK[VPS Worker<br/>@mindmap/processor]
     WK -->|download originals| ST[(VPS private storage<br/>scripts/storage-server.mjs)]
     WK -->|buildGraph · parse| BR[packages/brain<br/>public AI surface]
-    BR -->|@ai-sdk/openai-compatible| AI[OpenCode ZEN / GO<br/>DeepSeek-class models]
+    BR -->|"@ai-sdk/openai-compatible"| AI[OpenCode ZEN / GO<br/>DeepSeek-class models]
     FE -->|Better Auth| AUTH[packages/auth<br/>Email+Password · Google · magic-link]
     AUTH --> DB
     FE -->|Resend email| RS[Resend]
