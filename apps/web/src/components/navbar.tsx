@@ -64,7 +64,7 @@ export function Navbar({ locale }: { locale: string }) {
             </svg>
           </button>
           {isOpen && (
-            <div className="absolute right-0 mt-2 w-48 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)]">
+            <div className="absolute right-0 z-20 mt-2 w-48 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)]">
               <div className="py-1">
                 <a
                   href={`/${locale}/settings`}
