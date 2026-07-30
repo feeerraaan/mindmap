@@ -16,20 +16,20 @@
 
 MindMap is a **diagnostic** learning tool, not a summarizer. You upload a document
 (PDF / PPTX / DOCX) and MindMap builds a **Knowledge Graph** of its concepts,
-then runs an **adaptive diagnosis** — a calm Socratic interview rooted in Item
-Response Theory and Bayesian estimation — to discover what you *truly* know
+then runs an **adaptive diagnosis** - a calm Socratic interview rooted in Item
+Response Theory and Bayesian estimation - to discover what you *truly* know
 versus what you only *recognize*. The output is a visual knowledge map plus a
 personalized, adaptive review timeline.
 
-It is built for **autonomous adult learners** preparing for high-stakes exams —
+It is built for **autonomous adult learners** preparing for high-stakes exams -
 medical residents, bar and CFA candidates, engineers studying system design or
-algorithms, language learners past the B2 plateau — and for curious
+algorithms, language learners past the B2 plateau - and for curious
 professionals who read books and courses but want an **honest** map of what
 actually stuck.
 
 What makes it different from traditional study tools is the inversion: most tools
 optimize for *producing* (more flashcards, more summaries, more quizzes), while
-MindMap optimizes for *understanding* — building a precise, honest model of a
+MindMap optimizes for *understanding* - building a precise, honest model of a
 learner's knowledge state, then making that model visible and actionable. The
 highest-leverage moment in learning is not the moment you study; it is the moment
 you realize **you didn't actually know what you thought you knew**. MindMap
@@ -52,7 +52,7 @@ questions of everyone, never adapt to the learner's evolving state, and treat
 a 1985 forgetting curve applied identically to every item and require manual card
 authoring. AI summarizers (NotebookLM-style) do the work *for* you, which teaches
 you nothing about your own gaps. None of them give you an **honest model** of your
-own mind — which is the actual bottleneck.
+own mind - which is the actual bottleneck.
 
 ---
 
@@ -66,20 +66,20 @@ MindMap's learning loop:
    Remember  ←   Verify   ←      Learn       ←    (adaptive)
 ```
 
-- **Upload** — Drop a PDF, DOCX, or PPTX. Mime-allowlisted, 25 MB cap.
-- **Understand** — The document is parsed and split into chunks; its language is
+- **Upload** - Drop a PDF, DOCX, or PPTX. Mime-allowlisted, 25 MB cap.
+- **Understand** - The document is parsed and split into chunks; its language is
   classified.
-- **Knowledge Graph** — The AI extracts chapters → topics → concepts and the
+- **Knowledge Graph** - The AI extracts chapters → topics → concepts and the
   dependency edges between them, validated against a Zod schema and an acyclicity
   check.
-- **Diagnose** — An adaptive, IRT-driven interview asks the *minimum* number of
+- **Diagnose** - An adaptive, IRT-driven interview asks the *minimum* number of
   questions that *maximally* increase information about your knowledge state.
-- **Identify Knowledge Gaps** — Weak concepts (low mastery or low confidence) are
+- **Identify Knowledge Gaps** - Weak concepts (low mastery or low confidence) are
   surfaced; neighbor concepts are propagated through the dependency graph.
-- **Learn** — For each gap, MindMap generates a concise concept explanation.
-- **Verify** — Deeper, open-ended ("describe in your own words") questions
+- **Learn** - For each gap, MindMap generates a concise concept explanation.
+- **Verify** - Deeper, open-ended ("describe in your own words") questions
   confirm the learned knowledge, semantically evaluated by the LLM.
-- **Remember** — A pure-math Timeline Engine schedules spaced reviews adapted to
+- **Remember** - A pure-math Timeline Engine schedules spaced reviews adapted to
   each concept's measured `(mastery, confidence)`, not a fixed forgetting curve.
 
 ---
@@ -139,12 +139,12 @@ Learn                  (AI writes a concise explanation for the weakest concept)
    ↓
 Verify                 (open-ended question + semantic correctness scoring)
    ↓
-Review Planning        (Timeline Engine — pure math, no LLM)
+Review Planning        (Timeline Engine - pure math, no LLM)
 ```
 
 The diagnosis itself runs as a **4-phase cycle** inside one session:
 `DIAGNOSE → LEARN → PRACTICE → VERIFY`. The conversation is framed as a calm
-interview, not a quiz — no question count is shown mid-session, only a progress
+interview, not a quiz - no question count is shown mid-session, only a progress
 ring. On completion, the Knowledge Map animates from grayscale to colored as
 mastery fills in: the product's hero moment.
 
@@ -153,7 +153,7 @@ mastery fills in: the product's hero moment.
 ## 6. AI Architecture
 
 MindMap is AI-first. The `packages/brain` package is the **only** place in the
-codebase that imports an AI SDK or calls an LLM — this is enforced by ESLint and
+codebase that imports an AI SDK or calls an LLM - this is enforced by ESLint and
 fails CI if violated. Every other package sees only a typed `Brain` object.
 
 ### Where AI is used
@@ -163,16 +163,16 @@ fails CI if violated. Every other package sees only a typed `Brain` object.
 | Document understanding | `classify.language` | cheap | doc locale |
 | Concept extraction | `extract.structure`, `extract.metadata`, `summarize.concept` | cheap | chapters/topics/concepts + priors |
 | Graph generation | `extract.relationships` | cheap | acyclic dependency edges (Zod-validated) |
-| Diagnosis — diagnostic question | `reason.diagnose.easy` / `reason.diagnose.hard` | reasoning | MCQ or open question |
+| Diagnosis - diagnostic question | `reason.diagnose.easy` / `reason.diagnose.hard` | reasoning | MCQ or open question |
 | Open-ended evaluation | `reason.evaluate` | reasoning | `correctness ∈ [0,1]` + feedback |
 | Socratic clarification | `reason.clarify` | reasoning | SSE-streamed follow-up |
 | Learn explanation | (reasoning prompt) | reasoning | concise concept explanation |
 
 All prompts live as **versioned `.md` files** in `packages/prompts` with YAML
-frontmatter, rendered with mustache — non-engineers can edit copy without
+frontmatter, rendered with mustache - non-engineers can edit copy without
 touching TS. Every LLM response is parsed with `extractJson` and validated
 against a **Zod schema**; on failure we retry with a "schema-repair" prompt (max
-2), then mark the concept `failed` and continue — partial graphs over total
+2), then mark the concept `failed` and continue - partial graphs over total
 failure. Cycles in the edges are rejected via a Tarjan pass.
 
 ### What is **not** AI
@@ -180,7 +180,7 @@ failure. Cycles in the edges are rejected via a Tarjan pass.
 | Concern | Implementation |
 | --- | --- |
 | Persistence | Prisma → Neon Postgres |
-| Scheduling / **Review engine** | `TimelineEngine` — pure math, zero LLM calls |
+| Scheduling / **Review engine** | `TimelineEngine` - pure math, zero LLM calls |
 | Adaptive stopping | `EvaluationEngine` stopping rule (local) |
 | Neighbor propagation | local DAG walk |
 | Token budget / cost guard | Router `token-bucket` + per-user daily budget |
@@ -233,7 +233,7 @@ components directly.
 | **Frontend** | Next.js 16 (App Router, RSC), React 19, TypeScript (strict, `noUncheckedIndexedAccess`), Tailwind CSS v4, shadcn/ui, Framer Motion, `@xyflow/react` (Knowledge Map), React Query, `react-dropzone`, `lucide-react` |
 | **Backend** | Next.js Route Handlers + Server Actions, SSE transport with polling fallback |
 | **Database** | Prisma ORM + Neon Postgres (with `pgvector` + `pg_trgm` extensions declared) |
-| **Authentication** | Better Auth — Email/Password, optional Google OAuth, magic-link (dev) |
+| **Authentication** | Better Auth - Email/Password, optional Google OAuth, magic-link (dev) |
 | **Storage** | VPS private storage service (`scripts/storage-server.mjs` on PM2) or Vercel Blob or local FS (env-driven) |
 | **AI** | `packages/brain` over `@ai-sdk/openai-compatible`; OpenCode ZEN (fallback) + OpenCode GO (primary); DeepSeek-class models |
 | **Infrastructure** | pnpm workspaces + Turborepo, PM2 process manager on the VPS, nginx, Docker (`pgvector`) |
@@ -267,7 +267,7 @@ viewports (desktop / tablet / mobile) and commit the PNGs into
 
 ## 10. Demo
 
-- **Live Demo:** <https://mindmap.azpy.es/en> — click **"sign in as demo"** on
+- **Live Demo:** <https://mindmap.azpy.es/en> - click **"sign in as demo"** on
   the sign-in form to enter the seeded `demo@mindmap.app` account with a sample
   graph already diagnosed.
 - **Demo Video:** <https://youtu.be/3PRoDq0flSo>
@@ -285,7 +285,7 @@ adapted to where your confidence actually is.
 ### Requirements
 
 - Node ≥ 20.18
-- pnpm ≥ 10 (pinned `11.13.1` via `packageManager` — `corepack` enables it)
+- pnpm ≥ 10 (pinned `11.13.1` via `packageManager` - `corepack` enables it)
 - PostgreSQL 16+ with `pgvector` and `pg_trgm` extensions (Neon recommended)
 - Poppler (`pdftotext`) for PDF parsing (or run parsing on the VPS worker)
 - An `OPENCODE_*_KEY` for the AI providers (ZEN and GO share one key)
@@ -316,7 +316,7 @@ OPENCODE_ZEN_BASE_URL="https://opencode.ai/zen/v1"
 OPENCODE_ZEN_KEY="..."        # same key as GO
 OPENCODE_ZEN_MODEL="deepseek-v4-flash"
 BRAIN_DAILY_BUDGET="500000"
-# ^^ storage, Resend, app URLs — see .env.example
+# ^^ storage, Resend, app URLs - see .env.example
 ```
 
 ### Database setup
@@ -358,7 +358,7 @@ pm2 start ecosystem.config.cjs        # web + storage + worker
 ```
 
 If you bump `schema.prisma`, run `pnpm --filter @mindmap/database generate`
-**and** restart the dev server — Turbopack caches the Prisma client.
+**and** restart the dev server - Turbopack caches the Prisma client.
 
 ---
 
@@ -367,7 +367,7 @@ If you bump `schema.prisma`, run `pnpm --filter @mindmap/database generate`
 ```
 mindmap/
 ├── apps/
-│   └── web/                  # Next.js 16 — the only deployable (Vercel)
+│   └── web/                  # Next.js 16 - the only deployable (Vercel)
 │       ├── src/
 │       │   ├── app/          # App Router: [locale]/(marketing) (auth) (app) + api/
 │       │   ├── components/   # feature UI: map, diagnosis, timeline, history, …
@@ -400,7 +400,7 @@ mindmap/
 
 - **`packages/brain` is the only package that may import an AI SDK or call an
   LLM.** Violations fail `pnpm lint`.
-- **`packages/ui` never imports `brain`/`database`/`auth`** — components accept
+- **`packages/ui` never imports `brain`/`database`/`auth`** - components accept
   props, emit events, never fetch.
 - **`any` is banned**; `unknown` + narrowing only.
 - **No barrel files** at the package root; sub-path exports via `package.json`
@@ -414,22 +414,22 @@ MindMap improves learning on four fronts, all backed by the diagnosis model:
 
 1. **Identifying knowledge gaps.** The Bayesian estimate per concept surfaces the
    exact concepts your *confidence* is low on, even if your *mastery* feels high
-   — separating recognition from understanding. Weak concepts are propagated to
+   - separating recognition from understanding. Weak concepts are propagated to
    neighbors through the dependency DAG, so you discover structural gaps, not just
    isolated ones.
 2. **Adaptive learning.** Fisher information selects the next question that
    *maximally* increases information about your state, biased toward important
    and low-confidence concepts. This means fewer questions for a confident expert
-   and more for a struggling reader — the same content, very different paths.
+   and more for a struggling reader - the same content, very different paths.
 3. **Verification instead of memorization.** The `VERIFY` phase asks open-ended
    questions ("describe in your own words…") and semantically evaluates the
    answer, so recognition-based bluffing doesn't inflate mastery. "I don't know"
    is a first-class action that *raises* confidence (honest signal) while "Skip"
-   lowers it — reinforcing honesty rather than guessing.
+   lowers it - reinforcing honesty rather than guessing.
 4. **Long-term retention.** The Timeline Engine spaces reviews off the *measured*
    `(mastery, confidence)`, not a fixed 1985-style curve. A concept you've truly
   internalized spaces out fast; a concept that's wobbling comes back sooner.
-   Missed reviews do not pile up punitively — intervals soften rather than
+   Missed reviews do not pile up punitively - intervals soften rather than
    double.
 
 ---
@@ -440,7 +440,7 @@ Without AI, MindMap simply could not exist in its current form:
 
 - **Concept extraction is not pattern matching.** Turning an arbitrary textbook
   PDF into a structured, dependency-linked Knowledge Graph requires real
-  comprehension — chapter/topic/concept decomposition, importance and difficulty
+  comprehension - chapter/topic/concept decomposition, importance and difficulty
   priors, semantic relationships. Rule-based extraction can't generalize across
   arbitrary documents.
 - **Adaptive questioning is information-theoretic.** The IRT + Fisher-information
@@ -452,13 +452,13 @@ Without AI, MindMap simply could not exist in its current form:
   "describe how a page fault is handled" cannot be matched against a template.
   The LLM scores correctness ∈ [0,1] and produces the micro-feedback line.
 - **Socratic clarification is conversational.** When an answer is ambiguous, a
-  short streamed follow-up resolves it — that's only possible with a language
+  short streamed follow-up resolves it - that's only possible with a language
   model.
 
 Critically, AI is **contained**: every LLM call is schema-validated, retried with
 repair, budgeted per user, and routed through one typed surface. The deterministic
 parts (scheduling, IRT math, Bayesian update, state persistence) are pure local
-code — auditable, testable, and free. AI is the *thinking* layer; everything else
+code - auditable, testable, and free. AI is the *thinking* layer; everything else
 is engineering.
 
 ---
@@ -473,7 +473,7 @@ Engineering challenges visible in the repository:
   erode as the app grows.
 - **Schema-repair without token blowup.** LLMs return prose-wrapped or invalid
   JSON; an `extractJson` helper strips fences, a Zod schema validates, and a
-  "repair" prompt re-asks with the validation error — capped at 2 retries, after
+  "repair" prompt re-asks with the validation error - capped at 2 retries, after
   which the concept is marked `failed` and the graph continues (partial results
   over total failure).
 - **Acyclic graph from an LLM.** Extracted dependency edges can contain cycles;
@@ -504,7 +504,7 @@ Knowledge Map, adaptive timeline, history, EN/ES i18n, PWA, GDPR export, tests.
 
 - OCR for scanned / image-only PDFs (currently surfaced as "we can't read this
   one yet").
-- Multi-document workspaces — merge a learner's whole corpus into one graph.
+- Multi-document workspaces - merge a learner's whole corpus into one graph.
 - Collaborative maps (share a snapshot, let a mentor review your gaps).
 - API for educators ("diagnose my cohort on *this* material").
 - React Native app (PWA-first until retention is proven).
@@ -521,20 +521,20 @@ Knowledge Map, adaptive timeline, history, EN/ES i18n, PWA, GDPR export, tests.
 
 MindMap aligns with the judging criteria:
 
-- **Educational Impact** — it targets the actual bottleneck in self-study: the
+- **Educational Impact** - it targets the actual bottleneck in self-study: the
   illusion of competence. By measuring mastery per concept and surfacing gaps
   honestly, it turns reading into insight and turns flashcards into a *targeted*
   review rather than a blanket one.
-- **Creative Use of AI** — AI is the diagnostic core (concept extraction, graph
+- **Creative Use of AI** - AI is the diagnostic core (concept extraction, graph
   generation, adaptive question generation, semantic evaluation, Socratic
   clarification), not a bolt-on chat box. The provider-independent router and
   versioned-prompt library make model swaps a config change.
-- **Technical Execution** — a strict 12-package monorepo with enforced import
+- **Technical Execution** - a strict 12-package monorepo with enforced import
   boundaries, an AI-only package, schema-validated LLM outputs with repair
   retries, IRT + Bayesian estimation with unit tests, SSE + polling fallback, a
   VPS worker for long-running jobs, Vitest + Brain native tests, and a live
   deploy.
-- **Pitch & Demo** — a live demo, a demo video, and a 9-scene hyperframes demo
+- **Pitch & Demo** - a live demo, a demo video, and a 9-scene hyperframes demo
   (`video/`, `apps/web/src/app/[locale]/demo/video/)`) showing every stage of
   the loop in the product's own design tokens.
 
@@ -542,11 +542,11 @@ MindMap aligns with the judging criteria:
 
 ## 18. Author
 
-**MindMap CTO** — `<cto@mindmap.app>` (`MindMap CTO <cto@mindmap.app>` on the
+**MindMap CTO** - `<cto@mindmap.app>` (`MindMap CTO <cto@mindmap.app>` on the
 repository's commits). GitHub: [`feeerraaan`](https://github.com/feeerraaan).
 
 ---
 
 ## License
 
-Proprietary — all rights reserved.
+Proprietary - all rights reserved.
