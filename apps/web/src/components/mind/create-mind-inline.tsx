@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useTransition } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 import { Button, Input } from '@mindmap/ui'
 import { Plus, X } from 'lucide-react'
 import { createMind } from '@/features/account/actions'
@@ -45,47 +46,65 @@ export function CreateMindInline({
     })
   }
 
-  if (!open) {
-    return (
-      <Button size="sm" onClick={() => setOpen(true)}>
-        <Plus size={14} /> New
-      </Button>
-    )
-  }
-
   return (
     <div className="flex flex-col gap-2">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-        <Input
-          autoFocus
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') submit()
-            if (e.key === 'Escape') setOpen(false)
-          }}
-          placeholder={placeholder}
-          className="w-full sm:w-48"
-          maxLength={60}
-        />
-        <Input
-          type="date"
-          value={examDate}
-          onChange={(e) => setExamDate(e.target.value)}
-          placeholder={examDatePlaceholder}
-          aria-label={examDateLabel}
-          className="w-full sm:w-44"
-        />
-        <div className="flex items-center gap-2">
-          <Button size="sm" onClick={submit} disabled={pending || !name.trim()}>
-            {createLabel}
-          </Button>
-          <Button size="icon" variant="ghost" onClick={() => setOpen(false)} aria-label="Cancel">
-            <X size={14} />
-          </Button>
-        </div>
-      </div>
-      <p className="text-[11px] leading-tight text-[var(--color-fg-subtle)]">{examDateHint}</p>
+      <AnimatePresence mode="wait">
+        {!open ? (
+          <motion.div
+            key="button"
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            transition={{ duration: 0.15, ease: 'easeOut' }}
+          >
+            <Button size="sm" onClick={() => setOpen(true)}>
+              <Plus size={14} /> New
+            </Button>
+          </motion.div>
+        ) : (
+          <motion.div
+            key="form"
+            initial={{ opacity: 0, scale: 0.98, height: 0 }}
+            animate={{ opacity: 1, scale: 1, height: 'auto' }}
+            exit={{ opacity: 0, scale: 0.98, height: 0 }}
+            transition={{ duration: 0.18, ease: 'easeOut' }}
+          >
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-start">
+              <Input
+                autoFocus
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') submit()
+                  if (e.key === 'Escape') setOpen(false)
+                }}
+                placeholder={placeholder}
+                className="w-full sm:w-48"
+                maxLength={60}
+              />
+              <div className="flex w-full flex-col gap-0.5 sm:w-44">
+                <Input
+                  type="date"
+                  value={examDate}
+                  onChange={(e) => setExamDate(e.target.value)}
+                  placeholder={examDatePlaceholder}
+                  aria-label={examDateLabel}
+                  className="w-full"
+                />
+                <p className="text-[11px] leading-tight text-[var(--color-fg-subtle)]">{examDateHint}</p>
+              </div>
+              <div className="flex items-center gap-2">
+                <Button size="sm" onClick={submit} disabled={pending || !name.trim()}>
+                  {createLabel}
+                </Button>
+                <Button size="icon" variant="ghost" onClick={() => setOpen(false)} aria-label="Cancel">
+                  <X size={14} />
+                </Button>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }
