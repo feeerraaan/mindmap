@@ -384,9 +384,8 @@ mindmap/
 │   ├── shared/               # pure utils: id, dates, retry, SSE, Result (leaf)
 │   ├── analytics/            # event tracking abstraction (noop → PostHog)
 │   └── config/               # eslint flat config, tsconfig base, tailwind preset (leaf)
-├── scripts/                  # storage-server.mjs, screenshots.js, screenshots/
+├── scripts/                  # storage-server.mjs
 ├── docs/                     # vision, product, architecture, brain, roadmap, adr/
-├── video/ · video-remotion/  # demo-video HyperFrames + Remotion sources
 ├── turbo.json · pnpm-workspace.yaml · ecosystem.config.cjs · vercel.json
 └── AGENTS.md · DESIGN.md · STATUS.md
 ```
@@ -533,8 +532,7 @@ MindMap aligns with the judging criteria:
   retries, IRT + Bayesian estimation with unit tests, SSE + polling fallback, a
   VPS worker for long-running jobs, Vitest + Brain native tests, and a live
   deploy.
-- **Pitch & Demo** - a live demo, a launch video, and a 9-scene hyperframes video
-  (`video/`, `apps/web/src/app/[locale]/demo/video/)`) showing every stage of
+- **Pitch & Demo** - a live demo and a launch video showing every stage of
   the loop in the product's own design tokens.
 
 ---

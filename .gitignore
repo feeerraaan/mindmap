@@ -40,7 +40,8 @@ packages/database/prisma/migrations/dev.db*
 # build-time placeholders
 packages/**/dist/
 
-apps/web/zs
+# submission artifact
+mindmap-submission.zip
 
 # tsc incremental build cache
 **/tsconfig.tsbuildinfo
