@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import Link from 'next/link'
 import { usePathname, useParams } from 'next/navigation'
 import { signOut } from '@mindmap/auth/client'
-import { Button, Separator } from '@mindmap/ui'
+import { Separator } from '@mindmap/ui'
 import { Settings, Home, LogOut, BookOpen } from 'lucide-react'
 
 interface AppShellProps {
@@ -34,7 +34,7 @@ export function AppShell({ user, workspaces, labels, children }: AppShellProps) 
   return (
     <div className="flex min-h-dvh">
       {/* Sidebar — md+ */}
-      <aside className="sticky top-0 hidden h-dvh w-60 shrink-0 flex-col border-r border-[var(--color-border-subtle)] bg-[var(--color-bg-muted)] px-3 py-4 md:flex">
+      <aside className="sticky top-0 hidden h-dvh w-60 shrink-0 flex-col border-r border-white/[0.08] bg-[var(--color-nav)] px-3 py-4 md:flex">
         <nav className="flex flex-col gap-0.5 text-sm">
           <SidebarLink
             href={`/${locale}/mind`}
@@ -52,9 +52,9 @@ export function AppShell({ user, workspaces, labels, children }: AppShellProps) 
           </SidebarLink>
         </nav>
 
-        <Separator className="my-3" />
+        <Separator className="my-3 border-white/[0.08]" />
 
-        <div className="flex items-center px-2 pb-1.5 text-xs text-[var(--color-fg-subtle)]">
+        <div className="flex items-center px-2 pb-1.5 text-xs text-white/40">
           <span className="flex items-center gap-1.5">
             <BookOpen size={12} /> {labels.home}
           </span>
@@ -70,8 +70,8 @@ export function AppShell({ user, workspaces, labels, children }: AppShellProps) 
                   className={
                     'flex items-center gap-2 rounded-md px-2 py-1.5 transition-colors ' +
                     (active
-                      ? 'bg-[var(--color-surface)] font-semibold text-[var(--color-fg)]'
-                      : 'text-[var(--color-fg-muted)] hover:bg-[var(--color-surface)] hover:text-[var(--color-fg)]')
+                      ? 'bg-white/15 font-semibold text-white'
+                      : 'text-white/60 hover:bg-white/10 hover:text-white')
                   }
                 >
                   <span aria-hidden className="text-base leading-none">
@@ -84,7 +84,7 @@ export function AppShell({ user, workspaces, labels, children }: AppShellProps) 
           })}
         </ul>
 
-        <Separator className="my-3" />
+        <Separator className="my-3 border-white/[0.08]" />
 
         <div className="flex items-center gap-2 px-2 py-1.5">
           <div
@@ -94,17 +94,17 @@ export function AppShell({ user, workspaces, labels, children }: AppShellProps) 
             {(user.name ?? user.email).slice(0, 1).toUpperCase()}
           </div>
           <div className="min-w-0 flex-1 text-xs">
-            <p className="truncate font-semibold text-[var(--color-fg)]">
+            <p className="truncate font-semibold text-white">
               {user.name ?? user.email}
             </p>
-            <p className="truncate text-[var(--color-fg-subtle)]">{user.email}</p>
+            <p className="truncate text-white/50">{user.email}</p>
           </div>
           <button
             type="button"
             onClick={handleSignOut}
             disabled={signingOut}
             aria-label={labels.signOut}
-            className="rounded-full p-1.5 text-[var(--color-fg-muted)] transition-colors hover:bg-[var(--color-surface)] hover:text-[var(--color-fg)] disabled:opacity-50"
+            className="rounded-full p-1.5 text-white/60 transition-colors hover:bg-white/10 hover:text-white disabled:opacity-50"
           >
             <LogOut size={14} />
           </button>
@@ -113,23 +113,29 @@ export function AppShell({ user, workspaces, labels, children }: AppShellProps) 
 
       {/* Mobile top bar */}
       <div className="flex flex-1 flex-col">
-        <header className="sticky top-0 z-10 flex items-center justify-between border-b border-[var(--color-border-subtle)] bg-[var(--color-bg)]/80 px-4 py-3 backdrop-blur-xl backdrop-saturate-150 md:hidden">
-          <Link href={`/${locale}`} className="flex items-center gap-2 text-sm font-semibold">
+        <header className="sticky top-0 z-10 flex items-center justify-between border-b border-white/[0.08] bg-[var(--color-nav)] px-4 py-3 md:hidden">
+          <Link href={`/${locale}`} className="flex items-center gap-2 text-sm font-semibold text-white">
               <img
                 src="/icons/icon-64.png"
                 alt="MindMap"
                 className="size-9 rounded-lg"
               />
           </Link>
-          <Button variant="ghost" size="sm" onClick={handleSignOut} disabled={signingOut}>
-            <LogOut size={14} />
-          </Button>
+          <button
+            type="button"
+            onClick={handleSignOut}
+            disabled={signingOut}
+            aria-label={labels.signOut}
+            className="rounded-full p-1.5 text-white/60 transition-colors hover:bg-white/10 hover:text-white disabled:opacity-50"
+          >
+            <LogOut size={16} />
+          </button>
         </header>
 
         <main className="flex-1">{children}</main>
 
         {/* Mobile bottom tab */}
-        <nav className="sticky bottom-0 z-10 flex border-t border-[var(--color-border-subtle)] bg-[var(--color-bg)]/80 backdrop-blur-xl backdrop-saturate-150 md:hidden">
+        <nav className="sticky bottom-0 z-10 flex border-t border-white/[0.08] bg-[var(--color-nav)] md:hidden">
           <BottomTab
             href={`/${locale}/mind`}
             icon={<Home size={18} />}
@@ -165,8 +171,8 @@ function SidebarLink({
       className={
         'flex items-center gap-2 rounded-md px-2 py-1.5 transition-colors ' +
         (active
-          ? 'bg-[var(--color-surface)] font-semibold text-[var(--color-fg)]'
-          : 'text-[var(--color-fg-muted)] hover:bg-[var(--color-surface)] hover:text-[var(--color-fg)]')
+          ? 'bg-white/15 font-semibold text-white'
+          : 'text-white/60 hover:bg-white/10 hover:text-white')
       }
     >
       <span aria-hidden>{icon}</span>
@@ -191,7 +197,7 @@ function BottomTab({
       href={href}
       className={
         'relative flex flex-1 flex-col items-center gap-1 py-2 text-[10px] transition-colors ' +
-        (active ? 'text-[var(--color-primary)]' : 'text-[var(--color-fg-muted)]')
+        (active ? 'text-white' : 'text-white/50')
       }
     >
       <AnimatePresence>

@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import { NextIntlClientProvider } from 'next-intl'
-import { getMessages, getTranslations, setRequestLocale } from 'next-intl/server'
+import { getMessages, setRequestLocale } from 'next-intl/server'
 import { notFound } from 'next/navigation'
 import { routing } from '@/i18n/routing'
 import { QueryProvider } from '@/lib/query-provider'
@@ -62,7 +62,6 @@ export default async function LocaleLayout({
   }
   setRequestLocale(locale)
   const messages = await getMessages()
-  const t = await getTranslations({ locale, namespace: 'common' })
   const theme = await getThemeCookie()
   const user = await getCurrentUser()
 
@@ -83,7 +82,7 @@ export default async function LocaleLayout({
               Skip to main content
             </a>
             <div className="flex min-h-dvh flex-col">
-              <header className="bg-[var(--color-nav)] px-6 md:px-8">
+              <header className={`bg-[var(--color-nav)] px-6 md:px-8${user ? ' hidden md:block' : ''}`}>
                 <div className="flex h-11 w-full items-center justify-between">
                   <a
                     href={user ? `/${locale}/mind` : `/${locale}`}
