@@ -54,38 +54,38 @@ export function CreateMindInline({
   }
 
   return (
-    <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-      <Input
-        autoFocus
-        value={name}
-        onChange={(e) => setName(e.target.value)}
-        onKeyDown={(e) => {
-          if (e.key === 'Enter') submit()
-          if (e.key === 'Escape') setOpen(false)
-        }}
-        placeholder={placeholder}
-        className="w-full sm:w-48"
-        maxLength={60}
-      />
-      <div className="flex w-full flex-col gap-1 sm:w-44">
+    <div className="flex flex-col gap-2">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+        <Input
+          autoFocus
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') submit()
+            if (e.key === 'Escape') setOpen(false)
+          }}
+          placeholder={placeholder}
+          className="w-full sm:w-48"
+          maxLength={60}
+        />
         <Input
           type="date"
           value={examDate}
           onChange={(e) => setExamDate(e.target.value)}
           placeholder={examDatePlaceholder}
           aria-label={examDateLabel}
-          className="w-full"
+          className="w-full sm:w-44"
         />
-        <p className="text-[11px] leading-tight text-[var(--color-fg-subtle)]">{examDateHint}</p>
+        <div className="flex items-center gap-2">
+          <Button size="sm" onClick={submit} disabled={pending || !name.trim()}>
+            {createLabel}
+          </Button>
+          <Button size="icon" variant="ghost" onClick={() => setOpen(false)} aria-label="Cancel">
+            <X size={14} />
+          </Button>
+        </div>
       </div>
-      <div className="flex items-center gap-2">
-        <Button size="sm" onClick={submit} disabled={pending || !name.trim()}>
-          {createLabel}
-        </Button>
-        <Button size="icon" variant="ghost" onClick={() => setOpen(false)} aria-label="Cancel">
-          <X size={14} />
-        </Button>
-      </div>
+      <p className="text-[11px] leading-tight text-[var(--color-fg-subtle)]">{examDateHint}</p>
     </div>
   )
 }
