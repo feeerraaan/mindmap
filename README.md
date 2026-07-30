@@ -245,23 +245,20 @@ components directly.
 
 ## 9. Screenshots
 
-Screenshots live under `scripts/screenshots/`. **Only sign-in views are captured
-today**; the rest are listed below as a TODO for the submission.
+Desktop captures (1440×900) under `scripts/screenshots/`.
 
-| Screen | File | Status |
-| --- | --- | --- |
-| Landing / sign-in | `screenshots/01-sign-in-desktop.png` (+ mobile, + tablet) | ✅ captured |
-| Upload (dropzone + progress) | `screenshots/02-upload.png` | ❌ to capture |
-| Knowledge Graph | `screenshots/03-knowledge-map.png` | ❌ to capture |
-| Diagnosis (question card + mastery ring) | `screenshots/04-diagnosis.png` | ❌ to capture |
-| Learn phase (concept explanation) | `screenshots/05-learn.png` | ❌ to capture |
-| Verify phase (open-ended question) | `screenshots/06-verify.png` | ❌ to capture |
-| Review Timeline (Today / Upcoming / Overdue) | `screenshots/07-timeline.png` | ❌ to capture |
-| History (last sessions) | `screenshots/08-history.png` | ❌ to capture |
+| Screen | File |
+| --- | --- |
+| Public landing | `screenshots/01-landing.png` |
+| Public sign-in | `screenshots/02-sign-in.png` |
+| Mind (loading state) | `screenshots/03-mind-loading.png` |
+| Upload (dropzone + progress) | `screenshots/04-upload.png` |
+| Knowledge Graph (mapped) | `screenshots/05-knowledge-map.png` |
+| Diagnosis (question card) | `screenshots/06-diagnosis.png` |
+| Review Timeline | `screenshots/07-timeline.png` |
+| History | `screenshots/08-history.png` |
 
-Capture them with `node scripts/screenshots.js` (Playwright) at the three
-viewports (desktop / tablet / mobile) and commit the PNGs into
-`scripts/screenshots/`.
+Capture with `node scripts/screenshots.js` (Playwright).
 
 ---
 
@@ -502,6 +499,10 @@ Knowledge Map, adaptive timeline, history, EN/ES i18n, PWA, GDPR export, tests.
 
 **Future ideas** (explicitly *not* shipped yet):
 
+- Performance: reduce worker latency and cold starts so the platform feels
+  faster end-to-end.
+- Public landing polish: a sharper hero, clearer CTAs, and SEO tuning before
+  going wide.
 - OCR for scanned / image-only PDFs (currently surfaced as "we can't read this
   one yet").
 - Multi-document workspaces - merge a learner's whole corpus into one graph.
