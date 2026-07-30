@@ -4,7 +4,7 @@
 
 <p align="center">
   <a href="https://mindmap.azpy.es/en"><img alt="Live Demo" src="https://img.shields.io/badge/Live%20Demo-mindmap.azpy.es-0066cc?style=for-the-badge"></a>
-  <a href="https://youtu.be/3PRoDq0flSo"><img alt="Demo Video" src="https://img.shields.io/badge/Demo%20Video-YouTube-ff0000?style=for-the-badge"></a>
+  <a href="https://youtu.be/3PRoDq0flSo"><img alt="Launch Video" src="https://img.shields.io/badge/Video-YouTube-ff0000?style=for-the-badge"></a>
   <a href="https://github.com/feeerraaan/mindmap"><img alt="GitHub" src="https://img.shields.io/badge/GitHub-repo-181717?style=for-the-badge&logo=github"></a>
   <img alt="Next.js" src="https://img.shields.io/badge/Next.js%2016-black?style=flat-square&logo=next.js">
   <img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-strict-3178c6?style=flat-square&logo=typescript">
@@ -267,7 +267,7 @@ Capture with `node scripts/screenshots.js` (Playwright).
 - **Live Demo:** <https://mindmap.azpy.es/en> - click **"sign in as demo"** on
   the sign-in form to enter the seeded `demo@mindmap.app` account with a sample
   graph already diagnosed.
-- **Demo Video:** <https://youtu.be/3PRoDq0flSo>
+- **Launch Video:** <https://youtu.be/3PRoDq0flSo>
 
 In the demo you sign in, open your Mind, upload (or open a pre-mapped) PDF, watch
 its concepts get extracted into a Knowledge Graph, then run an adaptive diagnosis
@@ -535,7 +535,7 @@ MindMap aligns with the judging criteria:
   retries, IRT + Bayesian estimation with unit tests, SSE + polling fallback, a
   VPS worker for long-running jobs, Vitest + Brain native tests, and a live
   deploy.
-- **Pitch & Demo** - a live demo, a demo video, and a 9-scene hyperframes demo
+- **Pitch & Demo** - a live demo, a launch video, and a 9-scene hyperframes video
   (`video/`, `apps/web/src/app/[locale]/demo/video/)`) showing every stage of
   the loop in the product's own design tokens.
 
