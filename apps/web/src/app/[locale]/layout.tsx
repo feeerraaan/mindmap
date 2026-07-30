@@ -66,7 +66,7 @@ export default async function LocaleLayout({
   const user = await getCurrentUser()
 
   return (
-    <html lang={locale} data-theme={theme} suppressHydrationWarning>
+    <html lang={locale} data-theme={theme} className={theme === 'dark' ? 'dark' : undefined} suppressHydrationWarning>
       <head>
         <ThemeScript initialTheme={theme} />
         <link rel="manifest" href="/manifest.webmanifest" />

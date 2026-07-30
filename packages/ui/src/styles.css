@@ -119,7 +119,8 @@
   --radius-xl: 18px;
 }
 
-.dark {
+.dark,
+[data-theme="dark"] {
   --color-bg: #000000;
   --color-bg-subtle: #111113;
   --color-bg-muted: #1c1c1e;
