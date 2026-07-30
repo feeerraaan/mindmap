@@ -69,7 +69,7 @@ export function CreateMindInline({
             exit={{ opacity: 0, scale: 0.98, height: 0 }}
             transition={{ duration: 0.18, ease: 'easeOut' }}
           >
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-start">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
               <Input
                 autoFocus
                 value={name}
@@ -82,7 +82,7 @@ export function CreateMindInline({
                 className="w-full sm:w-48"
                 maxLength={60}
               />
-              <div className="flex w-full flex-col gap-0.5 sm:w-44">
+              <div className="relative w-full sm:w-44">
                 <Input
                   type="date"
                   value={examDate}
@@ -91,7 +91,7 @@ export function CreateMindInline({
                   aria-label={examDateLabel}
                   className="w-full"
                 />
-                <p className="text-[11px] leading-tight text-[var(--color-fg-subtle)]">{examDateHint}</p>
+                <p className="absolute top-full left-0 mt-0.5 text-[11px] leading-tight text-[var(--color-fg-subtle)] whitespace-nowrap">{examDateHint}</p>
               </div>
               <div className="flex items-center gap-2">
                 <Button size="sm" onClick={submit} disabled={pending || !name.trim()}>
