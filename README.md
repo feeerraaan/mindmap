@@ -245,20 +245,18 @@ components directly.
 
 ## 9. Screenshots
 
-Desktop captures (1440×900) under `scripts/screenshots/`.
+Desktop captures (1440x900).
 
-| Screen | File |
+| Screen | Preview |
 | --- | --- |
-| Public landing | `screenshots/01-landing.png` |
-| Public sign-in | `screenshots/02-sign-in.png` |
-| Mind (loading state) | `screenshots/03-mind-loading.png` |
-| Upload (dropzone + progress) | `screenshots/04-upload.png` |
-| Knowledge Graph (mapped) | `screenshots/05-knowledge-map.png` |
-| Diagnosis (question card) | `screenshots/06-diagnosis.png` |
-| Review Timeline | `screenshots/07-timeline.png` |
-| History | `screenshots/08-history.png` |
-
-Capture with `node scripts/screenshots.js` (Playwright).
+| Public landing | ![Landing](apps/web/src/images/landing1.png) |
+| Public landing (2) | ![Landing 2](apps/web/src/images/landing2.png) |
+| Sign-in | ![Sign-in](apps/web/src/images/sign.png) |
+| Mind (loading state) | ![Loading](apps/web/src/images/thinking.png) |
+| Diagnosis (question card) | ![Diagnosis](apps/web/src/images/answer.png) |
+| Knowledge Graph | ![Knowledge Map](apps/web/src/images/map.png) |
+| Review Timeline | ![Timeline](apps/web/src/images/timeline.png) |
+| History | ![History](apps/web/src/images/history.png)
 
 ---
 
