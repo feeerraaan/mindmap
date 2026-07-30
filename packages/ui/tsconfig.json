@@ -1,6 +1,7 @@
 {
   "extends": "@mindmap/config/tsconfig/react-library",
   "compilerOptions": {
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
     "outDir": "./dist"
   },
   "include": ["src/**/*"]
