@@ -409,7 +409,7 @@ export async function submitAnswer(
       data: {
         questionsAsked: out.state.questionsAsked,
         globalConfidence: out.state.globalConfidence,
-        ...(out.shouldStop ? { status: 'COMPLETED', finishedAt: new Date() } : {}),
+        ...(out.shouldStop && out.state.phase === 'VERIFY' ? { status: 'COMPLETED', finishedAt: new Date() } : {}),
       },
     })
     if (out.clarification) {
