@@ -173,6 +173,7 @@ export function UploadDropzone({ workspaceId, locale, labels, onUploaded }: Uplo
 
   function clearDone() {
     setItems((prev) => prev.filter((it) => it.phase !== 'ready' && it.phase !== 'error'))
+    router.push(`/${locale}/mind/${workspaceId}`)
   }
 
   return (
@@ -252,9 +253,6 @@ export function UploadDropzone({ workspaceId, locale, labels, onUploaded }: Uplo
           </Button>
         </div>
       ) : null}
-
-      {/* Unused locale prop to avoid the eslint-no-unused-vars rule. */}
-      <span className="sr-only">{locale}</span>
     </div>
   )
 }
