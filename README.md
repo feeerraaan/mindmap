@@ -543,8 +543,7 @@ MindMap aligns with the judging criteria:
 
 ## 18. Author
 
-**MindMap CTO** - `<cto@mindmap.app>` (`MindMap CTO <cto@mindmap.app>` on the
-repository's commits). GitHub: [`feeerraaan`](https://github.com/feeerraaan).
+**Ferran Azpiazu Adrover** - `<cto@mindmap.app>`
 
 ---
 
