@@ -52,6 +52,26 @@ export function SignInForm({ callbackPath }: { callbackPath: string }) {
     })
   }
 
+  const handleDemoLogin = () => {
+    setError(null)
+    startTransition(async () => {
+      try {
+        const res = await signIn.email({
+          email: 'demo@mindmap.com',
+          password: 'Amo8931f!123',
+          callbackURL: callbackPath,
+        })
+        if (res.error) {
+          setError(res.error.message ?? t('errorGeneric'))
+          return
+        }
+        window.location.href = callbackPath
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Unknown error')
+      }
+    })
+  }
+
   return (
     <div className="flex flex-col gap-4">
       <div className="flex rounded-full bg-[var(--color-bg-muted)] p-0.5">
@@ -128,6 +148,22 @@ export function SignInForm({ callbackPath }: { callbackPath: string }) {
           {mode === 'login' ? t('signInButton') : tSignUp('registerButton')}
         </Button>
       </form>
+
+      {mode === 'login' ? (
+        <div className="flex items-center gap-3 text-xs text-[var(--color-fg-subtle)]">
+          <hr className="flex-1 border-t border-[var(--color-border-subtle)]" />
+          <span>{t('demoButton')}</span>
+          <hr className="flex-1 border-t border-[var(--color-border-subtle)]" />
+          <button
+            type="button"
+            onClick={handleDemoLogin}
+            disabled={pending}
+            className="shrink-0 rounded-full border border-[var(--color-border)] px-3 py-1.5 text-xs text-[var(--color-fg-muted)] transition-colors hover:border-[var(--color-primary)] hover:text-[var(--color-primary)] disabled:opacity-50"
+          >
+            {t('demoButton')}
+          </button>
+        </div>
+      ) : null}
 
       {error ? (
         <p className="rounded-md border border-[var(--color-danger)]/30 bg-[var(--color-danger)]/10 p-3 text-sm text-[var(--color-danger)]">

@@ -70,6 +70,7 @@
       "passwordLabel": "Contraseña",
       "passwordPlaceholder": "Mínimo 8 caracteres",
       "signInButton": "Iniciar sesión",
+      "demoButton": "Entrar como demo",
       "errorGeneric": "Correo o contraseña incorrectos.",
       "sendLink": "Envíame un enlace mágico",
       "linkSent": "Revisa tu bandeja. El enlace caduca en 15 minutos."
