@@ -19,7 +19,7 @@ const BodySchema = z.object({
 const ParamsSchema = z.object({ id: z.string().min(1) })
 
 /**
- * POST /api/timeline/[id]/submit — record a batch of review answers,
+ * POST /api/timeline/[id]/submit - record a batch of review answers,
  * update the per-concept mastery/confidence, and reschedule the
  * document's ReviewPlan. Returns a brief summary.
  */

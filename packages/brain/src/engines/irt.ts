@@ -14,7 +14,7 @@
  * scheduler tries to pick items whose difficulty is at the learner's
  * current estimate.
  *
- * Everything here is pure math — no LLM, no DB.
+ * Everything here is pure math - no LLM, no DB.
  */
 
 const THETA_MIN = -3
@@ -44,7 +44,7 @@ export function probabilityCorrect(theta: number, difficulty: number): number {
 
 /**
  * Fisher information at a given (theta, b) point. For 1PL, this is the
- * single-item information — the expected squared score of the score
+ * single-item information - the expected squared score of the score
  * function. Maximised at θ = b.
  */
 export function fisherInformation(theta: number, difficulty: number): number {

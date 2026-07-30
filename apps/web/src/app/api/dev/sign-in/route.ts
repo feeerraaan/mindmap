@@ -6,7 +6,7 @@ import path from 'node:path'
 /**
  * GET /api/dev/sign-in?email=...&callbackPath=/en/mind
  *
- * DEV ONLY — If a pending magic link exists, uses it. Otherwise, requests
+ * DEV ONLY - If a pending magic link exists, uses it. Otherwise, requests
  * a new magic link first, then reads the file it creates.
  *
  * Production: 404 (no such route).

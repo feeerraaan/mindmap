@@ -33,7 +33,7 @@ export function AppShell({ user, workspaces, labels, children }: AppShellProps) 
 
   return (
     <div className="flex min-h-dvh">
-      {/* Sidebar — md+ */}
+      {/* Sidebar - md+ */}
       <aside className="sticky top-0 hidden h-dvh w-60 shrink-0 flex-col border-r border-white/[0.08] bg-[var(--color-nav)] px-3 py-4 md:flex">
         <nav className="flex flex-col gap-0.5 text-sm">
           <SidebarLink

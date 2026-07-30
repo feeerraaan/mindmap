@@ -1,5 +1,5 @@
 /**
- * Seed script — populates a demo user, a workspace, a pre-built document
+ * Seed script - populates a demo user, a workspace, a pre-built document
  * with a 20-concept knowledge graph. The landing page's live mini-demo can
  * render this graph.
  *
@@ -51,7 +51,7 @@ async function main() {
     },
   })
 
-  // Demo concepts — 20 in a small DAG
+  // Demo concepts - 20 in a small DAG
   const conceptData = [
     { id: 'c1', externalId: 'c-1', title: 'Cardiac cycle', importance: 0.95, difficulty: 0.7 },
     { id: 'c2', externalId: 'c-2', title: 'Systole', importance: 0.85, difficulty: 0.4 },
@@ -102,7 +102,7 @@ async function main() {
         documentId: doc.id,
         externalId: c.externalId,
         title: c.title,
-        summary: `${c.title} — concise summary used by the demo knowledge map.`,
+        summary: `${c.title} - concise summary used by the demo knowledge map.`,
         importance: c.importance,
         difficulty: c.difficulty,
       },

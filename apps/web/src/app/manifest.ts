@@ -2,7 +2,7 @@ import type { MetadataRoute } from 'next'
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: 'MindMap — An MRI scan for knowledge',
+    name: 'MindMap - An MRI scan for knowledge',
     short_name: 'MindMap',
     description: 'Discover what you truly know. Calm, honest, diagnostic.',
     start_url: '/',

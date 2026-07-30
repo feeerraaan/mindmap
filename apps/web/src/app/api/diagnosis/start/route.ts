@@ -12,7 +12,7 @@ const BodySchema = z.object({
 })
 
 /**
- * POST /api/diagnosis/start — start (or resume) a diagnosis session for
+ * POST /api/diagnosis/start - start (or resume) a diagnosis session for
  * a document. The response carries the first question (or, if the engine
  * decides there's nothing left to probe, marks the session finished).
  */

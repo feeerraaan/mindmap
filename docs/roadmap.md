@@ -1,4 +1,4 @@
-# MindMap — Implementation Roadmap
+# MindMap - Implementation Roadmap
 
 > Eight phases. Each phase is independently shippable and **must leave the repository
 > compiling** (`pnpm typecheck && pnpm lint && pnpm build` all green) before the next
@@ -9,10 +9,10 @@ Complexity scale: ●○○○ trivial · ●●○○ moderate · ●●●○ 
 
 ---
 
-## Phase 1 — Foundation
+## Phase 1 - Foundation
 
 **Goal** A deployable monorepo with auth, database, design system, PWA, and a premium
-landing page. Zero business features yet — everything that follows builds on this.
+landing page. Zero business features yet - everything that follows builds on this.
 
 ### Deliverables
 
@@ -26,7 +26,7 @@ landing page. Zero business features yet — everything that follows builds on t
   `import/no-cycle` + `no-restricted-imports` enforcing the dependency graph from
   `architecture.md` §2.
 - `packages/types`: Zod schemas for `User, Workspace, Document, Concept,
-KnowledgeGraph, DiagnosisSession` — the domain contract.
+KnowledgeGraph, DiagnosisSession` - the domain contract.
 - `packages/database`: Prisma schema from `database.md`, Neon connection, first
   migration applied, seed script (1 demo user + 1 sample graph).
 - `packages/auth`: Better Auth config (Google OAuth + Resend magic-link), session
@@ -70,11 +70,11 @@ KnowledgeGraph, DiagnosisSession` — the domain contract.
 
 ### Dependencies
 
-None — this is the foundation.
+None - this is the foundation.
 
 ---
 
-## Phase 2 — Onboarding, Workspaces, Navigation, Settings
+## Phase 2 - Onboarding, Workspaces, Navigation, Settings
 
 **Goal** The user has a "Mind" to put things in, and can move around the app
 intuitively. The shell of the product exists.
@@ -89,7 +89,7 @@ intuitively. The shell of the product exists.
   with locale switch + avatar menu.
 - "Your Mind" workspace view: empty state, document list (empty for now), status
   badges wired to `Document.status` (no documents yet, but the UI exists).
-- Settings: account (email, sign out, request data export — stub endpoint, GDPR
+- Settings: account (email, sign out, request data export - stub endpoint, GDPR
   scaffold), language, theme (system/light/dark), delete account (soft delete).
 
 ### Acceptance Criteria
@@ -98,7 +98,7 @@ intuitively. The shell of the product exists.
 2. Empty states render correctly for a fresh workspace.
 3. Sidebar navigation works on `md+`; bottom tab on `< md`.
 4. Theme toggle persists (cookie + DB `User.locale` + a `theme` column or
-   `localStorage` — TBD in implementation, cookie is preferred for SSR consistency).
+   `localStorage` - TBD in implementation, cookie is preferred for SSR consistency).
 5. Language toggle updates all strings without a full reload.
 6. Sign out returns to Landing; sign back in resumes at the right workspace.
 
@@ -120,7 +120,7 @@ Phase 1.
 
 ---
 
-## Phase 3 — Document Upload, Storage, Parser
+## Phase 3 - Document Upload, Storage, Parser
 
 **Goal** Users can drop a PDF/PPTX/DOCX and the system extracts a structured
 representation, with a calm streaming-progress UX.
@@ -140,7 +140,7 @@ representation, with a calm streaming-progress UX.
   (1.5s interval, paused when tab hidden).
 - Document processing Route Handler: `waitUntil`-backed; writes `DocumentChunk` rows,
   updates `Document.status` through `QUEUED → PARSING → GRAPHING` (graphing happens in
-  Phase 4 — for now `PARSING → READY`).
+  Phase 4 - for now `PARSING → READY`).
 - Streaming progress narrative UI: a sequence of calm status lines ("Extracting
   text…", "Reading chapter 3…") driven by `Job.progress` milestones.
 
@@ -174,7 +174,7 @@ Phase 1 (DB, auth), Phase 2 (workspace shell to upload into).
 
 ---
 
-## Phase 4 — Brain: Router, Providers, Knowledge Graph
+## Phase 4 - Brain: Router, Providers, Knowledge Graph
 
 **Goal** The Brain package becomes real. Uploading a document now produces a
 `KnowledgeGraph` (concepts + dependencies), still without asking questions.
@@ -205,7 +205,7 @@ Phase 1 (DB, auth), Phase 2 (workspace shell to upload into).
 4. Router sends `extract.*` and `classify.*` to Zen/DeepSeek-Flash; no Pro provider
    call is made for graph building.
 5. A malformed LLM response triggers exactly 1 retry (visible in `ConversationTurn`
-   / `AuditEvent`); second failure marks the concept `failed` and continues — partial
+   / `AuditEvent`); second failure marks the concept `failed` and continues - partial
    graph is delivered, not a full failure.
 6. Daily budget exceeded → "Mind is resting" UX, no 429 leak.
 
@@ -229,7 +229,7 @@ Phase 1 (types, DB), Phase 3 (parser output as input).
 
 ---
 
-## Phase 5 — Adaptive Diagnosis, Conversation, Evaluation, Knowledge Model
+## Phase 5 - Adaptive Diagnosis, Conversation, Evaluation, Knowledge Model
 
 **Goal** The signature experience. Users answer adaptive questions; their knowledge
 state evolves and is persisted.
@@ -285,7 +285,7 @@ diagnosis route).
 
 ---
 
-## Phase 6 — Knowledge Map, Timeline, History
+## Phase 6 - Knowledge Map, Timeline, History
 
 **Goal** The visual payoff. Users see their mind mapped, and have a personalized review
 schedule.
@@ -295,12 +295,12 @@ schedule.
 - `KnowledgeMap` client component: `react-flow` (dynamic import, no SSR), custom
   `ConceptNode` (mastery color, confidence ring opacity, priority badge), edges =
   dependencies.
-- Filters: "What I know", "What I think I know", "What I don't", "About to forget" —
+- Filters: "What I know", "What I think I know", "What I don't", "About to forget" -
   implemented as Framer Motion `layout` transitions that re-pack the visible subgraph.
 - Node side panel: full state (mastery, confidence, attempts, lastSeen, dependencies,
   review recommendation).
 - Completion animation: staggered cascade of node color fills (50ms/node, capped at
-  1.5s) when the diagnosis finishes — the product's hero moment.
+  1.5s) when the diagnosis finishes - the product's hero moment.
 - `TimelineEngine` from `brain.md` §8 (pure math, no LLM). Generates `ReviewPlan` +
   `ReviewSession`s grouped by day, ≤10 items each.
 - Timeline UI: daily view (Today / Upcoming), `ReviewItem` with reason ("decay",
@@ -317,7 +317,7 @@ schedule.
 2. Filters visually partition without overlap or clutter.
 3. Side panel opens on node click; keyboard arrow navigation works between nodes.
 4. After diagnosis, exactly one `ReviewSession` is scheduled within 24h.
-5. Missed reviews do not stack — intervals soften (no punitive doubling).
+5. Missed reviews do not stack - intervals soften (no punitive doubling).
 6. History view shows the last 10 sessions with correct confidence deltas.
 7. On `< md`, map degrades to list view gracefully; no horizontal scroll.
 
@@ -339,7 +339,7 @@ Phase 5 (knowledge state to visualize + schedule from).
 
 ---
 
-## Phase 7 — Polish, Accessibility, Animations, SEO, Performance, Testing, Docs
+## Phase 7 - Polish, Accessibility, Animations, SEO, Performance, Testing, Docs
 
 **Goal** Production-grade quality bar. The difference between "hackathon demo" and
 "real SaaS".
@@ -350,19 +350,19 @@ Phase 5 (knowledge state to visualize + schedule from).
   TalkBack pass on the diagnosis flow + map, full keyboard nav, `prefers-reduced-motion`
   honored everywhere, color-contrast audit on all states.
 - **Performance:** Lighthouse ≥90 (Performance + SEO + Accessibility) on Landing and
-  Workspace; bundle analysis (`@next/bundle-analyzer`) — react-flow code-split,
+  Workspace; bundle analysis (`@next/bundle-analyzer`) - react-flow code-split,
   no >200KB routes; LCP ≤2.5s on 4G slow.
 - **SEO:** per-locale sitemaps, `robots.txt`, OG image per route (dynamic
   `ImageResponse`), JSON-LD `SoftwareApplication` + `FAQPage`, canonical URLs, no
   duplicate-content between locales (`hreflang`).
-- **Animations:** final Framer Motion pass — remove any motion that doesn't earn its
+- **Animations:** final Framer Motion pass - remove any motion that doesn't earn its
   place; ensure every transition uses the tokens from `ui.md`.
 - **Testing:** Vitest unit tests for Brain math, parser adapters, scheduler; React
   Testing Library for the onboarding + diagnosis flows; Playwright E2E for
   the critical path (sign in → upload → diagnose → see map); a
   `pnpm test:live` task gated on env vars for real provider calls.
 - **Observability:** structured logs (`pino`-like via Vercel's logger), error tracking
-  (Sentry candidate — final choice in this phase), OpenTelemetry spans around Brain
+  (Sentry candidate - final choice in this phase), OpenTelemetry spans around Brain
   calls.
 - **Documentation:** `README.md` (setup, env, deploy), `CONTRIBUTING.md` (Conventional
   Commits, branch model), `AGENTS.md` (commands for AI tooling: `pnpm typecheck`,
@@ -382,7 +382,7 @@ Phase 5 (knowledge state to visualize + schedule from).
 4. `pnpm audit`: zero high/critical vulnerabilities, or documented exceptions.
 5. ADRs exist for: provider choice (Zen/Go), storage (Blob), SSE+fallback, IRT,
    Prisma+Neon.
-6. `AGENTS.md` lists the exact commands to typecheck/lint/test/build — so any future
+6. `AGENTS.md` lists the exact commands to typecheck/lint/test/build - so any future
    AI agent (or contributor) doesn't have to guess.
 7. Fresh-clone → `pnpm install && pnpm dev` works on port `3100` with no manual env
    beyond `.env.example` copied to `.env`.

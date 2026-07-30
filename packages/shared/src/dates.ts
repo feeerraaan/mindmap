@@ -1,6 +1,6 @@
 /**
  * Date utilities. All timezone-aware via the user's locale context (passed in).
- * We deliberately avoid `date-fns` in shared — a single dependency we don't need yet.
+ * We deliberately avoid `date-fns` in shared - a single dependency we don't need yet.
  */
 
 const MS_PER_DAY = 24 * 60 * 60 * 1000

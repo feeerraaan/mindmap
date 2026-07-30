@@ -6,7 +6,7 @@ export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
 
 /**
- * GET /api/jobs/[id] — status snapshot for the client poller.
+ * GET /api/jobs/[id] - status snapshot for the client poller.
  * Returns the most recent job for the document the user owns.
  */
 export async function GET(_req: Request, { params }: { params: Promise<{ id: string }> }) {

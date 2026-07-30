@@ -1,5 +1,5 @@
 /**
- * Exponential backoff with jitter. The default config is intentionally simple —
+ * Exponential backoff with jitter. The default config is intentionally simple -
  * we tune for hackathon-scale concurrency, not web-scale.
  */
 export interface RetryOptions {

@@ -1,13 +1,13 @@
 /**
- * Evaluation Engine — phase 5.
+ * Evaluation Engine - phase 5.
  *
  *   The signature experience. A `DiagnosisEngineState` is the in-memory
  *   representation of a live diagnosis session; the engine mutates it via
  *   the two pure-ish operations:
  *
- *     - {@link pickNextQuestion} — ask the LLM for a new question for
+ *     - {@link pickNextQuestion} - ask the LLM for a new question for
  *       the concept with the highest priority.
- *     - {@link submitAnswer} — score the user's answer with the LLM,
+ *     - {@link submitAnswer} - score the user's answer with the LLM,
  *       apply the Bayesian update, propagate to neighbors, and check
  *       the stopping rule.
  *
@@ -132,7 +132,7 @@ export interface BuildStateInput {
   documentId: string
   language: string
   concepts: Array<Concept & { dependencies?: ConceptDependency[] }>
-  /** Optional restored state — used when the user resumes mid-diagnosis. */
+  /** Optional restored state - used when the user resumes mid-diagnosis. */
   restored?: {
     states: Array<{
       conceptId: string
@@ -517,7 +517,7 @@ export async function askLearn(
  * Unlike the single-question path, this ignores allProbed/stagnant
  * stopping rules so the user gets the full question count.
  *
- * Questions are generated in parallel for speed — each concept is
+ * Questions are generated in parallel for speed - each concept is
  * pre-selected, then all LLM calls fire concurrently, and finally
  * state mutations are applied sequentially.
  */
@@ -741,18 +741,18 @@ export async function scoreAnswer(
       rationale: correct ? 'Correct option.' : 'Wrong option.',
       microFeedback: correct
         ? 'Yes, that is the one.'
-        : 'Not quite — we will come back to this one.',
+        : 'Not quite - we will come back to this one.',
     }
   } else if (answer.kind === 'IDONTKNOW') {
     direct = {
       correctness: 0,
       rationale: 'Learner indicated they do not know.',
-      microFeedback: 'Honest — that helps us know where to focus.',
+      microFeedback: 'Honest - that helps us know where to focus.',
     }
   } else if (answer.kind === 'SKIP') {
     direct = {
       correctness: cs.mastery,
-      rationale: 'Skipped — no signal on mastery, only a confidence drop.',
+      rationale: 'Skipped - no signal on mastery, only a confidence drop.',
       microFeedback: 'Skipped.',
     }
   } else if (answer.kind === 'OPEN' && pending.kind === 'HARD') {
@@ -856,7 +856,7 @@ export async function scoreAnswer(
 
 /** Whether the session should terminate now. */
 export function shouldStop(state: DiagnosisEngineState): boolean {
-  // Never stop during LEARN or PRACTICE phases — those are teaching phases.
+  // Never stop during LEARN or PRACTICE phases - those are teaching phases.
   if (state.phase === 'LEARN' || state.phase === 'PRACTICE') return false
 
   // In VERIFY phase, stop when all verified concepts are solid.
@@ -1116,7 +1116,7 @@ function propagateToNeighbors(
     if (e.to !== externalId) continue
     const cs = state.states.get(e.from)
     if (!cs) continue
-    // "from depends on to" — if the dependency improved, the dependant
+    // "from depends on to" - if the dependency improved, the dependant
     // probably knows too.
     const inferred = 0.3 * delta * e.weight
     if (Math.abs(inferred) < 1e-6) continue
@@ -1170,7 +1170,7 @@ function pushTurn(session: ActiveSession, turn: SessionTurn): void {
 
 function countClarificationsForQuestion(session: ActiveSession, _conceptId: string): number {
   // Conservative: count all clarifications seen so far. The simpler rule
-  // — cap at 1 per question — is enforced by the caller checking
+  // - cap at 1 per question - is enforced by the caller checking
   // `state.clarificationCount` against the per-session max instead.
   return session.turns.filter((t) => t.kind === 'clarification').length
 }

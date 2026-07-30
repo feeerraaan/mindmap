@@ -421,7 +421,7 @@ export function DiagnosisClient({
               {labels.confidence}
             </p>
             <p className="text-sm text-[var(--color-fg-muted)]">
-              {Math.round(globalConfidence * 100)}% — calm, not a grade.
+              {Math.round(globalConfidence * 100)}% - calm, not a grade.
             </p>
           </div>
         </div>

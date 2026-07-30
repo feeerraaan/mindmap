@@ -3,7 +3,7 @@
  *
  * Every LLM output in `reason.*` is validated against one of these before it
  * is persisted or used to update Bayesian state. The two diagnosis question
- * schemas — easy (MCQ) and hard (open) — share a base but diverge on the
+ * schemas - easy (MCQ) and hard (open) - share a base but diverge on the
  * answer format.
  */
 import { z } from 'zod'
@@ -59,7 +59,7 @@ export type LearnOutput = z.infer<typeof LearnSchema>
 export const AnswerKindSchema = z.enum(['MCQ', 'OPEN', 'IDONTKNOW', 'SKIP'])
 export type AnswerKind = z.infer<typeof AnswerKindSchema>
 
-/** A light validator for an incoming answer — used at the API boundary. */
+/** A light validator for an incoming answer - used at the API boundary. */
 export const AnswerInputSchema = z.discriminatedUnion('kind', [
   z.object({
     kind: z.literal('MCQ'),

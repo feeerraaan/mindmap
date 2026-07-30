@@ -1,5 +1,5 @@
 /**
- * MindMap worker — long-running process on the VPS that processes PARSE and
+ * MindMap worker - long-running process on the VPS that processes PARSE and
  * BUILD_GRAPH jobs. Run with tsx (e.g. `pnpm --filter . exec tsx scripts/worker.ts`).
  *
  * It replaces the in-process `after()` runner that the web app used to use.
@@ -30,7 +30,7 @@ let stopRequested = false
 async function readBytesFromBlob(blobKey: string): Promise<Uint8Array> {
   // blobKey is a Vercel Blob pathname (e.g. "documents/blob_xxx.pdf"). Use
   // the SDK to resolve it to the authoritative public URL (the subdomain
-  // pattern is not safe to construct by hand — it's the store id without
+  // pattern is not safe to construct by hand - it's the store id without
   // the "store_" prefix and lowercased), then download the file.
   const token = process.env.MINDMAPBLOB_READ_WRITE_TOKEN ?? process.env.BLOB_READ_WRITE_TOKEN
   if (!token) {

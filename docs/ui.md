@@ -1,4 +1,4 @@
-# MindMap — UI / Design System
+# MindMap - UI / Design System
 
 > Apple-inspired design system. Product-first, quiet UI, a single accent, and a single press gesture.
 
@@ -123,11 +123,11 @@ Apple's base unit is 8px. The MindMap app uses the existing 4px grid, so the two
 
 Apple's grammar:
 
-- `rounded-md` (11px) — utility buttons, inputs, segmented controls.
-- `rounded-lg` (18px) — cards, utility surfaces.
-- `rounded-full` (pill) — primary CTAs, secondary-pill CTAs, search inputs, chips.
-- `rounded-md` (8px) — small nav controls.
-- `rounded-none` — full-bleed tiles (not used in-app).
+- `rounded-md` (11px) - utility buttons, inputs, segmented controls.
+- `rounded-lg` (18px) - cards, utility surfaces.
+- `rounded-full` (pill) - primary CTAs, secondary-pill CTAs, search inputs, chips.
+- `rounded-md` (8px) - small nav controls.
+- `rounded-none` - full-bleed tiles (not used in-app).
 
 ---
 
@@ -141,12 +141,12 @@ Primary CTAs are **blue pills**:
 <Button size="md">Primary</Button>
 ```
 
-- `primary` — blue pill, white text, hover darker blue.
-- `secondary` — ghost pill, blue border, blue text.
-- `outline` — pearl capsule, hairline border, near-black text.
-- `ghost` — transparent, gray text, hover bg-muted.
-- `danger` — red pill.
-- `link` — Action Blue text.
+- `primary` - blue pill, white text, hover darker blue.
+- `secondary` - ghost pill, blue border, blue text.
+- `outline` - pearl capsule, hairline border, near-black text.
+- `ghost` - transparent, gray text, hover bg-muted.
+- `danger` - red pill.
+- `link` - Action Blue text.
 
 All buttons have `active:scale-95` as the system-wide press gesture.
 
@@ -212,7 +212,7 @@ All buttons have `active:scale-95` as the system-wide press gesture.
 
 - Visible focus ring: 2px `--color-primary-focus` outline, 2px offset.
 - Touch targets ≥ 44px (buttons are h-11).
-- Color is never the sole information carrier — mastery rings include numeric labels and node size.
+- Color is never the sole information carrier - mastery rings include numeric labels and node size.
 - `aria-live` regions for status updates.
 - Lang attribute set per locale.
 

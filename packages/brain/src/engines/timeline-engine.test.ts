@@ -28,7 +28,7 @@ function makeConcept(overrides: Partial<TimelineConceptInput> = {}): TimelineCon
 
 const NOW = new Date('2026-07-24T12:00:00Z')
 
-describe('Timeline engine — math', () => {
+describe('Timeline engine - math', () => {
   it('intervalDays increases with mastery', () => {
     const low = intervalDays({ mastery: 0.1, confidence: 0.5, lastDelta: 0, difficulty: 0.5 })
     const high = intervalDays({ mastery: 0.9, confidence: 0.5, lastDelta: 0, difficulty: 0.5 })
@@ -101,7 +101,7 @@ describe('Timeline engine — math', () => {
   })
 })
 
-describe('Timeline engine — scheduling', () => {
+describe('Timeline engine - scheduling', () => {
   it('schedules every concept with state into the horizon', () => {
     const out = scheduleReviews({
       documentId: 'doc-1',

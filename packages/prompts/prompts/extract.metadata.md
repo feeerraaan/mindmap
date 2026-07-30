@@ -27,7 +27,7 @@ Return ONLY JSON, no prose:
 ]
 }
 
-One entry per topic in the structure. The document language is {{language}} —
+One entry per topic in the structure. The document language is {{language}} -
 preserve any non-ASCII titles exactly.
 
 Structure (from a prior step):

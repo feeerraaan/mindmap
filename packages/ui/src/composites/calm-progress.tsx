@@ -2,7 +2,7 @@ import { type HTMLAttributes } from 'react'
 import { cn } from '../cn'
 
 /**
- * CalmProgress — a thin progress line. No percentage by default; we hide
+ * CalmProgress - a thin progress line. No percentage by default; we hide
  * numbers in the calm mode and let the line breathe.
  *
  * Pass `value` ∈ [0,1]. Pass `showLabel` to render a small tabular number.

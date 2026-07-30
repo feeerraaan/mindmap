@@ -1,5 +1,5 @@
 /**
- * Knowledge Engine — phase 4.
+ * Knowledge Engine - phase 4.
  *
  * Pipeline (from docs/brain.md §5):
  *   1. classify.language(text)            → doc.language
@@ -140,7 +140,7 @@ export async function buildGraph(
   if (concepts.length === 0) {
     return Err({
       kind: 'InvalidInput',
-      message: 'No topics extracted from document — extractor returned an empty outline.',
+      message: 'No topics extracted from document - extractor returned an empty outline.',
     })
   }
   // Truncate to MAX_CONCEPTS to keep the graph manageable.

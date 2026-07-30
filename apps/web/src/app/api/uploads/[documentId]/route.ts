@@ -15,7 +15,7 @@ const MAX_BYTES = 25 * 1024 * 1024
 /**
  * PUT /api/uploads/[documentId]
  * Receives the raw bytes for a previously initialized document. After the
- * bytes are persisted the route does NOT kick off parsing — the client
+ * bytes are persisted the route does NOT kick off parsing - the client
  * must call `finalizeUpload(documentId)` to enqueue the parse job. This
  * split lets us return 200 quickly and avoid the serverless timeout on
  * big uploads.

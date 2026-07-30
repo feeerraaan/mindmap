@@ -1,16 +1,16 @@
 /**
- * Memory — the Brain's short-term store for an active diagnosis session.
+ * Memory - the Brain's short-term store for an active diagnosis session.
  *
  *   Three responsibilities, intentionally tiny:
  *
- *     1. {@link turnWindow} — render the last N conversation turns as a
+ *     1. {@link turnWindow} - render the last N conversation turns as a
  *        string the prompt can consume, with older turns summarised into
  *        a single line. Keeps the prompt budget bounded.
- *     2. {@link remember} / {@link recall} — opaque per-user, per-concept
+ *     2. {@link remember} / {@link recall} - opaque per-user, per-concept
  *        key/value cache for hints the engine has learnt (e.g. "user is a
  *        visual learner, prefer MCQ over open-ended"). Used by the
  *        evaluation engine to bias question selection.
- *     3. {@link registerSession} / {@link getSession} — track active
+ *     3. {@link registerSession} / {@link getSession} - track active
  *        sessions in memory so the in-process engine can resume on the
  *        same Node process. A polling client hitting a different process
  *        would still get consistent state from the DB.
@@ -21,7 +21,7 @@
  */
 import type { AnswerInput, DiagnosisQuestion, Evaluation } from '../schemas/diagnosis'
 
-/** A single turn in the active session — written by the engine, not by
+/** A single turn in the active session - written by the engine, not by
  *  callers directly. */
 export interface SessionTurn {
   kind: 'question' | 'answer' | 'feedback' | 'clarification' | 'learn'
@@ -37,7 +37,7 @@ export interface SessionTurn {
   evaluation?: Evaluation
   /** Short micro-feedback string the user already saw. */
   microFeedback?: string
-  /** Free text — for clarifications, status messages, learn explanations. */
+  /** Free text - for clarifications, status messages, learn explanations. */
   text?: string
   /** Learn explanation text. */
   explanation?: string

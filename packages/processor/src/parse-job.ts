@@ -1,5 +1,5 @@
 /**
- * PARSE job — run by the VPS worker after an upload lands in storage.
+ * PARSE job - run by the VPS worker after an upload lands in storage.
  *
  * Pipeline:
  *   1. Mark Document as PARSING and the PARSE job as RUNNING.

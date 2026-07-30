@@ -10,7 +10,7 @@ export const maxDuration = 60
 export const dynamic = 'force-dynamic'
 
 /**
- * GET /api/diagnosis/[id]/next — SSE endpoint that streams a single
+ * GET /api/diagnosis/[id]/next - SSE endpoint that streams a single
  * "next question" event for an active session. After the first event
  * the stream closes; the client reconnects to fetch the next question
  * after submitting the previous answer.

@@ -3,7 +3,7 @@
  * environment, the brain routes every LLM call to a scripted mock that
  * returns calibrated canned responses for the diagnosis pipeline. This
  * lets the demo run end-to-end without spending real tokens, and it
- * keeps the engine code unchanged — the mock is provider-agnostic.
+ * keeps the engine code unchanged - the mock is provider-agnostic.
  *
  * Scripted responses:
  *   - `reason.diagnose.easy`  → a 4-option MCQ about the concept title

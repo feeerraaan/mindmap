@@ -104,7 +104,7 @@ export function KnowledgeMap({ data, labels, timelineHref }: KnowledgeMapProps) 
     return set
   }, [data, filter])
 
-  // Lay out: simple radial-ish — central nodes (most important) in the
+  // Lay out: simple radial-ish - central nodes (most important) in the
   // middle, dependencies around them. This is not optimal but stable
   // and works for the MVP cap of ~80 nodes.
   const { nodes, edges } = useMemo(() => {

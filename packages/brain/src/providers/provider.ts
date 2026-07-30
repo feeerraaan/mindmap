@@ -1,5 +1,5 @@
 /**
- * Provider adapter — the only abstraction the rest of the brain sees.
+ * Provider adapter - the only abstraction the rest of the brain sees.
  *
  * Each provider implements `chat`, returning a normalized result. Engines
  * never see OpenAI shapes; they see `{ text, tokensIn, tokensOut }`.

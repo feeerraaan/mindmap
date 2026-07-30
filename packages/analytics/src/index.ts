@@ -1,5 +1,5 @@
 /**
- * Analytics — typed event tracking.
+ * Analytics - typed event tracking.
  *
  * Phase 1 ships the no-op implementation; phase 7 swaps in PostHog or
  * Segment behind the same interface. Calls are fire-and-forget and never

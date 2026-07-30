@@ -1,10 +1,10 @@
 /**
- * Storage provider — abstracts where uploaded document bytes live.
+ * Storage provider - abstracts where uploaded document bytes live.
  *
  * Three implementations:
- *   - VpsStorage        (production — set MINDMAP_STORAGE_URL + MINDMAP_STORAGE_TOKEN)
- *   - VercelBlobStorage (alternative for Vercel — set BLOB_READ_WRITE_TOKEN)
- *   - LocalFsStorage    (dev / preview — set MINDMAP_LOCAL_BLOB_DIR)
+ *   - VpsStorage        (production - set MINDMAP_STORAGE_URL + MINDMAP_STORAGE_TOKEN)
+ *   - VercelBlobStorage (alternative for Vercel - set BLOB_READ_WRITE_TOKEN)
+ *   - LocalFsStorage    (dev / preview - set MINDMAP_LOCAL_BLOB_DIR)
  *
  * VpsStorage points at scripts/storage-server.mjs running on the VPS, so
  * document originals stay on our own disk instead of a third-party store.
@@ -45,9 +45,9 @@ export interface StorageProvider {
   get(key: string): Promise<Uint8Array>
   /** Stream for large reads; not used yet but part of the interface. */
   stream(key: string): NodeJS.ReadableStream
-  /** Remove the object for a key. Idempotent — missing keys are not an error. */
+  /** Remove the object for a key. Idempotent - missing keys are not an error. */
   delete(key: string): Promise<void>
-  /** Generate a key without persisting — used by the router. */
+  /** Generate a key without persisting - used by the router. */
   newKey(filename: string): string
 }
 

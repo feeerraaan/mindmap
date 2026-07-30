@@ -1,5 +1,5 @@
 /**
- * PPTX adapter — uses jszip to unpack the .pptx (a zip of XML) and extracts
+ * PPTX adapter - uses jszip to unpack the .pptx (a zip of XML) and extracts
  * slide text from `ppt/slides/slide*.xml`. Best-effort; some charts/tables
  * are intentionally skipped in MVP.
  */

@@ -1,9 +1,9 @@
 import { cn } from '../cn'
 
 /**
- * MasteryRing — circular progress ring with the mastery value.
+ * MasteryRing - circular progress ring with the mastery value.
  *
- * Color follows the mastery ramp from `ui.md` §4 — perceptually uniform,
+ * Color follows the mastery ramp from `ui.md` §4 - perceptually uniform,
  * color-blind safe. Confidence is implied by ring opacity.
  */
 export interface MasteryRingProps {

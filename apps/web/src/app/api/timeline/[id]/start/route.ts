@@ -9,7 +9,7 @@ export const dynamic = 'force-dynamic'
 const ParamsSchema = z.object({ id: z.string().min(1) })
 
 /**
- * POST /api/timeline/[id]/start — flip a `ReviewSession` to STARTED and
+ * POST /api/timeline/[id]/start - flip a `ReviewSession` to STARTED and
  * return the items the client should walk through. Idempotent: a
  * session already in STARTED returns the items.
  */

@@ -1,4 +1,4 @@
-# MindMap — Brain (AI Architecture)
+# MindMap - Brain (AI Architecture)
 
 > The single rule: **no code outside `packages/brain` may import an AI SDK or call an
 > LLM.** Everything AI flows through the Brain's typed public API.
@@ -79,7 +79,7 @@ provider (Anthropic, OpenAI direct, OpenRouter) = new file implementing `Provide
 
 - one row in `registry.ts`. No engine or prompt code changes.
 
-### Provider independence — why it matters
+### Provider independence - why it matters
 
 - A cheaper DeepSeek-tier model appearing next month is a config swap, not a rewrite.
 - A jurisdiction-specific provider (e.g. EU-hosted) can be added per-user via the
@@ -95,16 +95,16 @@ provider (Anthropic, OpenAI direct, OpenRouter) = new file implementing `Provide
 
 ```ts
 type TaskType =
-  | 'classify.language' // detect doc language — cheap
-  | 'classify.topic' // tag topic/chapter — cheap
-  | 'extract.structure' // chapters → topics → concepts — cheap
-  | 'extract.relationships' // DAG edges — cheap
-  | 'extract.metadata' // importance/difficulty priors — cheap
-  | 'reason.diagnose' // generate adaptive question — Pro
-  | 'reason.evaluate' // grade an open answer — Pro
-  | 'reason.clarify' // conversational clarification — Pro
-  | 'summarize.concept' // concept summary — cheap
-  | 'schedule.review' // compute next review date — local, no LLM
+  | 'classify.language' // detect doc language - cheap
+  | 'classify.topic' // tag topic/chapter - cheap
+  | 'extract.structure' // chapters → topics → concepts - cheap
+  | 'extract.relationships' // DAG edges - cheap
+  | 'extract.metadata' // importance/difficulty priors - cheap
+  | 'reason.diagnose' // generate adaptive question - Pro
+  | 'reason.evaluate' // grade an open answer - Pro
+  | 'reason.clarify' // conversational clarification - Pro
+  | 'summarize.concept' // concept summary - cheap
+  | 'schedule.review' // compute next review date - local, no LLM
 ```
 
 ### Router policy (default)
@@ -117,9 +117,9 @@ type TaskType =
 | `reason.diagnose`   | go             | deepseek-v4-flash | fast adaptive probing; zen fallback if go is unavailable   |
 | `reason.evaluate`   | go             | deepseek-v4-flash | correctness scoring                                        |
 | `reason.clarify`    | go             | deepseek-v4-flash | short, low-stakes                                          |
-| `schedule.review`   | — (local math) | —                 | no LLM call; pure function in `timeline-engine`            |
+| `schedule.review`   | - (local math) | -                 | no LLM call; pure function in `timeline-engine`            |
 
-The policy is **data, not code** — a `policy.ts` map. Adjusting which model handles a
+The policy is **data, not code** - a `policy.ts` map. Adjusting which model handles a
 task is a one-line edit.
 
 ### Selection algorithm
@@ -166,9 +166,9 @@ true mastery. ...
 ```
 
 - Loaded at boot by `packages/brain/prompts/loader.ts`.
-- Rendered with `mustache` (simple, safe — no arbitrary code).
+- Rendered with `mustache` (simple, safe - no arbitrary code).
 - **Versioned**: bumping `version` and keeping the old file lets us A/B prompts.
-- **Provider hints are non-binding** — the router may override.
+- **Provider hints are non-binding** - the router may override.
 
 ### Why prompts are not inlined in code
 
@@ -232,7 +232,7 @@ const KnowledgeGraph = z.object({
 
 ---
 
-## 6. Evaluation Engine — Adaptive Diagnosis
+## 6. Evaluation Engine - Adaptive Diagnosis
 
 This is the heart of MindMap. It must feel calm, fast, and _honest_.
 
@@ -240,15 +240,15 @@ This is the heart of MindMap. It must feel calm, fast, and _honest_.
 
 ```ts
 type ConceptState = {
-  mastery: number // [0,1]  — estimate of true mastery
-  confidence: number // [0,1]  — certainty about `mastery`
+  mastery: number // [0,1]  - estimate of true mastery
+  confidence: number // [0,1]  - certainty about `mastery`
   attempts: number
   correct: number
   lastSeen: Date | null
 }
 ```
 
-### Item Response Theory (IRT 1PL — Rasch model)
+### Item Response Theory (IRT 1PL - Rasch model)
 
 For each generated question we estimate a difficulty `b ∈ [-3, +3]`. The probability a
 user with mastery `θ` (mapped from `[0,1]` to `[-3,+3]`) answers correctly is:
@@ -269,7 +269,7 @@ mastery ← posterior mean
 confidence ← 1 / (1 + posterior_variance)  // higher variance → lower confidence
 ```
 
-We implement this with a discretized grid (20 points) for speed — no external math lib.
+We implement this with a discretized grid (20 points) for speed - no external math lib.
 Tests cover the update in `evaluation-engine.test.ts`.
 
 ### Next-question selection (Maximum Information)
@@ -304,7 +304,7 @@ for D in dependencies(C):  // C depends on D → if C improved, D probably knew 
   D.confidence -= 0.1                       // we inferred, not measured
 ```
 
-Capped at `[0,1]`. This is intentionally simple — it's a prior, not a measurement.
+Capped at `[0,1]`. This is intentionally simple - it's a prior, not a measurement.
 
 ### "I don't know" / "Skip"
 
@@ -313,14 +313,14 @@ Both produce `c = 0` but with **different confidence penalties**:
 - "I don't know" → honest signal, `confidence += 0.1` (we learned something real)
 - "Skip" → no signal, `confidence -= 0.05` (we're more uncertain, not less)
 
-This rewards honesty — a key `vision.md` principle.
+This rewards honesty - a key `vision.md` principle.
 
 ---
 
 ## 7. Conversation Engine
 
 For ambiguous answers (correctness in `[0.3, 0.7]`), the engine may trigger a
-**clarification turn** — a short Socratic prompt ("What did you mean by X?") that
+**clarification turn** - a short Socratic prompt ("What did you mean by X?") that
 resolves to a `correctness` update. Bounded to **1 clarification per question**, max 3
 per session, to avoid fatigue.
 
@@ -357,7 +357,7 @@ Outputs a `dueAt` per `ConceptState`. `scheduleReviews(userId, documentId)` buil
 
 Every review re-runs the evaluation engine in a constrained mode (only probed concepts,
 no new concept discovery) and updates `ConceptState`. The next `interval` is computed
-from the _new_ state — so a concept that's been forgotten gets shorter intervals, and
+from the _new_ state - so a concept that's been forgotten gets shorter intervals, and
 one that's solidified gets longer ones.
 
 ---
@@ -374,7 +374,7 @@ a single `sessionSummary` string to keep token cost bounded.
 
 - Persisted in `ConversationTurn` (full transcript) and `ConceptState` (distilled).
 - The Brain's `memory.recall(userId, conceptId)` returns the relevant prior state.
-- We do **not** feed entire history into prompts — that's an unmaintainable cost curve.
+- We do **not** feed entire history into prompts - that's an unmaintainable cost curve.
   Only the relevant concept's state + recent turns.
 
 ---
@@ -406,8 +406,8 @@ a single `sessionSummary` string to keep token cost bounded.
   thing about X" not "Question 3 of 12".
 - No progress count is shown mid-diagnosis (only the calm progress ring). Counting
   questions makes users rush.
-- After each answer, a 1-line micro-feedback: "Yes, that's solid" / "Hmm, not quite —
-  let's come back to this" — never verbose.
+- After each answer, a 1-line micro-feedback: "Yes, that's solid" / "Hmm, not quite -
+  let's come back to this" - never verbose.
 - On completion, the Knowledge Map animates from grayscale to colored as mastery fills
   in. This is the _moment_ the product sells itself.
 
@@ -415,7 +415,7 @@ a single `sessionSummary` string to keep token cost bounded.
 
 ## 12. Observability
 
-- Every `ConversationTurn` records `provider`, `model`, `tokensIn`, `tokensOut` — this
+- Every `ConversationTurn` records `provider`, `model`, `tokensIn`, `tokensOut` - this
   is our cost ledger.
 - `BrainError` is a discriminated union: `RateLimited | SchemaFailure | ProviderError |
 BudgetExceeded`. Each maps to a specific calm UX state, never a stack trace.

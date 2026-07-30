@@ -28,7 +28,7 @@ Rules:
 - Use the document's language for every string. The text is in
   {{language}}.
 
-Schema (illustrative — keys are required):
+Schema (illustrative - keys are required):
 
 {
 "chapters": [

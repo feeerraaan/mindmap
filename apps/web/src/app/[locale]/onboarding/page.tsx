@@ -14,7 +14,7 @@ export default async function OnboardingPage({ params }: { params: Promise<{ loc
   const user = await getCurrentUser()
   if (!user) redirect(`/${locale}/sign-in?callbackPath=/${locale}/onboarding`)
 
-  // If the user already has a Mind, send them home — onboarding is a one-time moment.
+  // If the user already has a Mind, send them home - onboarding is a one-time moment.
   const existing = await prisma.workspace.findFirst({
     where: { ownerId: user.id },
     select: { id: true },

@@ -8,7 +8,7 @@ export const maxDuration = 60
 export const dynamic = 'force-dynamic'
 
 /**
- * POST /api/diagnosis/[id]/clarify — apply the user's follow-up text
+ * POST /api/diagnosis/[id]/clarify - apply the user's follow-up text
  * to a pending Socratic clarification, re-score the original question,
  * and return the new micro-feedback.
  */

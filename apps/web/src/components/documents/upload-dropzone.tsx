@@ -270,6 +270,6 @@ function phaseLabel(phase: Phase, labels: UploadDropzoneProps['labels']): string
     case 'ready':
       return labels.ready
     case 'error':
-      return '—'
+      return '-'
   }
 }

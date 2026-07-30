@@ -41,7 +41,7 @@
         },
         "2": {
           "title": "Diagnostica",
-          "body": "Una conversación corta y adaptativa que explora lo que sabes — y lo que solo crees saber."
+          "body": "Una conversación corta y adaptativa que explora lo que sabes - y lo que solo crees saber."
         },
         "3": {
           "title": "Mapea",
@@ -88,7 +88,7 @@
     "subtitle": "Tres pasos pequeños. Sin formularios. Sin fricción.",
     "step1": {
       "title": "¿Qué estás estudiando?",
-      "subtitle": "Elige lo que mejor encaje — puedes cambiarlo después.",
+      "subtitle": "Elige lo que mejor encaje - puedes cambiarlo después.",
       "options": {
         "medicine": "Medicina / salud",
         "law": "Derecho / oposición",
@@ -107,7 +107,7 @@
     },
     "step3": {
       "title": "Nombra tu Mente",
-      "subtitle": "Puedes tener tantas como quieras — una por tema.",
+      "subtitle": "Puedes tener tantas como quieras - una por tema.",
       "placeholder": "p. ej. Cardiología Q1",
       "examDate": "Fecha del examen (opcional)",
       "examDatePlaceholder": "Elige la fecha del examen",
@@ -151,7 +151,7 @@
       "title": "Tu Mente está vacía.",
       "description": "Suelta un PDF, una presentación o un documento para empezar un diagnóstico.",
       "upload": "Subir un documento",
-      "uploadHint": "PDF, PPTX o DOCX — hasta 25 MB."
+      "uploadHint": "PDF, PPTX o DOCX - hasta 25 MB."
     }
   },
   "nav": {
@@ -191,7 +191,7 @@
   "upload": {
     "title": "Añadir un documento",
     "dropTitle": "Suelta un documento aquí",
-    "dropBody": "o haz clic para examinar — PDF, PPTX o DOCX hasta 25 MB.",
+    "dropBody": "o haz clic para examinar - PDF, PPTX o DOCX hasta 25 MB.",
     "cancel": "Cancelar",
     "retry": "Reintentar",
     "done": "Listo",

@@ -6,7 +6,7 @@ export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
 
 /**
- * GET /api/documents/[id]/status — used by the workspace list poller.
+ * GET /api/documents/[id]/status - used by the workspace list poller.
  * Returns the document's current status, an inferred progress in [0,1], and
  * the concept count once the graph is built.
  */

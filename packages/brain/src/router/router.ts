@@ -1,5 +1,5 @@
 /**
- * Router — picks a (provider, model) for a given task + user, respects the
+ * Router - picks a (provider, model) for a given task + user, respects the
  * token bucket and the daily budget. On a hard provider error, falls through
  * to the next candidate so a misconfigured primary endpoint does not block work.
  */
@@ -90,7 +90,7 @@ export function isCandidateBad(provider: ProviderId, model: string): boolean {
  *  for that provider. */
 export function isProviderBad(provider: ProviderId): boolean {
   // For each candidate slot that uses this provider, see if all models
-  // are bad. (We don't keep a full reverse index — so this is only
+  // are bad. (We don't keep a full reverse index - so this is only
   // cheap for the common case where one model is bad.)
   for (const key of badCandidates) {
     if (key.startsWith(`${provider}::`)) return true

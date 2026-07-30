@@ -1,4 +1,4 @@
-# MindMap — Database Design
+# MindMap - Database Design
 
 > Prisma schema proposal. Tables use `snake_case` (plural). Prisma models use
 > `PascalCase` (singular). All AI-derived data is parsed into typed columns, never
@@ -177,8 +177,8 @@ model Concept {
   externalId   String   // stable id assigned by the Brain (e.g. "c-12")
   title        String
   summary      String
-  importance   Float    // [0,1] — estimated by Brain
-  difficulty   Float    // [0,1] — estimated by Brain
+  importance   Float    // [0,1] - estimated by Brain
+  difficulty   Float    // [0,1] - estimated by Brain
   chapter      String?
   topic        String?
   createdAt    DateTime @default(now())
@@ -215,7 +215,7 @@ model ConceptState {
   conceptId    String
   userId       String
   mastery      Float    @default(0.0)   // [0,1] IRT-updated
-  confidence   Float    @default(0.0)   // [0,1] — model's certainty about `mastery`
+  confidence   Float    @default(0.0)   // [0,1] - model's certainty about `mastery`
   attempts     Int      @default(0)
   correct      Int      @default(0)
   lastSeen     DateTime?
@@ -232,7 +232,7 @@ model ConceptState {
 }
 
 // ───────────────────────────────────────────────────────────────────
-// Jobs (parse / diagnose / schedule) — persisted queue
+// Jobs (parse / diagnose / schedule) - persisted queue
 // ───────────────────────────────────────────────────────────────────
 
 model Job {
@@ -304,7 +304,7 @@ model ConversationTurn {
   content      String
   tokensIn     Int?
   tokensOut    Int?
-  provider     String?  // "zen" | "go" | etc — for cost analytics
+  provider     String?  // "zen" | "go" | etc - for cost analytics
   model        String?  // "deepseek-v4-flash" etc
   createdAt    DateTime @default(now())
 
@@ -424,10 +424,10 @@ model AuditEvent {
 - All foreign keys get an index (Prisma does this automatically for scalar FKs; we add
   explicit `@@index` for the hot query patterns).
 - **Hot queries:**
-  - `Document` by `(workspaceId, status)` — Workspace list polling
-  - `Job` by `(status, createdAt)` — worker poller (queued jobs)
-  - `ConceptState` by `(userId, dueAt)` — "what's due today"
-  - `ReviewSession` by `(userId, scheduledFor)` — timeline view
+  - `Document` by `(workspaceId, status)` - Workspace list polling
+  - `Job` by `(status, createdAt)` - worker poller (queued jobs)
+  - `ConceptState` by `(userId, dueAt)` - "what's due today"
+  - `ReviewSession` by `(userId, scheduledFor)` - timeline view
 - **Future search:** `pg_trgm` GIN index on `Concept.title` and `Concept.summary` for
   fuzzy concept search inside a Mind. Not added in MVP to keep migration light.
 
@@ -437,9 +437,9 @@ model AuditEvent {
 
 1. **ConceptDependency is acyclic.** Validated in `packages/brain` before insert; a DB
    trigger could enforce but we keep it in code for hackathon simplicity.
-2. **`Concept.externalId` is unique per document**, not globally — allows the Brain to
+2. **`Concept.externalId` is unique per document**, not globally - allows the Brain to
    emit `c-1, c-2…` per doc.
-3. **`ConceptState` is unique per `(conceptId, userId)`** — a concept can be probed by
+3. **`ConceptState` is unique per `(conceptId, userId)`** - a concept can be probed by
    many users (Horizon 2) without collision.
 4. **Soft delete:** `User.deletedAt` cascades logically (queries filter `deletedAt IS
 NULL`). Physical delete is a separate GDPR job (phase 7).
@@ -448,7 +448,7 @@ NULL`). Physical delete is a separate GDPR job (phase 7).
 
 ## 5. Migrations Strategy
 
-- **Production / main:** `prisma migrate deploy` — every change is a reviewed migration
+- **Production / main:** `prisma migrate deploy` - every change is a reviewed migration
   file checked into `packages/database/prisma/migrations`.
 - **Preview deploys:** `prisma db push` against the Neon branch (no migration history
   pollution; branches are ephemeral).
@@ -465,7 +465,7 @@ NULL`). Physical delete is a separate GDPR job (phase 7).
 | Million+ `ConceptState` rows  | Partition by `userId` (Neon supports declarative partitioning) once we cross 100k users    |
 | `pgvector` embeddings for RAG | Already declared in `DocumentChunk.embedding`; populate post-MVP via background job        |
 | Audit table bloat             | Move to cold storage (S3 / BigQuery) after 90 days, summarized into daily counts           |
-| Multi-region reads            | Neon read replicas in `eu-west-1` and `us-east-1` — DNS-routed via Vercel Edge             |
+| Multi-region reads            | Neon read replicas in `eu-west-1` and `us-east-1` - DNS-routed via Vercel Edge             |
 | Cross-workspace concept dedup | Add `ConceptFingerprint` table (SimHash of title+summary) to merge duplicates in Horizon 2 |
 
 ---

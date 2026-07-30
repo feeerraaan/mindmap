@@ -1,5 +1,5 @@
 /**
- * Router policy — single fast path for all users.
+ * Router policy - single fast path for all users.
  *
  * Primary: deepseek-v4-flash on Go.
  * Fallback: ling-3.0-flash-free on Zen.

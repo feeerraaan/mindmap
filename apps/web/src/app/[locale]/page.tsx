@@ -17,7 +17,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
 
   return (
     <div>
-      {/* Hero — white tile */}
+      {/* Hero - white tile */}
       <section className="flex flex-col items-center gap-6 bg-[var(--color-bg)] px-6 py-16 text-center md:py-20">
         <h1 className="text-display md:text-hero max-w-3xl font-semibold tracking-[-0.0175rem] text-balance text-[var(--color-fg)]">
           {t('hero.title')}
@@ -37,7 +37,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
         </div>
       </section>
 
-      {/* How it works — parchment tile */}
+      {/* How it works - parchment tile */}
       <section id="how-it-works" className="bg-[var(--color-bg-muted)] px-6 py-16 md:py-20">
         <div className="mx-auto max-w-5xl">
           <h2 className="text-headline mb-12 text-center font-semibold tracking-[-0.023em] text-[var(--color-fg)]">
@@ -67,7 +67,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
         </div>
       </section>
 
-      {/* Principles — white tile */}
+      {/* Principles - white tile */}
       <section className="bg-[var(--color-bg)] px-6 py-16 md:py-20">
         <div className="mx-auto max-w-3xl">
           <h2 className="text-headline mb-12 text-center font-semibold tracking-[-0.023em] text-[var(--color-fg)]">

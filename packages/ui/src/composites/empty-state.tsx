@@ -2,7 +2,7 @@ import { type ReactNode } from 'react'
 import { cn } from '../cn'
 
 /**
- * EmptyState — calm, single-affordance empty surfaces.
+ * EmptyState - calm, single-affordance empty surfaces.
  *
  * - A small geometric mark in --color-fg-subtle.
  * - One sentence describing what *will* be here.

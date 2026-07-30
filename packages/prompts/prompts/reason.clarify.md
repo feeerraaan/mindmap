@@ -33,7 +33,7 @@ Rules:
 
 - The clarification is a single, short, open-ended question. ≤120 chars.
 - It should focus on the **specific** part of their answer that the
-  evaluator was unsure about — do not re-ask the whole thing.
+  evaluator was unsure about - do not re-ask the whole thing.
 - Calm tone. Never repeat their answer back to them in a way that sounds
   corrective. We are clarifying, not grading.
 - `microFeedback` is the sentence the user sees alongside the

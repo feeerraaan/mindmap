@@ -1,5 +1,5 @@
 /**
- * DOCX adapter — uses mammoth for raw-text extraction.
+ * DOCX adapter - uses mammoth for raw-text extraction.
  */
 import { Err, Ok, type Result } from '@mindmap/shared'
 import type { ParsedDocument } from '@mindmap/types'

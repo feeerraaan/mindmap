@@ -1,5 +1,5 @@
 /**
- * Parser package — public API.
+ * Parser package - public API.
  *
  * `parseDocument(input)` is the single entry point. It dispatches to a
  * registered `ParserAdapter` based on the MIME type. Adapters live in

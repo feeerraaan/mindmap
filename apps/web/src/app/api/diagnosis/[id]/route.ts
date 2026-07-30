@@ -6,7 +6,7 @@ export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
 
 /**
- * GET /api/diagnosis/[id] — polling fallback. Returns the session
+ * GET /api/diagnosis/[id] - polling fallback. Returns the session
  * snapshot including any pending question, the global confidence, the
  * question cap, and a `finished` flag.
  *

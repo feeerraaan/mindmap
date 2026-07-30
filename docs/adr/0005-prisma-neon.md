@@ -26,9 +26,9 @@ Use Prisma ORM with Neon Postgres as the database.
 ## Rationale
 
 - Prisma provides type-safe database access with auto-generated TypeScript types from the schema.
-- Neon's branching model maps perfectly to Vercel's preview deploy model — each PR gets its own database branch.
-- Postgres supports JSONB for feature flags, `pg_trgm` for search, and `pgvector` for future RAG — all in one database.
-- Prisma's `db push` is ideal for preview deploys — it syncs the schema without creating migration files.
+- Neon's branching model maps perfectly to Vercel's preview deploy model - each PR gets its own database branch.
+- Postgres supports JSONB for feature flags, `pg_trgm` for search, and `pgvector` for future RAG - all in one database.
+- Prisma's `db push` is ideal for preview deploys - it syncs the schema without creating migration files.
 - The `@prisma/client` package handles connection pooling, query optimization, and type generation automatically.
 
 ## Alternatives considered
@@ -45,4 +45,4 @@ Use Prisma ORM with Neon Postgres as the database.
 - `pnpm db:generate` must run after any schema change to regenerate the Prisma client.
 - The dev server must be restarted after schema changes (Turbopack caches the Prisma client).
 - Preview deploys use `prisma db push` (no migration history pollution); production uses `prisma migrate deploy`.
-- All database writes are validated by Zod schemas at the application boundary — Prisma is not the validation layer.
+- All database writes are validated by Zod schemas at the application boundary - Prisma is not the validation layer.

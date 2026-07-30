@@ -79,7 +79,7 @@ function makeMockProvider(): ReturnType<typeof mockProvider> {
     available: true,
     defaultText: '',
     script: [
-      // Diagnose (EASY) — 4-option MCQ. The prompt body says "EASY template".
+      // Diagnose (EASY) - 4-option MCQ. The prompt body says "EASY template".
       {
         match: 'EASY template',
         sticky: true,
@@ -93,7 +93,7 @@ function makeMockProvider(): ReturnType<typeof mockProvider> {
         tokensIn: 200,
         tokensOut: 60,
       },
-      // Diagnose (HARD) — open-ended. The prompt body says "HARD template".
+      // Diagnose (HARD) - open-ended. The prompt body says "HARD template".
       {
         match: 'HARD template',
         sticky: true,
@@ -171,7 +171,7 @@ describe('Evaluation engine', () => {
     const pick = pickNextConcept(s)
     assert.ok(pick)
     // A has higher importance, B is mostly confident, C is hard and not yet known.
-    // We don't pin a specific concept — we just assert that *some* concept
+    // We don't pin a specific concept - we just assert that *some* concept
     // is picked and that the score is positive.
     assert.ok(pick.concept.externalId.length > 0)
   })
@@ -301,7 +301,7 @@ describe('Evaluation engine', () => {
   })
 
   it('neighbor propagation: answering C wrong also nudges A (its dependency)', async () => {
-    // Use a non-trivial prior so the density is peaked, not uniform —
+    // Use a non-trivial prior so the density is peaked, not uniform -
     // the propagation deltas are visible only against a peaked prior.
     const restored = {
       states: CONCEPTS.map((c) => ({

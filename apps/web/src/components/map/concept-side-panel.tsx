@@ -109,8 +109,8 @@ export function ConceptSidePanel({
         <Stat label="Confidence" value={`${Math.round(node.confidence * 100)}%`} />
         <Stat label={labels.attempts} value={String(node.attempts)} />
         <Stat label={labels.correct} value={String(node.correct)} />
-        <Stat label={labels.lastSeen} value={formatRelative(node.lastSeen, '—')} />
-        <Stat label={labels.due} value={formatRelative(node.dueAt, '—')} />
+        <Stat label={labels.lastSeen} value={formatRelative(node.lastSeen, '-')} />
+        <Stat label={labels.due} value={formatRelative(node.dueAt, '-')} />
       </dl>
 
       <p className="text-sm leading-relaxed text-[var(--color-fg-muted)]">{node.summary}</p>

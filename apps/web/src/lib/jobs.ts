@@ -1,9 +1,9 @@
 /**
- * JobRunner — narrow interface for persisting a job row.
+ * JobRunner - narrow interface for persisting a job row.
  *
  * The web app used to run jobs in-process with Next 16's `after()`. That
  * required the parser, the LLM, and `pdftotext` to be available inside
- * the Vercel serverless function — they aren't. Parsing and graph
+ * the Vercel serverless function - they aren't. Parsing and graph
  * building now run on the VPS worker (scripts/worker.ts), which polls
  * this same Postgres `Job` table. The web side just inserts a QUEUED
  * row and returns; the worker picks it up, processes it, and chains a

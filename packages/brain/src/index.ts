@@ -1,5 +1,5 @@
 /**
- * Brain — public API.
+ * Brain - public API.
  *
  * The only package that may import an AI SDK or call any LLM endpoint.
  * Other packages and apps consume `Brain.knowledge.buildGraph()` and friends
@@ -213,8 +213,8 @@ export const Brain = {
     },
     /**
      * Score the user's answer. Returns the updated state, the
-     * evaluation, the per-question micro-feedback, and — when the
-     * engine stopped — the reason.
+     * evaluation, the per-question micro-feedback, and - when the
+     * engine stopped - the reason.
      */
     async score(
       state: DiagnosisEngineState,
@@ -291,7 +291,7 @@ export const Brain = {
     /**
      * Build (or rebuild) a `ReviewPlan` for a document, given the user's
      * current `ConceptState` rows. Pure: returns the shape; the caller
-     * persists it. The engine is local math — no LLM.
+     * persists it. The engine is local math - no LLM.
      */
     scheduleReviews(input: {
       documentId: string

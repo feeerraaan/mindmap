@@ -2,7 +2,7 @@ import { type HTMLAttributes } from 'react'
 import { cn } from '../cn'
 
 /**
- * Skeleton — a calm placeholder for loading content.
+ * Skeleton - a calm placeholder for loading content.
  * Uses a soft gradient pulse rather than a harsh shimmer.
  */
 export function Skeleton({ className, ...rest }: HTMLAttributes<HTMLDivElement>) {

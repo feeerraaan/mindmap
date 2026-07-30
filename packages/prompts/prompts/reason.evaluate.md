@@ -42,11 +42,11 @@ Rules:
   signal used by the engine to update the Bayesian state.
 - `rationale` is a 1–2 sentence plain explanation. No emojis, no judgment.
 - `microFeedback` is the single sentence the user sees. Calm, short,
-  honest. Examples: "Yes, that's solid." / "Close — the part about X is
-  right, but Y is the other half." / "Hmm, not quite — we'll come back to
+  honest. Examples: "Yes, that's solid." / "Close - the part about X is
+  right, but Y is the other half." / "Hmm, not quite - we'll come back to
   this one." Match it to the correctness band.
 - Be calibrated. Most learner answers that "look like an answer" sit in
-  0.3..0.7 — do not be afraid to use the middle of the scale.
+  0.3..0.7 - do not be afraid to use the middle of the scale.
 - Do NOT include any text outside the JSON. No prose, no markdown fences.
 
 Schema:

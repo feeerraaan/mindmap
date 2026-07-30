@@ -1,10 +1,10 @@
 /**
- * Token bucket — simple, in-memory, per (provider, user). Capacity is the
+ * Token bucket - simple, in-memory, per (provider, user). Capacity is the
  * burst; refill is steady. Used by the router to avoid hammering a provider
  * past a sane per-user rate.
  *
  * Production note: in MVP this lives in the Node process, so it is per-Vercel
- * instance, not global. That is good enough for the hackathon — the global
+ * instance, not global. That is good enough for the hackathon - the global
  * ceiling is enforced by the provider's own quota. In phase 8 we can swap
  * in Upstash without touching call sites.
  */

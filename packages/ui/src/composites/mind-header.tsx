@@ -2,7 +2,7 @@ import { type ReactNode } from 'react'
 import { cn } from '../cn'
 
 /**
- * MindHeader — the page header for a Workspace ("Mind").
+ * MindHeader - the page header for a Workspace ("Mind").
  *
  * Shows the workspace name + optional emoji and slots for actions on the right.
  */

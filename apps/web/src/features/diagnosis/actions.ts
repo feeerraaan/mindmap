@@ -10,7 +10,7 @@
  * Boundaries:
  *   - This file is allowed to read the database.
  *   - It calls `Brain.evaluation.*` and `Brain.conversation.*` for the
- *     actual LLM work — it never calls a provider directly.
+ *     actual LLM work - it never calls a provider directly.
  *   - It does not touch the SSE / Route Handlers layer; those live in
  *     `apps/web/src/app/api/diagnosis/`.
  */
@@ -751,7 +751,7 @@ export async function getNextQuestion(input: { sessionId: string; userId: string
     })
   }
 
-  // No existing question — generate one just-in-time.
+  // No existing question - generate one just-in-time.
   const [concepts, prior, doc] = await Promise.all([
     loadConceptsForDocument(session.documentId),
     loadConceptStatesForUser(input.userId, session.documentId),

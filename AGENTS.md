@@ -71,7 +71,7 @@ packages/config    ──► { }                 (leaf)
 
 - Web dev server: **3100** (avoiding 3000 which is occupied on this machine).
 - VPS storage service (`scripts/storage-server.mjs`, pm2 `mindmap-storage`): **3200**,
-  loopback only — nginx exposes it as `https://storage.azpy.es`.
+  loopback only - nginx exposes it as `https://storage.azpy.es`.
 - Prisma Studio: 5555 (default).
 
 ## Uploads storage
@@ -80,7 +80,7 @@ packages/config    ──► { }                 (leaf)
 
 1. `MINDMAP_STORAGE_URL` + `MINDMAP_STORAGE_TOKEN` → VPS storage (production).
 2. `BLOB_READ_WRITE_TOKEN` → Vercel Blob.
-3. Otherwise local FS under `MINDMAP_LOCAL_BLOB_DIR` (dev only — throws on Vercel).
+3. Otherwise local FS under `MINDMAP_LOCAL_BLOB_DIR` (dev only - throws on Vercel).
 
 ## Environment
 
@@ -96,7 +96,7 @@ packages/config    ──► { }                 (leaf)
 This includes `openai`, `@ai-sdk/openai`, `@ai-sdk/openai-compatible`, `anthropic-sdk`,
 or any `fetch` directly to `OPENCODE_*_BASE_URL`. Violations fail `pnpm lint`.
 
-## Phase 7 — Polish, Accessibility, SEO, Testing, Docs
+## Phase 7 - Polish, Accessibility, SEO, Testing, Docs
 
 Phase 7 adds production-grade quality:
 

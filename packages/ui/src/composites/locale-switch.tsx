@@ -2,7 +2,7 @@ import { type Locale as LocaleT } from '@mindmap/types'
 import { cn } from '../cn'
 
 /**
- * LocaleSwitch — segmented EN/ES control. Visual only; the parent
+ * LocaleSwitch - segmented EN/ES control. Visual only; the parent
  * decides what `onChange` does (cookie, server action, etc).
  */
 export interface LocaleSwitchProps {

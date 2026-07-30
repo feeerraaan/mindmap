@@ -6,7 +6,7 @@ export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
 
 /**
- * POST /api/timeline/schedule — rebuild the ReviewPlan for a document.
+ * POST /api/timeline/schedule - rebuild the ReviewPlan for a document.
  * The diagnosis finaliser calls this; clients may also call it after
  * the document's been edited or after a long absence.
  */

@@ -46,7 +46,7 @@ Rules:
   - Use ±2..3 only if their confidence is high and you want to confirm mastery.
 - `correctIndex` is the 0-based index of the right answer in `options`.
 - `microFeedback` is a single calm sentence the user sees AFTER they
-  answer ("Yes, that's solid." / "Not quite — we'll come back to this one.").
+  answer ("Yes, that's solid." / "Not quite - we'll come back to this one.").
   Write it generically now; it will be replaced if their answer was correct.
 - Do NOT include any text outside the JSON. No prose, no markdown fences.
 

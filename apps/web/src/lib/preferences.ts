@@ -1,5 +1,5 @@
 /**
- * User preferences — locale and theme — stored in cookies so the first paint
+ * User preferences - locale and theme - stored in cookies so the first paint
  * is correct (no flash). The DB User record is the source of truth at sign-in
  * time; cookies keep the SSR/CSR view consistent between sessions.
  */
@@ -49,7 +49,7 @@ export async function setThemeCookie(theme: 'light' | 'dark' | 'system'): Promis
 
 /**
  * Narrow a raw `string` (from `params.locale`) to our typed locale.
- * Falls back to the default if the value is unexpected — Next.js only
+ * Falls back to the default if the value is unexpected - Next.js only
  * matches our route for known locales, so this is a belt-and-braces cast.
  */
 export function asLocale(value: string | undefined): Locale {

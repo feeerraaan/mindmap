@@ -1,5 +1,5 @@
 /**
- * `cn` — class name combiner. A tiny version of shadcn's helper that takes
+ * `cn` - class name combiner. A tiny version of shadcn's helper that takes
  * the inputs we use: strings, falsy, and `{ [class]: boolean }` maps.
  *
  * Why a re-implementation? Because `clsx`/`tailwind-merge` belong to packages/ui

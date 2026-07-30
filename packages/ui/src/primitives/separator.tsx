@@ -2,7 +2,7 @@ import { type HTMLAttributes } from 'react'
 import { cn } from '../cn'
 
 /**
- * Separator — a thin line. Use `orientation="vertical"` for sidebars.
+ * Separator - a thin line. Use `orientation="vertical"` for sidebars.
  */
 export function Separator({
   className,

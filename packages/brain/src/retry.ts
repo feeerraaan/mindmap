@@ -1,9 +1,9 @@
 /**
  * Retry helpers. Two layers:
  *
- *  1. `withBackoff(fn)` — generic exponential backoff with jitter, used for
+ *  1. `withBackoff(fn)` - generic exponential backoff with jitter, used for
  *     transient provider errors.
- *  2. `withSchemaRepair({ call, schema, task, maxRetries })` — runs an LLM
+ *  2. `withSchemaRepair({ call, schema, task, maxRetries })` - runs an LLM
  *     call, validates the JSON output against a Zod schema, and on
  *     validation failure retries with a corrective message. Up to 2
  *     retries, then returns a `SchemaFailure` BrainError.

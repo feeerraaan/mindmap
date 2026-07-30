@@ -8,7 +8,7 @@ export const maxDuration = 60
 export const dynamic = 'force-dynamic'
 
 /**
- * POST /api/diagnosis/[id]/answer — submit the user's answer to the
+ * POST /api/diagnosis/[id]/answer - submit the user's answer to the
  * current pending question. Returns:
  *   - the micro-feedback (one calm sentence)
  *   - whether the session is finished

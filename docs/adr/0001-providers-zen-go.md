@@ -1,4 +1,4 @@
-# ADR 0001 — Provider choice: OpenCode ZEN & GO
+# ADR 0001 - Provider choice: OpenCode ZEN & GO
 
 ## Status
 
@@ -8,10 +8,10 @@ Accepted (2026-07-23).
 
 MindMap needs:
 
-- A **cheap, fast** model for classification, extraction, metadata, parsing — the
+- A **cheap, fast** model for classification, extraction, metadata, parsing - the
   bulk of the AI spend.
 - A **powerful reasoning** model for the adaptive diagnosis, evaluation, and
-  clarification — where quality matters more than cost.
+  clarification - where quality matters more than cost.
 
 We are building for a hackathon, then a real SaaS. Provider lock-in is a real risk:
 cheap models improve every quarter, and we want to be able to switch without a rewrite.
@@ -36,7 +36,7 @@ cheap models improve every quarter, and we want to be able to switch without a r
 
 ## Alternatives considered
 
-- **OpenRouter as the meta-provider.** Tempting — one endpoint, one bill, easy
+- **OpenRouter as the meta-provider.** Tempting - one endpoint, one bill, easy
   fallback. Rejected for now because routing through OpenRouter hides the
   underlying providers (we want explicit control over which model answers
   which task for cost / latency tuning). OpenRouter is a one-day migration if

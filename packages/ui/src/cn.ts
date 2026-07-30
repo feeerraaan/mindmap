@@ -1,5 +1,5 @@
 /**
- * `cn` — combines class names with `clsx` + `tailwind-merge` semantics
+ * `cn` - combines class names with `clsx` + `tailwind-merge` semantics
  * suitable for Tailwind v4. Re-exported here for convenience.
  */
 import { clsx, type ClassValue } from 'clsx'

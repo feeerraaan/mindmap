@@ -19,14 +19,14 @@ Use Server-Sent Events (SSE) as the primary transport for the diagnosis stream, 
 ## Rationale
 
 - SSE works over HTTP/2, which Vercel supports natively. No separate WebSocket server needed.
-- The `EventSource` API is unidirectional (server→client), which matches our needs — the client sends answers via `POST`.
+- The `EventSource` API is unidirectional (server→client), which matches our needs - the client sends answers via `POST`.
 - Polling fallback ensures resilience on flaky networks (conference wifi, mobile) without requiring a persistent connection.
 - The 600ms backoff prevents thundering-herd on transient failures.
 
 ## Alternatives considered
 
 - **WebSockets:** Rejected. Requires a separate server (Vercel doesn't support WebSockets in serverless), adds auth complexity, and we only need server→client streaming.
-- **Server Actions with streaming:** Rejected. Next 16's `after()` is unreliable in dev/serverless contexts — the callback can be killed before it runs.
+- **Server Actions with streaming:** Rejected. Next 16's `after()` is unreliable in dev/serverless contexts - the callback can be killed before it runs.
 - **Inngest/QStash:** Overkill for MVP. The in-process `JobRunner` using Next's `after()` is sufficient; we keep the `JobRunner` interface ready for future swap.
 
 ## Consequences

@@ -19,7 +19,7 @@
  *     4. The posterior is always normalised.
  *
  *   Discretized grid is intentionally chosen over a closed-form Beta
- *   update because the IRT likelihood is not a simple power form — a
+ *   update because the IRT likelihood is not a simple power form - a
  *   grid is the cleanest way to keep the math tight and the test
  *   assertions obvious.
  */
@@ -46,7 +46,7 @@ export const GRID_SIZE = 21
 const THETA_MIN = -3
 const THETA_MAX = 3
 
-/** Build a uniform prior over the grid — no information yet. */
+/** Build a uniform prior over the grid - no information yet. */
 export function uniformPrior(): Density {
   const theta = linspace(THETA_MIN, THETA_MAX, GRID_SIZE)
   const mass = new Array<number>(theta.length).fill(1 / theta.length)
@@ -115,7 +115,7 @@ export function updateWithEvidence(
 /**
  * Apply an "I don't know" response. We treat this as `correctness = 0` on
  * a hard question, but also slightly tighten the density around the new
- * mean — the learner has revealed something, so confidence goes up.
+ * mean - the learner has revealed something, so confidence goes up.
  */
 export function updateWithIDontKnow(prior: Density, difficulty: number): Density {
   const after = updateWithEvidence(prior, 0, difficulty)

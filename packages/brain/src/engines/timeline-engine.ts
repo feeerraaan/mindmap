@@ -1,5 +1,5 @@
 /**
- * Timeline engine — phase 6.
+ * Timeline engine - phase 6.
  *
  *   Pure math. No LLM calls. The engine takes a snapshot of a user's
  *   `ConceptState`s (one per concept in a document) and produces a
@@ -10,7 +10,7 @@
  *   The schedule is *adaptive*: a concept's next-due is a function of
  *   its current `(mastery, confidence)`, the magnitude of its last
  *   delta, and how hard the concept is. After every review the caller
- *   re-runs `scheduleReviews` to refresh the plan — the brain's
+ *   re-runs `scheduleReviews` to refresh the plan - the brain's
  *   "forgetting curve" is a property of the live state, not a fixed
  *   SM-2 card.
  *
@@ -72,7 +72,7 @@ export type ReviewReason = 'decay' | 'new-weakness' | 'dependency-gap' | 'first-
  *     * difficultyPenalty          // hard concepts shrink intervals
  *
  *   baseInterval starts at 1 day; the caller doubles on success and
- *   halves on failure (no punitive doubling — the intervals soften).
+ *   halves on failure (no punitive doubling - the intervals soften).
  */
 export function intervalDays(input: {
   mastery: number
@@ -96,7 +96,7 @@ export function intervalDays(input: {
   const difficultyPenalty = 1 - 0.5 * difficulty
 
   // Base of 2 days (instead of the textbook 1) so the multipliers
-  // produce a useful spread — 2..15 days for the typical case.
+  // produce a useful spread - 2..15 days for the typical case.
   const base = 2
   const raw = base * (1 + mastery) * (0.5 + confidence) * (1 + lastDelta) * difficultyPenalty
   // Streak doubles the interval (capped at 2^5 = 32x).
@@ -219,7 +219,7 @@ export function scheduleReviews(input: ScheduleInput): ScheduleOutput {
       dueAt = new Date(now.getTime() + days * 24 * 60 * 60 * 1000)
     }
 
-    // If the due date is past the horizon, skip — the plan is
+    // If the due date is past the horizon, skip - the plan is
     // forward-looking, and stale items would just bloat today's queue.
     if (dueAt.getTime() > horizonEnd.getTime()) {
       droppedConcepts += 1

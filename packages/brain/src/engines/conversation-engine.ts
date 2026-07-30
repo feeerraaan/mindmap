@@ -1,5 +1,5 @@
 /**
- * Conversation Engine — phase 5.
+ * Conversation Engine - phase 5.
  *
  *   Wraps the Socratic clarification loop. The actual LLM work and the
  *   Bayesian re-evaluation live in {@link ./evaluation-engine}; this

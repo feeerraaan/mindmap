@@ -1,5 +1,5 @@
 /**
- * PDF adapter — uses the system `pdftotext` (poppler-utils) binary.
+ * PDF adapter - uses the system `pdftotext` (poppler-utils) binary.
  *
  * Trade-off: requires poppler-utils on the host. In return we get a
  * battle-tested extractor that handles every PDF variant we care about

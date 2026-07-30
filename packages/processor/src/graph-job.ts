@@ -1,5 +1,5 @@
 /**
- * BUILD_GRAPH job — run by the VPS worker after a PARSE job finishes.
+ * BUILD_GRAPH job - run by the VPS worker after a PARSE job finishes.
  *
  * Pipeline:
  *   1. Read DocumentChunk rows for the document

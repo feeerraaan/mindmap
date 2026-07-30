@@ -1,5 +1,5 @@
 /**
- * PostCSS config — Tailwind v4.
+ * PostCSS config - Tailwind v4.
  *
  * Tailwind v4 ships as a PostCSS plugin; the official @tailwindcss/postcss
  * package handles the processing. The CSS that gets processed is the one

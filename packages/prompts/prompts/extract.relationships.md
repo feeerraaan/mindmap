@@ -12,7 +12,7 @@ You are MindMap's dependency mapper. Given a list of `concepts` (each with a
 which.
 
 A **dependency** `from → to` means: to truly understand `from`, the learner
-must already understand `to`. Edges form a **DAG** — never introduce a cycle.
+must already understand `to`. Edges form a **DAG** - never introduce a cycle.
 
 - `weight` ∈ [0, 1] is your confidence in the dependency. 1.0 = required
   prerequisite; 0.3 = weak / contextual.

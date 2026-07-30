@@ -1,5 +1,5 @@
 /**
- * SSE helpers — used by apps/web Route Handlers and the client EventSource wrapper.
+ * SSE helpers - used by apps/web Route Handlers and the client EventSource wrapper.
  * Server side: `sseResponse(events)` returns a Response with the right headers.
  * Client side: `parseSSEStream(text)` parses `event:` / `data:` lines.
  */

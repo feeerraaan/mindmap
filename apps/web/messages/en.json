@@ -41,7 +41,7 @@
         },
         "2": {
           "title": "Diagnose",
-          "body": "A short, adaptive conversation probes what you know — and what you only think you know."
+          "body": "A short, adaptive conversation probes what you know - and what you only think you know."
         },
         "3": {
           "title": "Map",
@@ -88,7 +88,7 @@
     "subtitle": "A few small steps. No forms. No friction.",
     "step1": {
       "title": "What are you studying?",
-      "subtitle": "Pick what fits best — you can change this later.",
+      "subtitle": "Pick what fits best - you can change this later.",
       "options": {
         "medicine": "Medicine / health",
         "law": "Law / bar prep",
@@ -107,7 +107,7 @@
     },
     "step3": {
       "title": "Name your Mind",
-      "subtitle": "You can have as many as you want — one per subject.",
+      "subtitle": "You can have as many as you want - one per subject.",
       "placeholder": "e.g. Cardiology Q1",
       "examDate": "Exam date (optional)",
       "examDatePlaceholder": "Pick the exam date",
@@ -151,7 +151,7 @@
       "title": "Your Mind is empty.",
       "description": "Drop a PDF, slide deck, or document to begin a diagnosis.",
       "upload": "Upload a document",
-      "uploadHint": "PDF, PPTX or DOCX — up to 25 MB."
+      "uploadHint": "PDF, PPTX or DOCX - up to 25 MB."
     }
   },
   "nav": {
@@ -162,7 +162,7 @@
   "upload": {
     "title": "Add a document",
     "dropTitle": "Drop a document here",
-    "dropBody": "or click to browse — PDF, PPTX, or DOCX up to 25 MB.",
+    "dropBody": "or click to browse - PDF, PPTX, or DOCX up to 25 MB.",
     "cancel": "Cancel",
     "retry": "Retry",
     "done": "Done",

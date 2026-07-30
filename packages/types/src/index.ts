@@ -1,7 +1,7 @@
 import { z } from 'zod'
 
 /**
- * Domain types — single source of truth.
+ * Domain types - single source of truth.
  *
  * Every Zod schema here is the contract between packages. Both runtime validation and
  * inferred TS types are exported. No package may define its own copy of these shapes.

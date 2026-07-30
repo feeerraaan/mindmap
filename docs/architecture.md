@@ -1,4 +1,4 @@
-# MindMap — Technical Architecture
+# MindMap - Technical Architecture
 
 > Decisions are justified inline. Where an alternative was seriously considered, it is
 > listed under `### Alternatives` with the reason it was rejected.
@@ -61,7 +61,7 @@ mindmap/
 │   ├── ui/                       # shadcn/ui-based design system
 │   ├── database/                 # Prisma schema, client, migrations, seeds
 │   ├── auth/                     # Better Auth config + helpers
-│   ├── config/                   # eslint, tsconfig, tailwind preset — shared
+│   ├── config/                   # eslint, tsconfig, tailwind preset - shared
 │   ├── types/                    # Cross-package domain types (Zod schemas)
 │   ├── shared/                   # Pure utils: id, dates, retry, sse helpers
 │   ├── parser/                   # Document parsing adapters
@@ -111,7 +111,7 @@ Handlers / React Query hooks), delegating to `packages/brain` and `packages/data
 apps/web/
 ├── app/
 │   ├── [locale]/                 # next-intl segment
-│   │   ├── (marketing)/          # landing — public, SSG
+│   │   ├── (marketing)/          # landing - public, SSG
 │   │   ├── (auth)/               # sign-in, magic callback
 │   │   ├── (app)/                # authenticated shell
 │   │   │   ├── onboarding/
@@ -165,7 +165,7 @@ apps/web/
   `(auth)`, `(app)` let us share layouts (navbar, footer, locale handling) without
   polluting URLs. Standard Next 16 pattern.
 - **Feature-first vs. type-first (`components/`, `hooks/`, `actions/`).** Feature-first
-  (`features/documents/...`) keeps cohesion — when you change a document upload rule, you
+  (`features/documents/...`) keeps cohesion - when you change a document upload rule, you
   touch one folder. Type-first scatters related code across the tree.
 
 ---
@@ -184,7 +184,7 @@ apps/web/
 - Default: **Server Actions** (typed end-to-end via Zod-validated input).
 - SSE / streaming responses: **Route Handlers** (`POST /api/diagnosis/stream`).
 - Signed-URL uploads: **Route Handler** `POST /api/uploads` returns a Vercel Blob
-  signed URL; the client PUTs directly to Blob — Next server never proxies bytes.
+  signed URL; the client PUTs directly to Blob - Next server never proxies bytes.
 
 ### 4.3 Long-running parsing jobs
 
@@ -221,20 +221,20 @@ apps/web/
 ### 5.2 Validation
 
 - All Server Action inputs validated with Zod at the boundary.
-- All AI outputs validated with Zod schemas _before_ being persisted — a malformed LLM
+- All AI outputs validated with Zod schemas _before_ being persisted - a malformed LLM
   response triggers a controlled retry (see `brain.md` §10), never a raw write.
 
 ### 5.3 Error handling
 
 - `Result<T, E>` pattern in `packages/shared` for expected-domain errors (no throw).
 - Unexpected errors throw and bubble to a Next `error.tsx` boundary with a calm UX.
-- Server errors log structured fields (`userId`, `traceId`, `feature`) — provider TBD
+- Server errors log structured fields (`userId`, `traceId`, `feature`) - provider TBD
   in phase 7 (Sentry candidate).
 
 ### 5.4 i18n
 
 - `next-intl` with locale segment in the URL (`/en`, `/es`).
-- Catalogs split per _namespace_ (`messages/{locale}/{namespace}.json`) — never a single
+- Catalogs split per _namespace_ (`messages/{locale}/{namespace}.json`) - never a single
   giant file. Namespace = feature (`documents`, `diagnosis`, `onboarding`, …).
 - ICU MessageFormat for pluralization / gender (Spanish gender is real).
 - Adding a locale = drop a folder + update `i18n.ts`. Architecture supports unlimited.
@@ -246,7 +246,7 @@ apps/web/
 - Uploads: signed URLs with short TTL (5 min), single-use, MIME allow-list.
 - Auth: Better Auth httpOnly cookie, `sameSite=lax`, `secure` in prod.
 - RSC enforces auth at the layout level for `(app)` routes; Server Actions re-check.
-- CSP via `next.config.js` `headers()` — `default-src 'self'`, no inline scripts beyond
+- CSP via `next.config.js` `headers()` - `default-src 'self'`, no inline scripts beyond
   Next's own, `connect-src` allow-list (Vercel Blob, Resend, the Zen/Go base URLs).
 - **Privacy:** Provider calls set `usage_log: false`-equivalent headers where supported
   (Zen/Go are OpenAI-compatible; we pass `extra_headers` to opt out of training). The raw
@@ -263,7 +263,7 @@ apps/web/
 
 ---
 
-## 6. The Brain Boundary (summary — full detail in `brain.md`)
+## 6. The Brain Boundary (summary - full detail in `brain.md`)
 
 The single most important architectural rule:
 
@@ -326,14 +326,14 @@ Every method is provider-independent. Adding a new provider = adding a file unde
 - **Branch model:** `main` → production; every PR → preview deployment with its own
   **Neon branch** (via Neon's Vercel integration) and its own Vercel Blob store bucket
   (env-var per deploy).
-- **Build:** `turbo build` — caches package builds across PRs.
+- **Build:** `turbo build` - caches package builds across PRs.
 - **Env vars:** per-environment (Preview / Production). Secrets via Vercel's encrypted
   env; `OPENCODE_ZEN_KEY` and `OPENCODE_GO_KEY` never in preview PRs unless the PR is
   from `main`'s collaborator (branch protection).
 - **Database migrations:** `prisma migrate deploy` runs as a Vercel build step on
   non-preview deploys. Preview deploys use Neon branch auto-migration via
   `prisma db push` (no migration history pollution).
-- **Healthcheck:** `/api/health` returns `{ ok: true, db: ok, brain: ok }` — used by
+- **Healthcheck:** `/api/health` returns `{ ok: true, db: ok, brain: ok }` - used by
   Vercel's monitor and by `apps/web`'s boot sequence.
 
 ---
@@ -376,7 +376,7 @@ Every method is provider-independent. Adding a new provider = adding a file unde
 | Read scaling    | Neon's read replicas (auto-scaling) + RSC streaming minimize TTFB                                                     |
 | Write scaling   | Neon handles our MVP writes easily; `Job` table indexed on `(status, userId)` for pollers                             |
 | AI cost scaling | Router prefers cheap model (Zen/DeepSeek-Flash) for ≥80% of tokens; GO/MiMo is the fallback for diagnosis when needed |
-| Multi-tenancy   | `Workspace` row owns all related rows via `workspaceId` FK — every query scopes by it                                 |
+| Multi-tenancy   | `Workspace` row owns all related rows via `workspaceId` FK - every query scopes by it                                 |
 | Memory (Brain)  | Per-session conversation memory capped (last N messages) + persisted `ConversationTurn` table for long-term           |
 | Cold starts     | Brain package is pure functions + lazy provider init; no module-level network calls                                   |
 
