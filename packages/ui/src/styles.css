@@ -12,6 +12,8 @@
 
 @import 'tailwindcss';
 
+@import 'react-day-picker/src/style.css';
+
 /* The package source — composites + primitives live here. */
 @source './**/*.{ts,tsx}';
 /* Cross-package source: app code & other packages using these tokens. */
@@ -157,6 +159,15 @@
   --color-mastery-2: #2997ff;
   --color-mastery-3: #30d158;
   --color-mastery-4: #34c759;
+}
+
+.rdp-root {
+  --rdp-accent-color: var(--color-primary);
+  --rdp-accent-background-color: var(--color-primary);
+  --rdp-day-width: 2rem;
+  --rdp-day-height: 2rem;
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
 }
 
 @layer base {
