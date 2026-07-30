@@ -71,6 +71,7 @@
       "passwordPlaceholder": "At least 8 characters",
       "signInButton": "Sign in",
       "demoButton": "Try demo",
+      "signupsClosed": "New accounts will open after the hackathon.",
       "errorGeneric": "Invalid email or password.",
       "sendLink": "Email me a sign-in link",
       "linkSent": "Check your inbox. The link expires in 15 minutes."

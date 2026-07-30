@@ -71,6 +71,7 @@
       "passwordPlaceholder": "Mínimo 8 caracteres",
       "signInButton": "Iniciar sesión",
       "demoButton": "Entrar como demo",
+      "signupsClosed": "Las nuevas cuentas se abriran despues del hackathon.",
       "errorGeneric": "Correo o contraseña incorrectos.",
       "sendLink": "Envíame un enlace mágico",
       "linkSent": "Revisa tu bandeja. El enlace caduca en 15 minutos."
